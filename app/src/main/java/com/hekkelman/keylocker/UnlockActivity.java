@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +31,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,6 +224,19 @@ public class UnlockActivity extends AppCompatActivity implements LoaderCallbacks
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
+
+            try {
+                File dir = getFilesDir();
+
+                Log.d("info", "Dir is " + dir);
+
+
+
+            }
+            catch (Exception ex) {
+                return false;
+            }
+
 
 //            try {
 //                // Simulate network access.
