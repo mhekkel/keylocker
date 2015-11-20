@@ -16,9 +16,16 @@ import com.hekkelman.keylocker.xmlenc.EncryptedData;
 
 public class KeyDb {
 
+	private static KeyDb sInstance;
 
+	public static KeyDb getInstance() {
+		return sInstance;
+	}
 
-	
+	public static void setInstance(KeyDb instance) {
+		KeyDb.sInstance = instance;
+	}
+
 	// fields
 	private KeyChain keyChain;
 	
@@ -66,6 +73,20 @@ public class KeyDb {
 	{
 		return keyChain.getKeys();
 	}
-	
-	
+
+	public Key getKey(String keyId) throws Exception {
+		Key result = null;
+
+		for (Key key : keyChain.getKeys()) {
+			if (key.getId().equals(keyId)) {
+				result = key;
+				break;
+			}
+		}
+
+		if (result == null)
+			throw new Exception("Key not found");
+
+		return result;
+	}
 }

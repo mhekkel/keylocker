@@ -4,9 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -25,8 +22,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,8 +32,6 @@ import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.KeyDb;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
@@ -241,14 +234,25 @@ public class UnlockActivity extends AppCompatActivity implements LoaderCallbacks
                 if (keyFile.exists() == false)
                 {
                     KeyDb db = new KeyDb();
+
+                    Key key = new Key();
+                    key.setName("eerste");
+                    key.setPassword("geheim");
+
+                    db.getKeys().add(key);
+
+                    key = new Key();
+                    key.setName("tweede");
+                    key.setPassword("ook geheim");
+
+                    db.getKeys().add(key);
+
                     db.write(mPassword.toCharArray(), keyFile);
                 }
 
                 KeyDb keyDb = new KeyDb(mPassword.toCharArray(), keyFile);
 
-                List<Key> keys = keyDb.getKeys();
-
-                Log.d("info", "Opened keydb with " + keys.size() + " keys");
+                KeyDb.setInstance(keyDb);
             }
             catch (Exception ex) {
                 return false;
