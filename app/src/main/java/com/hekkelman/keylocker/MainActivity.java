@@ -141,6 +141,13 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+//    @Override
+//    protected void onPause() {
+//        KeyDb.setInstance(null);
+//
+//        super.onPause();
+//    }
+//
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -154,7 +161,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.mainmenu, menu);
         return true;
     }
 

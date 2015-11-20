@@ -16,4 +16,6 @@
     <string name="navigation_drawer_open">Open navigatie balk</string>
     <string name="lastModifiedTemplate">Laatste wijziging: %s</string>
     <string name="keyUserCaptionHint">Gebruikersnaam</string>
+    <string name="keyURLCaptionHint">URL</string>
+    <string name="action_save">Bewaar</string>
 </resources>

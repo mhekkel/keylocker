@@ -19,4 +19,7 @@
 
     <string name="lastModifiedTemplate">Last modified: %s</string>
     <string name="keyUserCaptionHint">User</string>
+    <string name="keyURLCaptionHint">URL</string>
+
+    <string name="action_save">Save</string>
 </resources>
