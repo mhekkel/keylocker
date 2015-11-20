@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,46 +10,77 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.hekkelman.keylocker.KeyDetailActivity"
-    tools:showIn="@layout/activity_key_detail"
-    android:orientation="vertical">
+    tools:showIn="@layout/activity_key_detail">
 
-    <android.support.design.widget.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        app:hintTextAppearance="@style/TextAppearance.AppCompat">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/keyNameField"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginLeft="32dp"
-            android:hint="@string/keyNameCaptionHint"
-            android:imeOptions="actionGo"
-            android:inputType="text"
-            android:singleLine="true"
-            />
-    </android.support.design.widget.TextInputLayout>
+            android:layout_alignParentTop="true"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        app:hintTextAppearance="@style/TextAppearance.AppCompat">
+            <EditText
+                android:id="@+id/keyNameField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginLeft="32dp"
+                android:hint="@string/keyNameCaptionHint"
+                android:imeOptions="actionGo"
+                android:inputType="text"
+                android:singleLine="true"
+                />
+        </android.support.design.widget.TextInputLayout>
 
-        <EditText
-            android:id="@+id/keyPasswordField"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="32dp"
-            android:hint="@string/keyPasswordCaptionHint"
-            android:imeOptions="actionGo"
-            android:inputType="text"
-            android:singleLine="true"
-            />
-    </android.support.design.widget.TextInputLayout>
+            android:layout_alignParentTop="true"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
+            <EditText
+                android:id="@+id/keyUserField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginLeft="32dp"
+                android:hint="@string/keyUserCaptionHint"
+                android:imeOptions="actionGo"
+                android:inputType="text"
+                android:singleLine="true"
+                />
+        </android.support.design.widget.TextInputLayout>
 
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-</LinearLayout>
+            <EditText
+                android:id="@+id/keyPasswordField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:hint="@string/keyPasswordCaptionHint"
+                android:imeOptions="actionGo"
+                android:inputType="text"
+                android:singleLine="true"
+                />
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/lastModifiedCaption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        />
+
+</RelativeLayout>
+

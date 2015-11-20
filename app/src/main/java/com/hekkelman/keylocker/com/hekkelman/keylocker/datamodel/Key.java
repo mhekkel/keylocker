@@ -167,7 +167,7 @@ public class Key {
 		return id;
 	}
 
-	
-	
-
+	public String getTimestamp() {
+		return timestamp;
+	}
 }

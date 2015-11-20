@@ -237,12 +237,14 @@ public class UnlockActivity extends AppCompatActivity implements LoaderCallbacks
 
                     Key key = new Key();
                     key.setName("eerste");
+                    key.setUser("ikke");
                     key.setPassword("geheim");
 
                     db.getKeys().add(key);
 
                     key = new Key();
                     key.setName("tweede");
+                    key.setUser("ik@hekkelman.com");
                     key.setPassword("ook geheim");
 
                     db.getKeys().add(key);

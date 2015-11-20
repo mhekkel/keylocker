@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KeyLocker</string>
+    <string name="action_settings">Instellingen</string>
+    <string name="action_sign_in">Ontgrendel</string>
+    <string name="action_sign_in_short">Ontgrendel</string>
+    <string name="error_field_required">Dit veld is verplicht</string>
+    <string name="error_incorrect_password">Dit wachtwoord in onjuist</string>
+    <string name="error_invalid_password">Dit wachtwoord is te kort</string>
+    <string name="keyNameCaptionHint">Naam</string>
+    <string name="keyPasswordCaptionHint">Wachtwoord</string>
+    <string name="navigation_drawer_close">Sluit navigatie balk</string>
+    <string name="prompt_password">Wachtwoord of pincode</string>
+    <string name="title_activity_key_detail">Sleutel</string>
+    <string name="title_activity_login">KeyLocker</string>
+    <string name="navigation_drawer_open">Open navigatie balk</string>
+    <string name="lastModifiedTemplate">Laatste wijziging: %s</string>
+    <string name="keyUserCaptionHint">Gebruikersnaam</string>
+</resources>
