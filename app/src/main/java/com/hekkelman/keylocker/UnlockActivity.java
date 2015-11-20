@@ -31,6 +31,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.Key;
+import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.KeyDb;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -230,8 +233,22 @@ public class UnlockActivity extends AppCompatActivity implements LoaderCallbacks
 
                 Log.d("info", "Dir is " + dir);
 
+                File keyFile = new File(dir, "keylockerfile.xml");
+
+                keyFile.delete();
 
 
+                if (keyFile.exists() == false)
+                {
+                    KeyDb db = new KeyDb();
+                    db.write(mPassword.toCharArray(), keyFile);
+                }
+
+                KeyDb keyDb = new KeyDb(mPassword.toCharArray(), keyFile);
+
+                List<Key> keys = keyDb.getKeys();
+
+                Log.d("info", "Opened keydb with " + keys.size() + " keys");
             }
             catch (Exception ex) {
                 return false;

@@ -23,12 +23,12 @@ public class KeyDb {
 	private KeyChain keyChain;
 	
 	// constructor
-	KeyDb(char[] password, File file) throws Exception
+	public KeyDb(char[] password, File file) throws Exception
 	{
 		read(password, file);
 	}
 
-	KeyDb()
+	public KeyDb()
 	{
 		keyChain = new KeyChain();
 	}

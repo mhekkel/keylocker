@@ -22,7 +22,6 @@ import org.simpleframework.xml.core.Validate;
 
 @Root
 public class PBKDF2Params {
-	private static final String ALGORITHM_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha1";
 	private static final int HASH_BYTE_SIZE = 20;
 	private static final int KEY_BYTE_SIZE = 16;
 	private static final int ITERATION_COUNT = 1000;
@@ -42,7 +41,7 @@ public class PBKDF2Params {
 	
 	@Path("x11:PRF")
 	@Attribute(name="Algorithm")
-	private String algorithm;
+	private static final String algorithm = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha1";
 
 	// constructor for a new params block
 	public PBKDF2Params()
@@ -54,7 +53,6 @@ public class PBKDF2Params {
 		
 		this.iterationCount = ITERATION_COUNT;
 		this.keyLength = KEY_BYTE_SIZE;
-		this.algorithm = ALGORITHM_SHA1;
 	}
 
 	@Validate
@@ -62,7 +60,6 @@ public class PBKDF2Params {
 		this.salt = Base64.decode(this.salt, Base64.DEFAULT);
 
 		if (salt.length != HASH_BYTE_SIZE ||
-				algorithm.equals(ALGORITHM_SHA1) == false ||
 				iterationCount < ITERATION_COUNT ||
 				keyLength != KEY_BYTE_SIZE)
 			throw new Exception("Invalid PBKDF2 Parameters");

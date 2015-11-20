@@ -29,16 +29,15 @@ import org.simpleframework.xml.core.Validate;
 @Namespace(reference="http://www.w3.org/2001/04/xmlenc#", prefix="x")
 public class EncryptedData
 {
-	private static final String ENCRYPTION_ALGORITHM = "http://www.w3.org/2009/xmlenc11#aes256-cbc";
 	private static final int KEY_BYTE_SIZE = 16;
 	
-	@Attribute
-	private String Type;
-	
+	@Attribute(name="Type")
+	private static final String type = "http://www.w3.org/2001/04/xmlenc#Element";
+
 	@Path("x:EncryptionMethod")
-	@Attribute
-	private String Algorithm;
-	
+	@Attribute(name="Algorithm")
+	private static final String algorithm = "http://www.w3.org/2009/xmlenc11#aes256-cbc";
+
 	@Element(name="KeyInfo")
 	private KeyInfo keyInfo;
 	
@@ -50,19 +49,10 @@ public class EncryptedData
 	// constructor
 	private EncryptedData()
 	{
-		this.Type = "http://www.w3.org/2001/04/xmlenc#Element";
-		this.Algorithm = ENCRYPTION_ALGORITHM;
 		this.keyInfo = new KeyInfo();
 		this.value = null;
 	}
 
-	@Validate
-	public void validate() throws Exception {
-		if (Type.equals("http://www.w3.org/2001/04/xmlenc#Element") == false ||
-			Algorithm.equals(ENCRYPTION_ALGORITHM) == false)
-			throw new Exception("Invalid encrypted data algorithm");
-	}
-	
 	static public InputStream decrypt(char[] password, InputStream is)
 	{
 		try {
@@ -140,5 +130,4 @@ public class EncryptedData
 			e.printStackTrace();
 		}
 	}
-	
 }
