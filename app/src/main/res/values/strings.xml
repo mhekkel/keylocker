@@ -22,4 +22,9 @@
     <string name="keyURLCaptionHint">URL</string>
 
     <string name="action_save">Save</string>
+
+    <string name="nav_keys_str">Show Keys</string>
+    <string name="nav_notes_str">Show Notes</string>
+    <string name="drawer_name">KeyLocker</string>
+    <string name="drawer_addr">maarten@hekkelman.com</string>
 </resources>
