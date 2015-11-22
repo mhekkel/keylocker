@@ -14,11 +14,12 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="title_activity_key_detail">Key</string>
-    <string name="keyNameCaptionHint">Key Name</string>
-    <string name="keyPasswordCaptionHint">Password</string>
 
     <string name="lastModifiedTemplate">Last modified: %s</string>
+
+    <string name="keyNameCaptionHint">Key Name</string>
     <string name="keyUserCaptionHint">User</string>
+    <string name="keyPasswordCaptionHint">Password</string>
     <string name="keyURLCaptionHint">URL</string>
 
     <string name="action_save">Save</string>
@@ -37,4 +38,8 @@
     <string name="init_hint_2_nr">Pin Code (validation)</string>
     <string name="sync_with_sdcard">Syncronize with SDCard</string>
     <string name="action_replace">Replace Key Locker File</string>
+    <string name="keyNameIsRequired">Key name is a required field</string>
+
+    <string name="dlog_delete_locker_msg">You are about to overwrite your key locker file, this will delete all your current passwords and notes. Continue?</string>
+    <string name="dlog_delete_locker_title">Delete Key Locker File</string>
 </resources>

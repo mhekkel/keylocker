@@ -108,4 +108,10 @@ public class KeyChain {
 				noteIterator.remove();
 		}
 	}
+
+	public Key createKey() {
+		Key key = new Key();
+		this.keys.add(key);
+		return key;
+	}
 }

@@ -63,6 +63,19 @@ public class Key {
 		this.deleted = "false";
 	}
 
+	public Key(String keyID, String name, String user, String password, String url) {
+		FMT.setTimeZone(TimeZone.getTimeZone("UTC"));
+		this._timestamp = new Date();
+		this.timestamp = FMT.format(_timestamp);
+
+		this.id = keyID;
+		this.deleted = "false";
+		this.name = name;
+		this.user = user;
+		this.password = password;
+		this.url = url;
+	}
+
 	@Validate
 	void validate() throws PersistenceException {
 		try {

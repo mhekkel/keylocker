@@ -7,6 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.SecureRandom;
 
@@ -53,34 +55,23 @@ public class EncryptedData
 		this.value = null;
 	}
 
-	static public InputStream decrypt(char[] password, InputStream is)
-	{
-		try {
-			Serializer serializer = new Persister();
-			EncryptedData encData = serializer.read(EncryptedData.class, is);
-			
-			Key key = encData.keyInfo.getKey(password);
+	static public InputStream decrypt(char[] password, InputStream is) throws Exception {
+		Serializer serializer = new Persister();
+		EncryptedData encData = serializer.read(EncryptedData.class, is);
 
-			byte[] data = Base64.decode(encData.value, Base64.DEFAULT);
-			byte[] iv = new byte[KEY_BYTE_SIZE];
-			System.arraycopy(data, 0, iv, 0, KEY_BYTE_SIZE);
-			
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			
-			cipher.init(Cipher.DECRYPT_MODE,
-					new SecretKeySpec(key.getEncoded(), "AES"),
-					new IvParameterSpec(iv));
+		Key key = encData.keyInfo.getKey(password);
 
-			return new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher);
-		} catch (GeneralSecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		byte[] data = Base64.decode(encData.value, Base64.DEFAULT);
+		byte[] iv = new byte[KEY_BYTE_SIZE];
+		System.arraycopy(data, 0, iv, 0, KEY_BYTE_SIZE);
 
-		return null;
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+		cipher.init(Cipher.DECRYPT_MODE,
+				new SecretKeySpec(key.getEncoded(), "AES"),
+				new IvParameterSpec(iv));
+
+		return new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher);
 	}
 	
 	static public void encrypt(char[] password, InputStream data, OutputStream os)

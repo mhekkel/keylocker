@@ -27,4 +27,6 @@
     <string name="init_text">U staat op het punt een nieuwe sleutelkluis aan te maken. Deze sleutelkluis dient u te beschermen met een sterk wachtwoord bestaande uit tenminste vijf cijfers. Het is het laatste wachtwoord wat u dient te onthouden.</string>
     <string name="nav_keys_str">Toon Wachtwoorden</string>
     <string name="nav_notes_str">Toon Notities</string>
+    <string name="dlog_delete_locker_msg">U staat op het punt uw huidige sleutelkluis te overschrijven, alle sleutels gaan hierbij verloren. Wilt u doorgaan?</string>
+    <string name="dlog_delete_locker_title">Sleutelkluis overschrijven</string>
 </resources>

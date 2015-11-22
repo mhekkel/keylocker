@@ -98,6 +98,12 @@ public class MainActivity extends AppCompatActivity
                 return adapter;
             }
         }
+
+        @Override
+        public void notifyDataSetChanged() {
+            mKeys = mKeyDb.getKeys();
+            super.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -145,7 +151,16 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-//    @Override
+    @Override
+    protected void onResume() {
+
+        KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
+        adapter.notifyDataSetChanged();
+
+        super.onResume();
+    }
+
+    //    @Override
 //    protected void onPause() {
 //        KeyDb.setInstance(null);
 //
@@ -235,6 +250,9 @@ public class MainActivity extends AppCompatActivity
                 File file = new File(dir, KeyDb.KEY_DB_NAME);
 
                 KeyDb.getInstance().synchronize(file);
+
+                KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
+                adapter.notifyDataSetChanged();
             } catch (Exception e) {
                 new AlertDialog.Builder(this)
                         .setTitle("Synchronization Failed")

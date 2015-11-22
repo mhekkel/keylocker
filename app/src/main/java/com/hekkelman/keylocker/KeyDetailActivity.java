@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.KeyDb;
 
+import java.util.UUID;
+
 public class KeyDetailActivity extends AppCompatActivity {
 
     private String keyID;
@@ -98,8 +100,6 @@ public class KeyDetailActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     @Override
@@ -108,6 +108,62 @@ public class KeyDetailActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.keymenu, menu);
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_save) {
+            return saveKey();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private String getField(int fieldID, int nameID, boolean required) {
+        EditText field = (EditText) findViewById(fieldID);
+        String result = field.getText().toString();
+
+        if (result == null || result.length() == 0) {
+            if (required)
+                field.setError(String.format("A %s is required", getString(nameID)));
+            return null;
+        }
+
+        return result;
+    }
+
+    private boolean saveKey() {
+        boolean result = false;
+
+        try {
+            EditText field;
+
+            field = (EditText) findViewById(R.id.keyNameField);
+            String name = field.getText().toString();
+
+            if (name == null || name.length() == 0)
+                field.setError(getString(R.string.keyNameIsRequired));
+            ;
+            String user = getField(R.id.keyUserField, R.string.keyUserCaptionHint, false);
+            String password = getField(R.id.keyPasswordField, R.string.keyPasswordCaptionHint, false);
+            String url = getField(R.id.keyURLField, R.string.keyURLCaptionHint, false);
+
+            if (name != null) {
+                KeyDb.getInstance().storeKey(keyID, name, user, password, url);
+                result = true;
+            }
+        } catch (Exception e) {
+
+        }
+
+        return result;
+    }
+
 
 //    @Override
 //    protected void onPause() {

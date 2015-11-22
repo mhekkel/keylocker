@@ -8,6 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.simpleframework.xml.Serializer;
@@ -57,7 +60,13 @@ public class KeyDb {
 	}
 
 	public void write() throws Exception {
-		write(new FileOutputStream(this.file));
+		// intermediate storage of unencrypted data
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+		Serializer serializer = new Persister();
+		serializer.write(keyChain, os);
+
+		EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), new FileOutputStream(this.file));
 	}
 
 	public void write(OutputStream output) throws Exception {
@@ -84,9 +93,17 @@ public class KeyDb {
 
 	// accessors
 
-	public List<Key> getKeys()
-	{
-		return keyChain.getKeys();
+	public List<Key> getKeys() {
+		List<Key> result = new ArrayList<>(keyChain.getKeys());
+
+		Collections.sort(result, new Comparator<Key>() {
+			@Override
+			public int compare(Key lhs, Key rhs) {
+				return lhs.getName().compareToIgnoreCase(rhs.getName());
+			}
+		});
+
+		return result;
 	}
 
 	public Key getKey(String keyId) throws Exception {
@@ -96,5 +113,21 @@ public class KeyDb {
 			throw new Exception("Key not found");
 
 		return result;
+	}
+
+	public void storeKey(String keyID, String name, String user, String password, String url) throws Exception {
+		Key key;
+
+		if (keyID == null)
+			key = keyChain.createKey();
+		else
+			key = keyChain.getKeyByID(keyID);
+
+		key.setName(name);
+		key.setUser(user);
+		key.setPassword(password);
+		key.setUrl(url);
+
+		write();
 	}
 }

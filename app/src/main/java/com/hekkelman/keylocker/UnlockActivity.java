@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
@@ -91,8 +92,46 @@ public class UnlockActivity extends AppCompatActivity {
             }
         });
 
+        Button resetButton = (Button) findViewById(R.id.replace_locker);
+        resetButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                new AlertDialog.Builder(UnlockActivity.this)
+                        .setTitle(R.string.dlog_delete_locker_title)
+                        .setMessage(R.string.dlog_delete_locker_msg)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                resetLocker();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    private void resetLocker() {
+        if (mAuthTask != null) {
+            return;
+        }
+
+        File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+        if (keyFile.exists()) {
+            keyFile.delete();
+        }
+
+        Intent intent = new Intent(UnlockActivity.this, InitActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     /**
@@ -200,9 +239,6 @@ public class UnlockActivity extends AppCompatActivity {
             catch (Exception ex) {
                 return false;
             }
-
-            // TODO: register the new account here.
-//            return false;
         }
 
         @Override
@@ -219,6 +255,9 @@ public class UnlockActivity extends AppCompatActivity {
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
+
+                Button resetButton = (Button) findViewById(R.id.replace_locker);
+                resetButton.setVisibility(View.VISIBLE);
             }
         }
 
