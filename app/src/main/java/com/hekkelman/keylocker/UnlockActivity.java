@@ -3,19 +3,14 @@ package com.hekkelman.keylocker;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,8 +25,6 @@ import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A login screen that offers login via email/password.
@@ -52,8 +45,30 @@ public class UnlockActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // Set up the login form.
 
+        // First see if this is the first run
+
+        try {
+            File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+            if (keyFile.exists() == false) {
+                Intent intent = new Intent(UnlockActivity.this, InitActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            new AlertDialog.Builder(this)
+                    .setTitle("Initialization Failed")
+                    .setMessage("Somehow, KeyLocker failed to initialize, the error is: " + e.getMessage())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+            finish();
+            return;
+        }
+
+        // Set up the login form.
         KeyDb.setInstance(null);
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -176,34 +191,7 @@ public class UnlockActivity extends AppCompatActivity {
             // TODO: attempt authentication against a network service.
 
             try {
-                File dir = getFilesDir();
-
-                Log.d("info", "Dir is " + dir);
-
-                File keyFile = new File(dir, "keylockerfile.xml");
-
-                if (keyFile.exists() == false)
-                {
-                    KeyDb db = new KeyDb();
-
-                    Key key = new Key();
-                    key.setName("eerste");
-                    key.setUser("ikke");
-                    key.setPassword("geheim");
-
-                    db.getKeys().add(key);
-
-                    key = new Key();
-                    key.setName("tweede");
-                    key.setUser("ik@hekkelman.com");
-                    key.setPassword("ook geheim");
-
-                    db.getKeys().add(key);
-
-                    db.write(mPassword.toCharArray(), keyFile);
-                }
-
-                KeyDb keyDb = new KeyDb(mPassword.toCharArray(), keyFile);
+                KeyDb keyDb = new KeyDb(mPassword.toCharArray(), new File(getFilesDir(), KeyDb.KEY_DB_NAME));
 
                 KeyDb.setInstance(keyDb);
 

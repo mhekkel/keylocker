@@ -14,7 +14,7 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="title_activity_key_detail">Key</string>
-    <string name="keyNameCaptionHint">Name</string>
+    <string name="keyNameCaptionHint">Key Name</string>
     <string name="keyPasswordCaptionHint">Password</string>
 
     <string name="lastModifiedTemplate">Last modified: %s</string>
@@ -27,4 +27,14 @@
     <string name="nav_notes_str">Show Notes</string>
     <string name="drawer_name">KeyLocker</string>
     <string name="drawer_addr">maarten@hekkelman.com</string>
+
+    <string name="init_text">You are about to create a new key locker file. Please choose a strong password consisting of at least five digits to protect your locker and make sure you do not forget this. There\'s no way to retrieve a lost locker password.</string>
+    <string name="init_caption">New Locker</string>
+    <string name="init_caption_2">Enter your password again</string>
+    <string name="init_numeric_cb">Numeric password</string>
+    <string name="init_create_btn">Create</string>
+    <string name="init_hint_1_nr">Pin Code</string>
+    <string name="init_hint_2_nr">Pin Code (validation)</string>
+    <string name="sync_with_sdcard">Syncronize with SDCard</string>
+    <string name="action_replace">Replace Key Locker File</string>
 </resources>

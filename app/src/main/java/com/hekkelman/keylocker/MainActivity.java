@@ -1,8 +1,10 @@
 package com.hekkelman.keylocker;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +28,7 @@ import android.widget.TextView;
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.KeyDb;
 
+import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -114,8 +117,8 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -181,6 +184,25 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -191,8 +213,8 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_notes) {
 
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_sync) {
+            syncWithSDCard();
         } else if (id == R.id.nav_send) {
 
         }
@@ -200,5 +222,27 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void syncWithSDCard() {
+        if (isExternalStorageWritable()) {
+            try {
+
+                File dir = new File(Environment.getExternalStorageDirectory(), "KeyLocker");
+                if (dir.isDirectory() == false && dir.mkdir() == false)
+                    throw new Exception("could not create directory on SDCard");
+
+                File file = new File(dir, KeyDb.KEY_DB_NAME);
+
+                KeyDb.getInstance().synchronize(file);
+            } catch (Exception e) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Synchronization Failed")
+                        .setMessage("Somehow, KeyLocker failed to synchronize, the error is: " + e.getMessage())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+            }
+        }
     }
 }

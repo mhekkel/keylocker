@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.simpleframework.xml.Serializer;
@@ -15,74 +16,81 @@ import org.simpleframework.xml.core.Persister;
 import com.hekkelman.keylocker.xmlenc.EncryptedData;
 
 public class KeyDb {
-
+	public static final String KEY_DB_NAME = "keylockerfile.txt";
 	private static KeyDb sInstance;
+	private final File file;
+
+	// fields
+	private char password[];
+	private KeyChain keyChain;
+
+	public static void setInstance(KeyDb keyDb) {
+		sInstance = keyDb;
+	}
 
 	public static KeyDb getInstance() {
 		return sInstance;
 	}
 
-	public static void setInstance(KeyDb instance) {
-		KeyDb.sInstance = instance;
-	}
-
-	// fields
-	private KeyChain keyChain;
-	
 	// constructor
 	public KeyDb(char[] password, File file) throws Exception
 	{
-		read(password, file);
+		this.password = password;
+		this.file = file;
+
+		if (file.exists())
+			read();
+		else
+			keyChain = new KeyChain();
 	}
 
-	public KeyDb()
+	public void read() throws Exception
 	{
-		keyChain = new KeyChain();
+		read(new FileInputStream(this.file));
 	}
-			
-	public void read(char[] password, File file) throws Exception
-	{
-		InputStream is = EncryptedData.decrypt(password, new FileInputStream(file));
-		
+
+	public void read(InputStream input) throws Exception {
+		InputStream is = EncryptedData.decrypt(this.password, input);
+
 		Serializer serializer = new Persister();
 		keyChain = serializer.read(KeyChain.class, is);
 	}
-	
-	
-	public void write(char[] password, File file)
-	{
-		Serializer serializer = new Persister();
-		
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		FileOutputStream of;
 
-		try {
-			serializer.write(keyChain, os);
-			of = new FileOutputStream(file);
-			EncryptedData.encrypt(password, new ByteArrayInputStream(os.toByteArray()), of);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void write() throws Exception {
+		write(new FileOutputStream(this.file));
 	}
-	
+
+	public void write(OutputStream output) throws Exception {
+		// intermediate storage of unencrypted data
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+		Serializer serializer = new Persister();
+		serializer.write(keyChain, os);
+
+		EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output);
+	}
+
+	// synchronisation
+
+	public void synchronize(File file) throws Exception {
+		KeyDb db = new KeyDb(this.password, file);
+		synchronize(db);
+	}
+
+	public void synchronize(KeyDb db) throws Exception {
+		this.keyChain.synchronize(db.keyChain);
+		write();
+	}
+
+	// accessors
+
 	public List<Key> getKeys()
 	{
 		return keyChain.getKeys();
 	}
 
 	public Key getKey(String keyId) throws Exception {
-		Key result = null;
-
-		for (Key key : keyChain.getKeys()) {
-			if (key.getId().equals(keyId)) {
-				result = key;
-				break;
-			}
-		}
+		Key result = keyChain.getKeyByID(keyId);
 
 		if (result == null)
 			throw new Exception("Key not found");

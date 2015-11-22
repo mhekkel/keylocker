@@ -28,8 +28,6 @@ public class KeyDetailActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
 
-        this.keyID = getIntent().getStringExtra("keyId");
-
         setContentView(R.layout.activity_key_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -53,52 +51,63 @@ public class KeyDetailActivity extends AppCompatActivity {
 //        // Inflate a menu to be displayed in the toolbar
 //        toolbarBottom.inflateMenu(R.menu.keymenu);
 
-        try {
-            Key key = KeyDb.getInstance().getKey(this.keyID);
+        this.keyID = getIntent().getStringExtra("keyId");
+        if (this.keyID == null)
+        {
+            View view = findViewById(R.id.lastModifiedCaption);
+            view.setVisibility(View.INVISIBLE);
+        }
+        else
+        {
+            try {
+                Key key = KeyDb.getInstance().getKey(this.keyID);
 
-            EditText editText;
+                EditText editText;
 
-            String name = key.getName();
-            if (name != null) {
-                EditText fieldName = (EditText) findViewById(R.id.keyNameField);
-                fieldName.setText(name);
+                String name = key.getName();
+                if (name != null) {
+                    EditText fieldName = (EditText) findViewById(R.id.keyNameField);
+                    fieldName.setText(name);
+                }
+
+                editText = (EditText) findViewById(R.id.keyPasswordField);
+                String password = key.getPassword();
+                if (password != null) {
+                    editText.setText(password);
+                }
+
+                editText = (EditText) findViewById(R.id.keyUserField);
+                String user= key.getUser();
+                if (user!= null) {
+                    editText.setText(user);
+                }
+
+                editText = (EditText) findViewById(R.id.keyURLField);
+                String url= key.getUrl();
+                if (url != null) {
+                    editText.setText(url);
+                }
+
+                String lastModified = key.getTimestamp();
+                if (lastModified != null) {
+                    TextView field = (TextView)findViewById(R.id.lastModifiedCaption);
+                    field.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            editText = (EditText) findViewById(R.id.keyPasswordField);
-            String password = key.getPassword();
-            if (password != null) {
-                editText.setText(password);
-            }
-
-            editText = (EditText) findViewById(R.id.keyUserField);
-            String user= key.getUser();
-            if (user!= null) {
-                editText.setText(user);
-            }
-
-            editText = (EditText) findViewById(R.id.keyURLField);
-            String url= key.getUrl();
-            if (url != null) {
-                editText.setText(url);
-            }
-
-            String lastModified = key.getTimestamp();
-            if (lastModified != null) {
-                TextView field = (TextView)findViewById(R.id.lastModifiedCaption);
-                field.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
+
     }
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.keymenu, menu);
-//        return true;
-//    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.keymenu, menu);
+        return true;
+    }
 
 //    @Override
 //    protected void onPause() {

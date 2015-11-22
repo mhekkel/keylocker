@@ -7,15 +7,24 @@
     <string name="error_field_required">Dit veld is verplicht</string>
     <string name="error_incorrect_password">Dit wachtwoord in onjuist</string>
     <string name="error_invalid_password">Dit wachtwoord is te kort</string>
-    <string name="keyNameCaptionHint">Naam</string>
+    <string name="keyNameCaptionHint">Wachtwoordnaam</string>
     <string name="keyPasswordCaptionHint">Wachtwoord</string>
     <string name="navigation_drawer_close">Sluit navigatie balk</string>
     <string name="prompt_password">Wachtwoord of pincode</string>
-    <string name="title_activity_key_detail">Sleutel</string>
+    <string name="title_activity_key_detail">Wachtwoord</string>
     <string name="title_activity_login">KeyLocker</string>
     <string name="navigation_drawer_open">Open navigatie balk</string>
     <string name="lastModifiedTemplate">Laatste wijziging: %s</string>
     <string name="keyUserCaptionHint">Gebruikersnaam</string>
     <string name="keyURLCaptionHint">URL</string>
     <string name="action_save">Bewaar</string>
+    <string name="init_caption">Nieuwe Kluis</string>
+    <string name="init_caption_2"></string>
+    <string name="init_create_btn">Maak</string>
+    <string name="init_hint_1_nr">Pincode</string>
+    <string name="init_hint_2_nr">Pincode (controle)</string>
+    <string name="init_numeric_cb">Numeriek wachtwoord (pincode)</string>
+    <string name="init_text">U staat op het punt een nieuwe sleutelkluis aan te maken. Deze sleutelkluis dient u te beschermen met een sterk wachtwoord bestaande uit tenminste vijf cijfers. Het is het laatste wachtwoord wat u dient te onthouden.</string>
+    <string name="nav_keys_str">Toon Wachtwoorden</string>
+    <string name="nav_notes_str">Toon Notities</string>
 </resources>

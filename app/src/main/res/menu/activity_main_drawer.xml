@@ -17,8 +17,8 @@
 
     <item android:title="Communicate">
         <menu>
-            <item android:id="@+id/nav_share" android:icon="@android:drawable/ic_menu_share"
-                android:title="Share" />
+            <item android:id="@+id/nav_sync" android:icon="@android:drawable/ic_menu_share"
+                android:title="@string/sync_with_sdcard" />
             <item android:id="@+id/nav_send" android:icon="@android:drawable/ic_menu_send"
                 android:title="Send" />
         </menu>

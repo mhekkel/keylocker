@@ -1,6 +1,7 @@
 package com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel;
 
 import java.io.StringWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -10,15 +11,20 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.PersistenceException;
 import org.simpleframework.xml.core.Persister;
+import org.simpleframework.xml.core.Validate;
 
 @Root
 public class Key {
+	private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 	@Attribute(name="id")
 	private String id;
-	
+
 	@Attribute(name="timestamp")
 	private String timestamp;
+	private Date _timestamp;		// converted
 	
 	@Attribute(name="deleted", required=false)
 	private String deleted;
@@ -35,15 +41,35 @@ public class Key {
 	@Element(name="url", required=false)
 	private String url;
 
-	// constructor
+	// constructors
+	public Key(Key key) {
+		this.id = key.id;
+		this.timestamp = key.timestamp;
+		this._timestamp = key._timestamp;
+		this.deleted = key.deleted;
+		this.name = key.name;
+		this.user = key.user;
+		this.password = key.password;
+		this.url = key.url;
+	}
+
 	public Key()
 	{
-		final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		FMT.setTimeZone(TimeZone.getTimeZone("UTC"));
+		this._timestamp = new Date();
+		this.timestamp = FMT.format(_timestamp);
 
-	    this.timestamp = sdf.format(new Date());
 		this.id = UUID.randomUUID().toString();
 		this.deleted = "false";
+	}
+
+	@Validate
+	void validate() throws PersistenceException {
+		try {
+			_timestamp = FMT.parse(timestamp);
+		} catch (ParseException e) {
+			throw new PersistenceException("Invalid timestamp in key");
+		}
 	}
 
 	@Override
@@ -120,15 +146,19 @@ public class Key {
 			return false;
 		return true;
 	}
-	
 
-	
-	public String getDeleted() {
-		return deleted;
+	private void updateTimeStamp() {
+		this._timestamp = new Date();
+		this.timestamp = FMT.format(_timestamp);
 	}
 
-	public void setDeleted(String deleted) {
-		this.deleted = deleted;
+	public boolean isDeleted() {
+		return deleted.equals("true");
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted ? "true" : "false";
+		updateTimeStamp();
 	}
 
 	public String getName() {
@@ -137,6 +167,7 @@ public class Key {
 
 	public void setName(String name) {
 		this.name = name;
+		updateTimeStamp();
 	}
 
 	public String getUser() {
@@ -145,6 +176,7 @@ public class Key {
 
 	public void setUser(String user) {
 		this.user = user;
+		updateTimeStamp();
 	}
 
 	public String getPassword() {
@@ -153,6 +185,7 @@ public class Key {
 
 	public void setPassword(String password) {
 		this.password = password;
+		updateTimeStamp();
 	}
 
 	public String getUrl() {
@@ -161,6 +194,7 @@ public class Key {
 
 	public void setUrl(String url) {
 		this.url = url;
+		updateTimeStamp();
 	}
 
 	public String getId() {
@@ -169,5 +203,34 @@ public class Key {
 
 	public String getTimestamp() {
 		return timestamp;
+	}
+
+	public int synchronize(Key key) {
+		int result = _timestamp.compareTo(key._timestamp);
+
+		assert(this.id.equals(key.id));
+
+		if (result < 0)
+		{
+			this.timestamp = key.timestamp;
+			this._timestamp = key._timestamp;
+			this.deleted = key.deleted;
+			this.name = key.name;
+			this.user = key.user;
+			this.password = key.password;
+			this.url = key.url;
+		}
+		else if (result > 0)
+		{
+			key.timestamp = this.timestamp;
+			key._timestamp = this._timestamp;
+			key.deleted = this.deleted;
+			key.name = this.name;
+			key.user = this.user;
+			key.password = this.password;
+			key.url = this.url;
+		}
+
+		return result;
 	}
 }

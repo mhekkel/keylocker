@@ -2,6 +2,7 @@ package com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.simpleframework.xml.Attribute;
@@ -10,11 +11,14 @@ import org.simpleframework.xml.Root;
 
 @Root
 public class Note {
+	private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 	@Attribute(name="id")
 	private String id;
 	
 	@Attribute(name="timestamp")
 	private String timestamp;
+	private Date _timestamp;
 	
 	@Attribute(name="deleted")
 	private String deleted;
@@ -28,9 +32,21 @@ public class Note {
 	// constructor
 	public Note()
 	{
-		this.timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		FMT.setTimeZone(TimeZone.getTimeZone("UTC"));
+		this._timestamp = new Date();
+		this.timestamp = FMT.format(_timestamp);
+
 		this.id = UUID.randomUUID().toString();
 		this.deleted = "false";
+	}
+
+	public Note(Note note) {
+		this.id = note.id;
+		this.timestamp = note.timestamp;
+		this._timestamp = note._timestamp;
+		this.deleted = note.deleted;
+		this.name = note.name;
+		this.text = note.text;
 	}
 
 	@Override
@@ -82,7 +98,35 @@ public class Note {
 		return true;
 	}
 
-	
-	
+	public String getId() {
+		return this.id;
+	}
+
+	public boolean isDeleted() {
+		return deleted.equals("true");
+	}
+
+	public int synchronize(Note note) {
+		int result = _timestamp.compareTo(note._timestamp);
+
+		if (result < 0)
+		{
+			this.timestamp = note.timestamp;
+			this._timestamp = note._timestamp;
+			this.deleted = note.deleted;
+			this.name = note.name;
+			this.text = note.text;
+		}
+		else if (result > 0)
+		{
+			note.timestamp = this.timestamp;
+			note._timestamp = this._timestamp;
+			note.deleted = this.deleted;
+			note.name = this.name;
+			note.text = this.text;
+		}
+
+		return result;
+	}
 
 }
