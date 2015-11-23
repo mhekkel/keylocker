@@ -1,7 +1,6 @@
-package com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel;
+package com.hekkelman.keylocker.datamodel;
 
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;

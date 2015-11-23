@@ -32,4 +32,7 @@
     <string name="sync_with_sdcard">Synchroniseer met SD kaart</string>
     <string name="title_activity_settings">Instellingen</string>
     <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ij;ie;o;oh;oo;u</string>
+    <string name="dlog_discard_changes_msg">U staat op het punt de wijzigingen ongedaan te maken. Wilt u doorgaan?</string>
+    <string name="dlog_discard_changes_title">Nog niet opgeslagen</string>
+    <string name="consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
 </resources>

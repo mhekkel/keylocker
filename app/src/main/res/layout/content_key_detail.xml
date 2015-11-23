@@ -70,6 +70,7 @@
                 android:imeOptions="actionGo"
                 android:inputType="text"
                 android:singleLine="true"
+                android:selectAllOnFocus="true"
                 />
         </android.support.design.widget.TextInputLayout>
 

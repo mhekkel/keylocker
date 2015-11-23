@@ -1,4 +1,4 @@
-package com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel;
+package com.hekkelman.keylocker.datamodel;
 
 import java.io.StringWriter;
 import java.text.ParseException;

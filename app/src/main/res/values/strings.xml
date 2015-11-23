@@ -31,7 +31,6 @@
 
     <string name="init_text">You are about to create a new key locker file. Please choose a strong password consisting of at least five digits to protect your locker and make sure you do not forget this. There\'s no way to retrieve a lost locker password.</string>
     <string name="init_caption">New Locker</string>
-    <string name="init_caption_2">Enter your password again</string>
     <string name="init_numeric_cb">Numeric password</string>
     <string name="init_create_btn">Create</string>
     <string name="init_hint_1_nr">Pin Code or Password</string>
@@ -51,8 +50,7 @@
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
+    <string name="pref_description_social_recommendations">Recommendations for people to contact based on your message history
     </string>
 
     <string name="pref_title_display_name">Display name</string>
@@ -113,4 +111,6 @@
     <string name="pref_title_include_capitals">Include Capitals</string>
     <string name="pref_title_include_symbols">Include Symbols</string>
     <string name="pref_title_include_digits">Include Digits</string>
+    <string name="pref_password_generator">Password generator</string>
+    <string name="prefs_change_pw">Change Password</string>
 </resources>

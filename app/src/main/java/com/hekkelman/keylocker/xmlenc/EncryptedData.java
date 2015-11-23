@@ -4,17 +4,20 @@ import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -59,7 +62,7 @@ public class EncryptedData
 		Serializer serializer = new Persister();
 		EncryptedData encData = serializer.read(EncryptedData.class, is);
 
-		Key key = encData.keyInfo.getKey(password);
+		Key key = encData.keyInfo.getKey(password, false);
 
 		byte[] data = Base64.decode(encData.value, Base64.DEFAULT);
 		byte[] iv = new byte[KEY_BYTE_SIZE];
@@ -74,51 +77,42 @@ public class EncryptedData
 		return new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher);
 	}
 	
-	static public void encrypt(char[] password, InputStream data, OutputStream os)
-	{
-		try {
-			EncryptedData encData = new EncryptedData();
-			
-			byte[] iv = new byte[KEY_BYTE_SIZE];
-			
-			SecureRandom random = new SecureRandom();
-			random.nextBytes(iv);
+	static public void encrypt(char[] password, InputStream data, OutputStream os) throws Exception {
+		EncryptedData encData = new EncryptedData();
 
-			ByteArrayOutputStream bs = new ByteArrayOutputStream();
-			bs.write(iv);
+		byte[] iv = new byte[KEY_BYTE_SIZE];
 
-			Key key = encData.keyInfo.getKey(password);
-			
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE,
-					new SecretKeySpec(key.getEncoded(), "AES"),
-					new IvParameterSpec(iv));
+		SecureRandom random = new SecureRandom();
+		random.nextBytes(iv);
 
-			OutputStream cs = new CipherOutputStream(bs, cipher);
-			
-			for (;;)
-			{
-				byte[] b = new byte[16];
-				
-				int l = data.read(b);
-				if (l > 0)
-					cs.write(b, 0, l);
-			
-				if (l < 16)
-					break;
-			}
-			cs.close();
-			
-			encData.value = Base64.encodeToString(bs.toByteArray(), Base64.DEFAULT);
-			
-			Serializer serializer = new Persister();
-			serializer.write(encData, os);
-		} catch (GeneralSecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		ByteArrayOutputStream bs = new ByteArrayOutputStream();
+		bs.write(iv);
+
+		Key key = encData.keyInfo.getKey(password, true);
+
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		cipher.init(Cipher.ENCRYPT_MODE,
+				new SecretKeySpec(key.getEncoded(), "AES"),
+				new IvParameterSpec(iv));
+
+		OutputStream cs = new CipherOutputStream(bs, cipher);
+
+		for (;;)
+		{
+			byte[] b = new byte[16];
+
+			int l = data.read(b);
+			if (l > 0)
+				cs.write(b, 0, l);
+
+			if (l < 16)
+				break;
 		}
+		cs.close();
+
+		encData.value = Base64.encodeToString(bs.toByteArray(), Base64.DEFAULT);
+
+		Serializer serializer = new Persister();
+		serializer.write(encData, os);
 	}
 }
