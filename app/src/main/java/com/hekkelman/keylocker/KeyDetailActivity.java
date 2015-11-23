@@ -7,6 +7,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,24 +37,6 @@ public class KeyDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        // bottom toolbar
-//
-//        Toolbar toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
-//        toolbarBottom.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                switch(item.getItemId()){
-//                    case R.id.action_settings:
-//                        // TODO
-//                        break;
-//                    // TODO: Other cases
-//                }
-//                return true;
-//            }
-//        });
-//        // Inflate a menu to be displayed in the toolbar
-//        toolbarBottom.inflateMenu(R.menu.keymenu);
-
         this.keyID = getIntent().getStringExtra("keyId");
         if (this.keyID == null)
         {
@@ -68,8 +52,8 @@ public class KeyDetailActivity extends AppCompatActivity {
 
                 String name = key.getName();
                 if (name != null) {
-                    EditText fieldName = (EditText) findViewById(R.id.keyNameField);
-                    fieldName.setText(name);
+                    editText = (EditText) findViewById(R.id.keyNameField);
+                    editText.setText(name);
                 }
 
                 editText = (EditText) findViewById(R.id.keyPasswordField);
