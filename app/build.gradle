@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        // jcenter()
-        mavenCentral()
+//        mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -24,7 +24,8 @@ android {
     }
 
     repositories {
-        maven { url 'http://repo1.maven.org/maven2' }
+//        maven { url 'http://repo1.maven.org/maven2' }
+        jcenter()
     }
 
     buildTypes {
@@ -40,6 +41,17 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
+
+
+    // Include the OneDrive sdk as a dependency
+    compile('com.onedrive.sdk:onedrive-sdk-android:1.0.0')
+
+    // Include the gson dependency
+    compile 'com.google.code.gson:gson:2.3.1'
+
+    // Include supported authentication methods for your application
+    compile 'com.microsoft.services.msa:msa-auth:0.8.4'
+    compile 'com.microsoft.aad:adal:1.1.7'
 
     compile('org.simpleframework:simple-xml:2.7.1') {
         exclude module: 'stax'

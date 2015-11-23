@@ -24,6 +24,7 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.KeyDb;
@@ -253,6 +254,9 @@ public class MainActivity extends AppCompatActivity
 
                 KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
                 adapter.notifyDataSetChanged();
+
+                Toast.makeText(this, "Sync successful", Toast.LENGTH_LONG).show();
+
             } catch (Exception e) {
                 new AlertDialog.Builder(this)
                         .setTitle("Synchronization Failed")
