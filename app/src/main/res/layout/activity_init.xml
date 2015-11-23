@@ -29,6 +29,14 @@
         android:layout_weight="0.20"/>
 
 
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/init_numeric_cb"
+        android:id="@+id/numeric_cb"
+        android:checked="true"
+        android:layout_marginBottom="18dp"/>
+
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -67,13 +75,6 @@
             android:layout_gravity="center_horizontal"/>
 
     </android.support.design.widget.TextInputLayout>
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/init_numeric_cb"
-        android:id="@+id/numeric_cb"
-        android:checked="true"/>
 
     <Button
         android:id="@+id/create_btn" style="?android:textAppearanceSmall"

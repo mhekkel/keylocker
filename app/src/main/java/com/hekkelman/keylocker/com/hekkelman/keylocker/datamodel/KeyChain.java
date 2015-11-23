@@ -60,8 +60,10 @@ public class KeyChain {
 
 		for (Key key: this.keys) {
 			Key kcKey = kc.getKeyByID(key.getId());
-			if (kcKey == null)
+			if (kcKey == null) {
 				kc.keys.add(new Key(key));
+				changed = true;
+			}
 			else if (kcKey.synchronize(key) != 0)
 				changed = true;
 		}
@@ -76,8 +78,10 @@ public class KeyChain {
 
 		for (Note note: this.notes) {
 			Note kcNote = kc.getNoteByID(note.getId());
-			if (kcNote == null)
+			if (kcNote == null) {
 				kc.notes.add(new Note(note));
+				changed = true;
+			}
 			else if (kcNote.synchronize(note) != 0)
 				changed = true;
 		}

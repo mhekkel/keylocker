@@ -34,12 +34,83 @@
     <string name="init_caption_2">Enter your password again</string>
     <string name="init_numeric_cb">Numeric password</string>
     <string name="init_create_btn">Create</string>
-    <string name="init_hint_1_nr">Pin Code</string>
-    <string name="init_hint_2_nr">Pin Code (validation)</string>
+    <string name="init_hint_1_nr">Pin Code or Password</string>
+    <string name="init_hint_2_nr">Pin Code or Password (validation)</string>
+
     <string name="sync_with_sdcard">Syncronize with SDCard</string>
     <string name="action_replace">Replace Key Locker File</string>
     <string name="keyNameIsRequired">Key name is a required field</string>
 
     <string name="dlog_delete_locker_msg">You are about to overwrite your key locker file, this will delete all your current passwords and notes. Continue?</string>
     <string name="dlog_delete_locker_title">Delete Key Locker File</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="dlog_discard_changes_title">Discard Changes</string>
+    <string name="dlog_discard_changes_msg">Discard the changes you made to this Key?</string>
+
+    <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ie;o;oh;oo;u</string>
+    <string name="consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
+    <string name="pref_title_password_length">Password Length</string>
+    <string name="pref_description_ambiguous">Avoid ambigous characters such as 0 (zero) and O (capital o)</string>
+    <string name="pref_title_no_ambiguous">No Ambiguous</string>
+    <string name="pref_title_include_capitals">Include Capitals</string>
+    <string name="pref_title_include_symbols">Include Symbols</string>
+    <string name="pref_title_include_digits">Include Digits</string>
 </resources>
