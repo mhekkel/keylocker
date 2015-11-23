@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.com.hekkelman.keylocker.datamodel.KeyDb;
@@ -27,26 +28,24 @@ public class InitActivity extends AppCompatActivity {
         final EditText pw1 = (EditText)findViewById(R.id.password_1);
         final EditText pw2 = (EditText)findViewById(R.id.password_2);
 
-        final CheckBox cb = (CheckBox) findViewById(R.id.numeric_cb);
+        final Switch sw = (Switch) findViewById(R.id.numeric_cb);
 
-        cb.setOnCheckedChangeListener(
-            new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    pw1.setText("");
-                    pw2.setText("");
+        sw.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        pw1.setText("");
+                        pw2.setText("");
 
-                    if (isChecked) {
-                        pw1.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD | InputType.TYPE_CLASS_NUMBER);
-                        pw2.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD | InputType.TYPE_CLASS_NUMBER);
-                    }
-                    else
-                    {
-                        pw1.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
-                        pw2.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
+                        if (isChecked) {
+                            pw1.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD | InputType.TYPE_CLASS_NUMBER);
+                            pw2.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD | InputType.TYPE_CLASS_NUMBER);
+                        } else {
+                            pw1.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
+                            pw2.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
+                        }
                     }
                 }
-            }
         );
 
         Button btn = (Button) findViewById(R.id.create_btn);

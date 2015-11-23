@@ -35,24 +35,6 @@ public class KeyDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        // bottom toolbar
-//
-//        Toolbar toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
-//        toolbarBottom.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                switch(item.getItemId()){
-//                    case R.id.action_settings:
-//                        // TODO
-//                        break;
-//                    // TODO: Other cases
-//                }
-//                return true;
-//            }
-//        });
-//        // Inflate a menu to be displayed in the toolbar
-//        toolbarBottom.inflateMenu(R.menu.keymenu);
-
         this.keyID = getIntent().getStringExtra("keyId");
         if (this.keyID == null)
         {

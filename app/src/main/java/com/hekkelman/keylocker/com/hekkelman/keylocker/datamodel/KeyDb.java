@@ -83,12 +83,14 @@ public class KeyDb {
 
 	public void synchronize(File file) throws Exception {
 		KeyDb db = new KeyDb(this.password, file);
-		synchronize(db);
+		if (synchronize(db))
+			db.write();
 	}
 
-	public void synchronize(KeyDb db) throws Exception {
-		this.keyChain.synchronize(db.keyChain);
+	public boolean synchronize(KeyDb db) throws Exception {
+		boolean result = this.keyChain.synchronize(db.keyChain);
 		write();
+		return result;
 	}
 
 	// accessors
