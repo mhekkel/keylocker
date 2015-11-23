@@ -91,6 +91,14 @@
                 />
         </android.support.design.widget.TextInputLayout>
 
+        <Button
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:id="@+id/gen_pw"
+            android:text="Generate Password" />
+
     </LinearLayout>
 
     <TextView

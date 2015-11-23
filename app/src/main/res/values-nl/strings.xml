@@ -31,4 +31,5 @@
     <string name="dlog_delete_locker_title">Sleutelkluis overschrijven</string>
     <string name="sync_with_sdcard">Synchroniseer met SD kaart</string>
     <string name="title_activity_settings">Instellingen</string>
+    <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ij;ie;o;oh;oo;u</string>
 </resources>

@@ -17,4 +17,8 @@
         android:icon="@drawable/ic_sync_black_24dp"
         android:title="@string/pref_header_data_sync" />
 
+    <header
+        android:fragment="com.hekkelman.keylocker.SettingsActivity$PasswordPreferenceFragment"
+        android:title="Password generation" />
+
 </preference-headers>

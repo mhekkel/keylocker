@@ -102,4 +102,15 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="dlog_discard_changes_title">Discard Changes</string>
+    <string name="dlog_discard_changes_msg">Discard the changes you made to this Key?</string>
+
+    <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ie;o;oh;oo;u</string>
+    <string name="consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
+    <string name="pref_title_password_length">Password Length</string>
+    <string name="pref_description_ambiguous">Avoid ambigous characters such as 0 (zero) and O (capital o)</string>
+    <string name="pref_title_no_ambiguous">No Ambiguous</string>
+    <string name="pref_title_include_capitals">Include Capitals</string>
+    <string name="pref_title_include_symbols">Include Symbols</string>
+    <string name="pref_title_include_digits">Include Digits</string>
 </resources>
