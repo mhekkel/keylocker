@@ -1,8 +1,13 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
+https://github.com/brnunes/SwipeableRecyclerView.git
+
+
 - Synchroniseren over netwerk
 - Groepsgewijs in lijst plaatsen
 - Weergave en wijzigen notities
 - Backup ondersteuning?
 - Foutafhandeling helemaal nalopen
+
+- copy/paste
 
