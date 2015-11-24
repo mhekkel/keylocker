@@ -65,15 +65,8 @@ public class PBKDF2Params {
 			throw new Exception("Invalid PBKDF2 Parameters");
 	}
 	
-	public Key getKey(char[] password, boolean newSalt) {
+	public Key getKey(char[] password) {
 		try {
-			if (newSalt) {
-				SecureRandom random = new SecureRandom();
-
-				this._salt = new byte[HASH_BYTE_SIZE];
-				random.nextBytes(this._salt);
-			}
-
 			KeySpec ks = new PBEKeySpec(password, this._salt, iterationCount, 16 * 8);
 			SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			return f.generateSecret(ks);

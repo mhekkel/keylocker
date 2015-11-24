@@ -32,13 +32,26 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.hekkelman.keylocker.MainActivity" />
         </activity>
-        <activity android:name=".InitActivity"></activity>
+        <activity android:name=".InitActivity" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.hekkelman.keylocker.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ChangeMainPasswordActivity"
+            android:label="@string/title_activity_change_main_password"
+            android:parentActivityName=".SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.hekkelman.keylocker.SettingsActivity" />
+            <intent-filter>
+                <action android:name="com.hekkelman.keylocker.ChangeMainPasswordActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 

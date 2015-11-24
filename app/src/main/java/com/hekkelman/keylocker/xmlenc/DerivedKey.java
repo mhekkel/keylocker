@@ -18,7 +18,7 @@ public class DerivedKey {
 		this.method = new KeyDerivationMethod();
 	}
 	
-	public Key getKey(char[] password, boolean newSalt) {
-		return method.getKey(password, newSalt);
+	public Key getKey(char[] password) {
+		return method.getKey(password);
 	}
 }

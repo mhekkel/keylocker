@@ -23,7 +23,7 @@ public class KeyDerivationMethod {
 		this.params = new PBKDF2Params();
 	}
 
-	public Key getKey(char[] password, boolean newSalt) {
-		return params.getKey(password, newSalt);
+	public Key getKey(char[] password) {
+		return params.getKey(password);
 	}
 }

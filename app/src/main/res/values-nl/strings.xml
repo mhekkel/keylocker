@@ -19,7 +19,6 @@
     <string name="keyURLCaptionHint">URL</string>
     <string name="action_save">Bewaar</string>
     <string name="init_caption">Nieuwe Kluis</string>
-    <string name="init_caption_2">Voer wachtwoord nogmaals in</string>
     <string name="init_create_btn">Maak</string>
     <string name="init_hint_1_nr">Pincode of wachtwoord</string>
     <string name="init_hint_2_nr">Pincode of wachtwoord (controle)</string>
@@ -35,4 +34,19 @@
     <string name="dlog_discard_changes_msg">U staat op het punt de wijzigingen ongedaan te maken. Wilt u doorgaan?</string>
     <string name="dlog_discard_changes_title">Nog niet opgeslagen</string>
     <string name="consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
+    <string name="action_replace">Vervang sleutelkluis</string>
+    <string name="change_pw_btn">Verander</string>
+    <string name="change_pw_hint_1">Nieuw wachtwoord</string>
+    <string name="change_pw_hint_2">Nieuw wachtwoord (controle)</string>
+    <string name="pref_change_password_text">Vervang hier het hoofdwachtwoord voor uw sleutelkluis. Kies uit een pincode (alleen cijfers, makkelijker maar minder veilig) of uit een wachtwoord (veel veiliger).</string>
+    <string name="pref_password_generator">Wachtwoord generator</string>
+    <string name="pref_title_include_capitals">Gebruik hoofdletters</string>
+    <string name="pref_title_include_digits">Gebruik cijfers</string>
+    <string name="pref_title_include_symbols">Gebruik symbolen</string>
+    <string name="pref_title_no_ambiguous">Vermijd ambiguiteit</string>
+    <string name="pref_title_password_length">Wachtwoord lengte</string>
+    <string name="pref_description_ambiguous">Gebruik geen letters of cijfers die moeilijk te onderscheiden zijn zoals O (hoofdletter o) en 0 (nul).</string>
+    <string name="prefs_change_pw">Wijzig hoofdwachtwoord</string>
+    <string name="title_activity_change_main_password">Hoofd Wachtwoord</string>
+    <string name="pref_title_locker_password">Wijzig hoofdwachtwoord</string>
 </resources>

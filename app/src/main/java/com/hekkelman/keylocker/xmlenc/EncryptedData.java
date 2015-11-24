@@ -4,20 +4,14 @@ import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -28,7 +22,6 @@ import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import org.simpleframework.xml.core.Validate;
 
 @Root(name="EncryptedData")
 @Namespace(reference="http://www.w3.org/2001/04/xmlenc#", prefix="x")
@@ -62,7 +55,7 @@ public class EncryptedData
 		Serializer serializer = new Persister();
 		EncryptedData encData = serializer.read(EncryptedData.class, is);
 
-		Key key = encData.keyInfo.getKey(password, false);
+		Key key = encData.keyInfo.getKey(password);
 
 		byte[] data = Base64.decode(encData.value, Base64.DEFAULT);
 		byte[] iv = new byte[KEY_BYTE_SIZE];
@@ -88,7 +81,7 @@ public class EncryptedData
 		ByteArrayOutputStream bs = new ByteArrayOutputStream();
 		bs.write(iv);
 
-		Key key = encData.keyInfo.getKey(password, true);
+		Key key = encData.keyInfo.getKey(password);
 
 		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		cipher.init(Cipher.ENCRYPT_MODE,

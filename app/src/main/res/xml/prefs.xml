@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference android:title="@string/pref_title_locker_password">
+        <intent android:action="com.hekkelman.keylocker.ChangeMainPasswordActivity" />
+    </Preference>
+
+    <PreferenceCategory
+        android:title="@string/pref_password_generator">
+
+        <EditTextPreference
+            android:defaultValue="8"
+            android:inputType="number"
+            android:numeric="integer"
+            android:key="password-length"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_password_length" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="password-no-ambiguous"
+            android:summary="@string/pref_description_ambiguous"
+            android:title="@string/pref_title_no_ambiguous" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="password-include-capitals"
+            android:title="@string/pref_title_include_capitals" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="password-include-digits"
+            android:title="@string/pref_title_include_digits" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="password-include-symbols"
+            android:title="@string/pref_title_include_symbols" />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

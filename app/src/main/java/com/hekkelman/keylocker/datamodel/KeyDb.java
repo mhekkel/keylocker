@@ -46,6 +46,11 @@ public class KeyDb {
 			keyChain = new KeyChain();
 	}
 
+	public void changePassword(char[] password) throws Exception {
+		this.password = password;
+		write();
+	}
+
 	public void read() throws Exception
 	{
 		read(new FileInputStream(this.file));
