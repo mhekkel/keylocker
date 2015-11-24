@@ -6,19 +6,24 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,8 +89,31 @@ public class UnlockActivity extends AppCompatActivity {
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean numericPassword = prefs.getBoolean("numeric-password", true);
+
+        final Switch sw = (Switch) findViewById(R.id.numeric_cb);
+        sw.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        mPasswordView.setText("");
+
+                        if (isChecked) {
+                            mPasswordView.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD | InputType.TYPE_CLASS_NUMBER);
+                        } else {
+                            mPasswordView.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
+                        }
+
+                        prefs.edit().putBoolean("numeric-password", isChecked).commit();
+                    }
+                }
+        );
+
+        sw.setChecked(numericPassword);
+
+        Button signInButton = (Button) findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -229,8 +257,6 @@ public class UnlockActivity extends AppCompatActivity {
 
         @Override
         protected UnlockResult doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
             try {
                 KeyDb keyDb = new KeyDb(mPassword.toCharArray(), new File(getFilesDir(), KeyDb.KEY_DB_NAME));
 

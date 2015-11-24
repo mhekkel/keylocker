@@ -86,20 +86,6 @@ public class Key {
 	}
 
 	@Override
-	public String toString() {
-		Serializer serializer = new Persister();
-		
-		StringWriter w = new StringWriter();
-		try {
-			serializer.write(this, w);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return w.toString();
-	}
-	
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
