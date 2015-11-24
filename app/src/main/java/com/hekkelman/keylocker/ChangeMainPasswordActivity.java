@@ -81,4 +81,16 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
                 }
         );
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        KeyDb.reference();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        KeyDb.release();
+    }
 }

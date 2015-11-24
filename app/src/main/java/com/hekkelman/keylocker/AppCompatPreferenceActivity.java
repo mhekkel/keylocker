@@ -12,6 +12,8 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hekkelman.keylocker.datamodel.KeyDb;
+
 /**
  * A {@link android.preference.PreferenceActivity} which implements and proxies the necessary calls
  * to be used with AppCompat.
@@ -85,9 +87,16 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        KeyDb.reference();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         getDelegate().onStop();
+        KeyDb.release();
     }
 
     @Override

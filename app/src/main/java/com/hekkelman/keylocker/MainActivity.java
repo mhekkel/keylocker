@@ -36,6 +36,7 @@ import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Inflater;
 
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         private List<Key> mKeys;
 
         public KeyAdapter() {
-            this.mKeys = mKeyDb.getKeys();
+            mKeys = KeyDb.getInstance().getKeys();
         }
 
         @Override
@@ -109,16 +110,15 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void notifyDataSetChanged() {
-            mKeys = mKeyDb.getKeys();
             super.notifyDataSetChanged();
+
+            mKeys = KeyDb.getInstance().getKeys();
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mKeyDb = KeyDb.getInstance();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -157,24 +157,43 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+        if (getIntent().getBooleanExtra("unlocked", false)) {
+            // we've just been unlocked. Check to see if there's a key left in the temp storage
+
+            Key key = KeyDb.getCachedKey();
+            if (key != null) {
+                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+                intent.putExtra("restore-key", true);
+                startActivity(intent);
+            }
+        }
     }
 
     @Override
-    protected void onResume() {
+    protected void onStart() {
+        super.onStart();
 
-        KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
-        adapter.notifyDataSetChanged();
+        mKeyDb = KeyDb.getInstance();
 
-        super.onResume();
+        if (mKeyDb == null) {
+            startActivity(new Intent(this, UnlockActivity.class));
+            finish();
+        } else {
+            KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
+            adapter.notifyDataSetChanged();
+
+            KeyDb.reference();
+        }
     }
 
-    //    @Override
-//    protected void onPause() {
-//        KeyDb.setInstance(null);
-//
-//        super.onPause();
-//    }
-//
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        KeyDb.release();
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

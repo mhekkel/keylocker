@@ -20,6 +20,8 @@ import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import com.hekkelman.keylocker.datamodel.KeyDb;
+
 import java.util.List;
 
 /**
@@ -127,7 +129,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("password-length"));
         }
 
-//        @Override
+        @Override
+        public void onStart() {
+            super.onStart();
+            KeyDb.reference();
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            KeyDb.release();
+        }
+
+        //        @Override
 //        public boolean onOptionsItemSelected(MenuItem item) {
 //            int id = item.getItemId();
 //            if (id == android.R.id.home) {

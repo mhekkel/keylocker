@@ -80,7 +80,11 @@ public class InitActivity extends AppCompatActivity {
                }
             }
         );
+    }
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        KeyDb.release();
     }
 }

@@ -54,22 +54,10 @@ public class UnlockActivity extends AppCompatActivity {
 
         // First see if this is the first run
 
-        try {
-            File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
-            if (keyFile.exists() == false) {
-                Intent intent = new Intent(UnlockActivity.this, InitActivity.class);
-                startActivity(intent);
-                finish();
-                return;
-            }
-        }
-        catch (Exception e)
-        {
-            new AlertDialog.Builder(this)
-                    .setTitle("Initialization Failed")
-                    .setMessage("Somehow, KeyLocker failed to initialize, the error is: " + e.getMessage())
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+        File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+        if (keyFile.exists() == false) {
+            Intent intent = new Intent(UnlockActivity.this, InitActivity.class);
+            startActivity(intent);
             finish();
             return;
         }
@@ -290,8 +278,8 @@ public class UnlockActivity extends AppCompatActivity {
 
                 case VALID:
                     Intent intent = new Intent(UnlockActivity.this, MainActivity.class);
+                    intent.putExtra("unlocked", true);
                     startActivity(intent);
-
                     finish();
                     break;
             }
@@ -302,6 +290,13 @@ public class UnlockActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        KeyDb.release();
     }
 }
 

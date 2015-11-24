@@ -3,6 +3,7 @@ package com.hekkelman.keylocker;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -62,59 +63,41 @@ public class KeyDetailActivity extends AppCompatActivity {
             }
         });
 
-        this.keyID = getIntent().getStringExtra("keyId");
-        if (this.keyID == null)
-        {
-            View view = findViewById(R.id.lastModifiedCaption);
-            view.setVisibility(View.INVISIBLE);
+        if (getIntent().getBooleanExtra("restore-key", false)) {
+            Key key = KeyDb.getCachedKey();
+            if (key != null) {
+                setKey(key);
+                textChanged = true;
+            }
+            else
+                finish();   // there was no key!
         }
         else
         {
-            Key key = KeyDb.getInstance().getKey(this.keyID);
+            this.keyID = getIntent().getStringExtra("keyId");
 
-            if (key == null) {
-                new AlertDialog.Builder(KeyDetailActivity.this)
-                        .setTitle(R.string.dlog_missing_key_title)
-                        .setMessage(R.string.dlog_missing_key_msg)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+            if (this.keyID == null)
+            {
+                View view = findViewById(R.id.lastModifiedCaption);
+                view.setVisibility(View.INVISIBLE);
             }
+            else {
+                Key key = KeyDb.getInstance().getKey(this.keyID);
+                if (key == null) {
+                    new AlertDialog.Builder(KeyDetailActivity.this)
+                            .setTitle(R.string.dlog_missing_key_title)
+                            .setMessage(R.string.dlog_missing_key_msg)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                    return;
+                }
 
-            EditText editText;
-
-            String name = key.getName();
-            if (name != null) {
-                editText = (EditText) findViewById(R.id.keyNameField);
-                editText.setText(name);
-            }
-
-            editText = (EditText) findViewById(R.id.keyPasswordField);
-            String password = key.getPassword();
-            if (password != null) {
-                editText.setText(password);
-            }
-
-            editText = (EditText) findViewById(R.id.keyUserField);
-            String user= key.getUser();
-            if (user!= null) {
-                editText.setText(user);
-            }
-
-            editText = (EditText) findViewById(R.id.keyURLField);
-            String url= key.getUrl();
-            if (url != null) {
-                editText.setText(url);
-            }
-
-            String lastModified = key.getTimestamp();
-            if (lastModified != null) {
-                TextView field = (TextView)findViewById(R.id.lastModifiedCaption);
-                field.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
+                setKey(key);
             }
         }
 
@@ -139,10 +122,46 @@ public class KeyDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void setKey(Key key) {
+        EditText editText;
+
+        this.keyID = key.getId();
+
+        String name = key.getName();
+        if (name != null) {
+            editText = (EditText) findViewById(R.id.keyNameField);
+            editText.setText(name);
+        }
+
+        editText = (EditText) findViewById(R.id.keyPasswordField);
+        String password = key.getPassword();
+        if (password != null) {
+            editText.setText(password);
+        }
+
+        editText = (EditText) findViewById(R.id.keyUserField);
+        String user= key.getUser();
+        if (user!= null) {
+            editText.setText(user);
+        }
+
+        editText = (EditText) findViewById(R.id.keyURLField);
+        String url= key.getUrl();
+        if (url != null) {
+            editText.setText(url);
+        }
+
+        String lastModified = key.getTimestamp();
+        if (lastModified != null) {
+            TextView field = (TextView)findViewById(R.id.lastModifiedCaption);
+            field.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
+        }
+    }
+
     @Override
     public void onBackPressed() {
         if (textChanged == false) {
-            super.onBackPressed();
+            finish();
         }
         else {
             new AlertDialog.Builder(KeyDetailActivity.this)
@@ -150,6 +169,8 @@ public class KeyDetailActivity extends AppCompatActivity {
                     .setMessage(R.string.dlog_discard_changes_msg)
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            textChanged = false; // do not store this key again, please
+                            KeyDb.removeCachedKey(keyID);
                             finish();
                         }
                     })
@@ -181,8 +202,12 @@ public class KeyDetailActivity extends AppCompatActivity {
         if (id == R.id.action_save) {
             return saveKey();
         }
-
-        return super.onOptionsItemSelected(item);
+        else if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        else
+            return super.onOptionsItemSelected(item);
     }
 
     private boolean saveKey() {
@@ -202,9 +227,12 @@ public class KeyDetailActivity extends AppCompatActivity {
 
             try {
                 KeyDb.getInstance().storeKey(keyID, name, user, password, url);
+
                 result = true;
                 this.textChanged = false;
                 Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
+
+                KeyDb.removeCachedKey(keyID);
             } catch (KeyDbException e) {
                 new AlertDialog.Builder(KeyDetailActivity.this)
                         .setTitle(R.string.dlog_save_failed_title)
@@ -222,12 +250,39 @@ public class KeyDetailActivity extends AppCompatActivity {
         return result;
     }
 
-//    @Override
-//    protected void onPause() {
-//        KeyDb.setInstance(null);
-//
-//        super.onPause();
-//    }
+    @Override
+    protected void onPause() {
+
+        // store the data in case we're about to disappear
+        if (textChanged) {
+            String name = ((EditText) findViewById(R.id.keyNameField)).getText().toString();
+            String user = ((EditText)findViewById(R.id.keyUserField)).getText().toString();
+            String password = ((EditText)findViewById(R.id.keyPasswordField)).getText().toString();
+            String url = ((EditText)findViewById(R.id.keyURLField)).getText().toString();
+
+            KeyDb.storeCachedKey(keyID, name, user, password, url);
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (KeyDb.getInstance() == null) {
+            startActivity(new Intent(this, UnlockActivity.class));
+            finish();
+        } else {
+            KeyDb.reference();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        KeyDb.release();
+    }
 
     private String generatePassword(int length, boolean noAmbiguous, boolean includeCapitals, boolean includeDigits, boolean includeSymbols)
     {
