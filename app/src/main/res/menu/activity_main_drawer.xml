@@ -4,23 +4,12 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_keys" android:title="@string/nav_keys_str" />
         <item android:id="@+id/nav_notes" android:title="@string/nav_notes_str" />
-
-        <!--<item android:id="@+id/nav_camara" android:icon="@android:drawable/ic_menu_camera"-->
-            <!--android:title="Import" />-->
-        <!--<item android:id="@+id/nav_gallery" android:icon="@android:drawable/ic_menu_gallery"-->
-            <!--android:title="Gallery" />-->
-        <!--<item android:id="@+id/nav_slideshow" android:icon="@android:drawable/ic_menu_slideshow"-->
-            <!--android:title="Slideshow" />-->
-        <!--<item android:id="@+id/nav_manage" android:icon="@android:drawable/ic_menu_manage"-->
-            <!--android:title="Tools" />-->
     </group>
 
     <item android:title="Communicate">
         <menu>
             <item android:id="@+id/nav_sync" android:icon="@android:drawable/ic_menu_share"
                 android:title="@string/sync_with_sdcard" />
-            <item android:id="@+id/nav_send" android:icon="@android:drawable/ic_menu_send"
-                android:title="Send" />
         </menu>
     </item>
 

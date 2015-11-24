@@ -1,16 +1,8 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
-- Maak nieuwe KeyLocker activity
-- Synchroniseren met bestand op SDCard
 - Synchroniseren over netwerk
 - Groepsgewijs in lijst plaatsen
-- Toevoegen van sleutel/notitie FAB
-- Bewaren van wijzigingen
 - Weergave en wijzigen notities
 - Backup ondersteuning?
 - Foutafhandeling helemaal nalopen
-
-- Instellingen
-	- reset wachtwoord
-	- numeriek/alphanumeriek wachtwoord
 
