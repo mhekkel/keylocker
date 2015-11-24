@@ -2,7 +2,9 @@ package com.hekkelman.keylocker;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -20,17 +22,22 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hekkelman.keylocker.datamodel.InvalidFileException;
+import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
 import java.util.List;
+import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -232,7 +239,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_notes) {
 
         } else if (id == R.id.nav_sync) {
-            syncWithSDCard();
+            syncWithSDCard(false);
         } else if (id == R.id.nav_send) {
 
         }
@@ -242,31 +249,99 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void syncWithSDCard() {
-        if (isExternalStorageWritable()) {
-            try {
+    private SyncTask mSyncTask;
+    enum SyncResult { SUCCESS, FAILED, NEED_PASSWORD }
 
+    private void syncWithSDCard(boolean needPassword) {
+        if (mSyncTask != null) {
+            return;
+        }
+
+        if (isExternalStorageWritable()) {
+            if (needPassword == false) {
+                mSyncTask = new SyncTask();
+                mSyncTask.execute();
+            } else {
+                final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
+                new AlertDialog.Builder(this)
+                        .setView(view)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                EditText pw = (EditText)view.findViewById(R.id.dlog_password);
+
+                                mSyncTask = new SyncTask();
+                                mSyncTask.execute(pw.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .show();
+            }
+        }
+    }
+
+    private class SyncTask extends AsyncTask<String, Void, SyncResult> {
+        private String error;
+
+        public String getError() {
+            return error;
+        }
+
+        @Override
+        protected SyncResult doInBackground(String... password) {
+            try {
                 File dir = new File(Environment.getExternalStorageDirectory(), "KeyLocker");
                 if (dir.isDirectory() == false && dir.mkdir() == false)
-                    throw new Exception("could not create directory on SDCard");
+                    throw new Exception(getString(R.string.sync_mkdir_exception));
 
                 File file = new File(dir, KeyDb.KEY_DB_NAME);
 
-                KeyDb.getInstance().synchronize(file);
+                if (password.length > 0)
+                    KeyDb.getInstance().synchronize(file, password[0].toCharArray());
+                else
+                    KeyDb.getInstance().synchronize(file);
 
-                KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
-                adapter.notifyDataSetChanged();
-
-                Toast.makeText(this, "Sync successful", Toast.LENGTH_LONG).show();
-
+                return SyncResult.SUCCESS;
+            } catch (InvalidPasswordException e) {
+                return SyncResult.NEED_PASSWORD;
             } catch (Exception e) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Synchronization Failed")
-                        .setMessage("Somehow, KeyLocker failed to synchronize, the error is: " + e.getMessage())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-
+                this.error = e.getMessage();
+                return SyncResult.FAILED;
             }
+        }
+
+        @Override
+        protected void onPostExecute(final SyncResult result) {
+            String error = mSyncTask.getError();
+            mSyncTask = null;
+
+            switch (result) {
+                case SUCCESS:
+                    Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
+                    break;
+
+                case FAILED:
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.sync_failed)
+                            .setMessage(mSyncTask.getError())
+                            .show();
+                    break;
+
+                case NEED_PASSWORD:
+                    syncWithSDCard(true);
+                    break;
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mSyncTask = null;
+            Toast.makeText(MainActivity.this, R.string.sync_cancelled, Toast.LENGTH_LONG).show();
         }
     }
 }

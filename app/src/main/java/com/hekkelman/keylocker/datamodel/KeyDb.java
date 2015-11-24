@@ -1,9 +1,11 @@
 package com.hekkelman.keylocker.datamodel;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,7 +37,7 @@ public class KeyDb {
 	}
 
 	// constructor
-	public KeyDb(char[] password, File file) throws Exception
+	public KeyDb(char[] password, File file) throws KeyDbException
 	{
 		this.password = password;
 		this.file = file;
@@ -46,52 +48,74 @@ public class KeyDb {
 			keyChain = new KeyChain();
 	}
 
-	public void changePassword(char[] password) throws Exception {
+	public void changePassword(char[] password) throws KeyDbException {
 		this.password = password;
 		write();
 	}
 
-	public void read() throws Exception
+	public void read() throws KeyDbException
 	{
-		read(new FileInputStream(this.file));
+		try {
+			read(new FileInputStream(this.file));
+		} catch (FileNotFoundException e) {
+			throw new MissingFileException();
+		}
 	}
 
-	public void read(InputStream input) throws Exception {
+	public void read(InputStream input) throws KeyDbException {
 		InputStream is = EncryptedData.decrypt(this.password, input);
 
-		Serializer serializer = new Persister();
-		keyChain = serializer.read(KeyChain.class, is);
+		try {
+			Serializer serializer = new Persister();
+			keyChain = serializer.read(KeyChain.class, is);
+		} catch (Exception e) {
+			throw new InvalidPasswordException();
+		}
 	}
 
-	public void write() throws Exception {
-		// intermediate storage of unencrypted data
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
+	public void write() throws KeyDbException {
+		try {
+			// intermediate storage of unencrypted data
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-		Serializer serializer = new Persister();
-		serializer.write(keyChain, os);
+			Serializer serializer = new Persister();
+			serializer.write(keyChain, os);
 
-		EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), new FileOutputStream(this.file));
+			EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), new FileOutputStream(this.file));
+		} catch (Exception e) {
+			throw new KeyDbRuntimeException(e);
+		}
 	}
 
-	public void write(OutputStream output) throws Exception {
-		// intermediate storage of unencrypted data
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
+	public void write(OutputStream output) throws KeyDbException {
+		try {
+			// intermediate storage of unencrypted data
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-		Serializer serializer = new Persister();
-		serializer.write(keyChain, os);
+			Serializer serializer = new Persister();
+			serializer.write(keyChain, os);
 
-		EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output);
+			EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output);
+		} catch (Exception e) {
+			throw new KeyDbRuntimeException(e);
+		}
 	}
 
 	// synchronisation
 
-	public void synchronize(File file) throws Exception {
+	public void synchronize(File file) throws KeyDbException {
 		KeyDb db = new KeyDb(this.password, file);
 		if (synchronize(db))
 			db.write();
 	}
 
-	public boolean synchronize(KeyDb db) throws Exception {
+	public void synchronize(File file, char password[]) throws KeyDbException {
+		KeyDb db = new KeyDb(password, file);
+		if (synchronize(db))
+			db.write();
+	}
+
+	public boolean synchronize(KeyDb db) throws KeyDbException {
 		boolean result = this.keyChain.synchronize(db.keyChain);
 		write();
 		return result;
@@ -112,16 +136,11 @@ public class KeyDb {
 		return result;
 	}
 
-	public Key getKey(String keyId) throws Exception {
-		Key result = keyChain.getKeyByID(keyId);
-
-		if (result == null)
-			throw new Exception("Key not found");
-
-		return result;
+	public Key getKey(String keyId) {
+		return keyChain.getKeyByID(keyId);
 	}
 
-	public void storeKey(String keyID, String name, String user, String password, String url) throws Exception {
+	public void storeKey(String keyID, String name, String user, String password, String url) throws KeyDbException {
 		Key key;
 
 		if (keyID == null)

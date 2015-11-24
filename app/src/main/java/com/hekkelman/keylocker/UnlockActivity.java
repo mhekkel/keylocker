@@ -20,7 +20,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
@@ -211,11 +213,13 @@ public class UnlockActivity extends AppCompatActivity {
         }
     }
 
+    enum UnlockResult { VALID, INVALID_FILE, INVALID_PASSWORD }
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, UnlockResult> {
 
         private final String mPassword;
 
@@ -224,7 +228,7 @@ public class UnlockActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected UnlockResult doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
             try {
@@ -232,30 +236,38 @@ public class UnlockActivity extends AppCompatActivity {
 
                 KeyDb.setInstance(keyDb);
 
-                return true;
-            }
-            catch (Exception ex) {
-                return false;
+                return UnlockResult.VALID;
+            } catch (InvalidPasswordException ex) {
+                return UnlockResult.INVALID_PASSWORD;
+            } catch (Exception ex) {
+                return UnlockResult.INVALID_FILE;
             }
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final UnlockResult result) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            switch (result) {
+                case INVALID_FILE:
+                    Toast.makeText(UnlockActivity.this, R.string.toast_corrupt_file, Toast.LENGTH_LONG).show();
+                    break;
 
-                Intent intent = new Intent(UnlockActivity.this, MainActivity.class);
-                startActivity(intent);
+                case INVALID_PASSWORD:
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
 
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                    Button resetButton = (Button) findViewById(R.id.replace_locker);
+                    resetButton.setVisibility(View.VISIBLE);
+                    break;
 
-                Button resetButton = (Button) findViewById(R.id.replace_locker);
-                resetButton.setVisibility(View.VISIBLE);
+                case VALID:
+                    Intent intent = new Intent(UnlockActivity.this, MainActivity.class);
+                    startActivity(intent);
+
+                    finish();
+                    break;
             }
         }
 

@@ -48,15 +48,10 @@
             android:inputType="numberPassword"
             android:id="@+id/password_1"
             android:hint="@string/init_hint_1_nr"
+            android:fontFamily="sans-serif"
             android:layout_gravity="center_horizontal"/>
 
     </android.support.design.widget.TextInputLayout>
-
-    <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="@string/init_caption_2"-->
-        <!--android:id="@+id/text_view_2"/>-->
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
@@ -71,6 +66,7 @@
             android:inputType="numberPassword"
             android:id="@+id/password_2"
             android:hint="@string/init_hint_2_nr"
+            android:fontFamily="sans-serif"
             android:layout_gravity="center_horizontal"/>
 
     </android.support.design.widget.TextInputLayout>

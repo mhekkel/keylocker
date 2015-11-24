@@ -36,6 +36,7 @@
                     android:imeActionId="@+id/login"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified" android:inputType="numberPassword"
+                    android:fontFamily="sans-serif"
                     android:maxLines="1" android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>

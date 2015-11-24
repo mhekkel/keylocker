@@ -68,43 +68,51 @@ public class KeyDetailActivity extends AppCompatActivity {
         }
         else
         {
-            try {
-                Key key = KeyDb.getInstance().getKey(this.keyID);
+            Key key = KeyDb.getInstance().getKey(this.keyID);
 
-                EditText editText;
+            if (key == null) {
+                new AlertDialog.Builder(KeyDetailActivity.this)
+                        .setTitle(R.string.dlog_missing_key_title)
+                        .setMessage(R.string.dlog_missing_key_msg)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
 
-                String name = key.getName();
-                if (name != null) {
-                    editText = (EditText) findViewById(R.id.keyNameField);
-                    editText.setText(name);
-                }
+            EditText editText;
 
-                editText = (EditText) findViewById(R.id.keyPasswordField);
-                String password = key.getPassword();
-                if (password != null) {
-                    editText.setText(password);
-                }
+            String name = key.getName();
+            if (name != null) {
+                editText = (EditText) findViewById(R.id.keyNameField);
+                editText.setText(name);
+            }
 
-                editText = (EditText) findViewById(R.id.keyUserField);
-                String user= key.getUser();
-                if (user!= null) {
-                    editText.setText(user);
-                }
+            editText = (EditText) findViewById(R.id.keyPasswordField);
+            String password = key.getPassword();
+            if (password != null) {
+                editText.setText(password);
+            }
 
-                editText = (EditText) findViewById(R.id.keyURLField);
-                String url= key.getUrl();
-                if (url != null) {
-                    editText.setText(url);
-                }
+            editText = (EditText) findViewById(R.id.keyUserField);
+            String user= key.getUser();
+            if (user!= null) {
+                editText.setText(user);
+            }
 
-                String lastModified = key.getTimestamp();
-                if (lastModified != null) {
-                    TextView field = (TextView)findViewById(R.id.lastModifiedCaption);
-                    field.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
-                }
+            editText = (EditText) findViewById(R.id.keyURLField);
+            String url= key.getUrl();
+            if (url != null) {
+                editText.setText(url);
+            }
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            String lastModified = key.getTimestamp();
+            if (lastModified != null) {
+                TextView field = (TextView)findViewById(R.id.lastModifiedCaption);
+                field.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
             }
         }
 

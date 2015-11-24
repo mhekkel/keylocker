@@ -2,8 +2,15 @@ package com.hekkelman.keylocker.xmlenc;
 
 import android.util.Base64;
 
+import com.hekkelman.keylocker.datamodel.InvalidFileException;
+import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
+import com.hekkelman.keylocker.datamodel.KeyDbRuntimeException;
+
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
@@ -51,61 +58,96 @@ public class EncryptedData
 		this.value = null;
 	}
 
-	static public InputStream decrypt(char[] password, InputStream is) throws Exception {
-		Serializer serializer = new Persister();
-		EncryptedData encData = serializer.read(EncryptedData.class, is);
+	static public InputStream decrypt(char[] password, InputStream is) throws KeyDbException {
+		byte[] data = new byte[0];
+		Cipher cipher = null;
 
-		Key key = encData.keyInfo.getKey(password);
+		try {
+			Serializer serializer = new Persister();
+			EncryptedData encData = serializer.read(EncryptedData.class, is);
 
-		byte[] data = Base64.decode(encData.value, Base64.DEFAULT);
-		byte[] iv = new byte[KEY_BYTE_SIZE];
-		System.arraycopy(data, 0, iv, 0, KEY_BYTE_SIZE);
+			Key key = encData.keyInfo.getKey(password);
 
-		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			data = Base64.decode(encData.value, Base64.DEFAULT);
+			byte[] iv = new byte[KEY_BYTE_SIZE];
+			System.arraycopy(data, 0, iv, 0, KEY_BYTE_SIZE);
 
-		cipher.init(Cipher.DECRYPT_MODE,
-				new SecretKeySpec(key.getEncoded(), "AES"),
-				new IvParameterSpec(iv));
+			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
-		return new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher);
+			cipher.init(Cipher.DECRYPT_MODE,
+                    new SecretKeySpec(key.getEncoded(), "AES"),
+                    new IvParameterSpec(iv));
+		} catch (Exception e) {
+			throw new KeyDbRuntimeException(e);
+		}
+
+		return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
+//
+//		BufferedInputStream bis = new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
+//
+//		try {
+//			// check if this is valid ascii, to check the password. Result should be XML
+//			bis.mark(16);
+//
+//			byte[] buffer = new byte[16];
+//			int len = bis.read(buffer);
+//			bis.reset();
+//
+//			for (int i = 0; i < len; ++i) {
+//				if (Character.isSpaceChar((buffer[i])) || buffer[i] == 10)
+//					continue;
+//
+//				if (buffer[i] < 0 || Character.isISOControl(buffer[i])) {
+//					throw new InvalidPasswordException();
+//				}
+//			}
+//		} catch (IOException e) {
+//			throw new KeyDbRuntimeException(e);
+//		}
+//
+//		return bis;
 	}
 	
-	static public void encrypt(char[] password, InputStream data, OutputStream os) throws Exception {
-		EncryptedData encData = new EncryptedData();
+	static public void encrypt(char[] password, InputStream data, OutputStream os) throws KeyDbException {
+		try {
+			EncryptedData encData = new EncryptedData();
 
-		byte[] iv = new byte[KEY_BYTE_SIZE];
+			byte[] iv = new byte[KEY_BYTE_SIZE];
 
-		SecureRandom random = new SecureRandom();
-		random.nextBytes(iv);
+			SecureRandom random = new SecureRandom();
+			random.nextBytes(iv);
 
-		ByteArrayOutputStream bs = new ByteArrayOutputStream();
-		bs.write(iv);
+			ByteArrayOutputStream bs = new ByteArrayOutputStream();
+			bs.write(iv);
 
-		Key key = encData.keyInfo.getKey(password);
+			Key key = encData.keyInfo.getKey(password);
 
-		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-		cipher.init(Cipher.ENCRYPT_MODE,
-				new SecretKeySpec(key.getEncoded(), "AES"),
-				new IvParameterSpec(iv));
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			cipher.init(Cipher.ENCRYPT_MODE,
+                    new SecretKeySpec(key.getEncoded(), "AES"),
+                    new IvParameterSpec(iv));
 
-		OutputStream cs = new CipherOutputStream(bs, cipher);
+			OutputStream cs = new CipherOutputStream(bs, cipher);
 
-		for (;;)
-		{
-			byte[] b = new byte[16];
+			for (;;)
+            {
+                byte[] b = new byte[16];
 
-			int l = data.read(b);
-			if (l > 0)
-				cs.write(b, 0, l);
+                int l = data.read(b);
+                if (l > 0)
+                    cs.write(b, 0, l);
 
-			if (l < 16)
-				break;
+                if (l < 16)
+                    break;
+            }
+			cs.close();
+
+			encData.value = Base64.encodeToString(bs.toByteArray(), Base64.DEFAULT);
+
+			Serializer serializer = new Persister();
+			serializer.write(encData, os);
+		} catch (Exception e) {
+			throw new KeyDbRuntimeException(e);
 		}
-		cs.close();
-
-		encData.value = Base64.encodeToString(bs.toByteArray(), Base64.DEFAULT);
-
-		Serializer serializer = new Persister();
-		serializer.write(encData, os);
 	}
 }

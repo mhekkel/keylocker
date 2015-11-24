@@ -63,4 +63,11 @@
     <string name="change_pw_hint_2">New password (validate)</string>
     <string name="change_pw_btn">Change</string>
     <string name="init_caption_2"></string>
+    <string name="dlog_missing_key_title">Missing Key</string>
+    <string name="dlog_missing_key_msg">The key could not be found.</string>
+    <string name="toast_corrupt_file">Key Locker file seems to be corrupt</string>
+    <string name="sync_successful">Sync successful</string>
+    <string name="sync_mkdir_exception">could not create directory on SDCard</string>
+    <string name="sync_failed">Sync failed</string>
+    <string name="sync_cancelled">Sync cancelled</string>
 </resources>
