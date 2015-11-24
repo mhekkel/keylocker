@@ -49,4 +49,16 @@
     <string name="prefs_change_pw">Wijzig hoofdwachtwoord</string>
     <string name="title_activity_change_main_password">Hoofd Wachtwoord</string>
     <string name="pref_title_locker_password">Wijzig hoofdwachtwoord</string>
+    <string name="dlog_missing_key_msg">De sleutel kon niet worden gevonden</string>
+    <string name="dlog_missing_key_title">Ontbrekende sleutel</string>
+    <string name="dlog_save_failed_msg">Het opslaan is mislukt, foutmelding: </string>
+    <string name="dlog_save_failed_title">Opslaan mislukt</string>
+    <string name="keyNameIsRequired">Wachtwoordnaam is een verplicht veld</string>
+    <string name="required_msg">Een %s is vereist</string>
+    <string name="save_successful">Opgeslagen</string>
+    <string name="sync_cancelled">Synchronisatie afgebroken</string>
+    <string name="sync_failed">Synchronisatie mislukt</string>
+    <string name="sync_mkdir_exception">Kon geen map aanmaken op de SD kaart</string>
+    <string name="sync_successful">Synchronisatie geslaagd</string>
+    <string name="toast_corrupt_file">De sleutelkluis lijkt beschadigd</string>
 </resources>

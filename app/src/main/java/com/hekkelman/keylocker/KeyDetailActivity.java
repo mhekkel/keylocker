@@ -17,9 +17,11 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.util.Random;
 
@@ -183,42 +185,38 @@ public class KeyDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private String getField(int fieldID, int nameID, boolean required) {
-        EditText field = (EditText) findViewById(fieldID);
-        String result = field.getText().toString();
-
-        if (result == null || result.length() == 0) {
-            if (required)
-                field.setError(String.format("A %s is required", getString(nameID)));
-            return null;
-        }
-
-        return result;
-    }
-
     private boolean saveKey() {
         boolean result = false;
 
-        try {
-            EditText field;
+        EditText field;
 
-            field = (EditText) findViewById(R.id.keyNameField);
-            String name = field.getText().toString();
+        field = (EditText) findViewById(R.id.keyNameField);
+        String name = field.getText().toString();
 
-            if (name == null || name.length() == 0)
-                field.setError(getString(R.string.keyNameIsRequired));
-            ;
-            String user = getField(R.id.keyUserField, R.string.keyUserCaptionHint, false);
-            String password = getField(R.id.keyPasswordField, R.string.keyPasswordCaptionHint, false);
-            String url = getField(R.id.keyURLField, R.string.keyURLCaptionHint, false);
+        if (name == null || name.length() == 0) {
+            field.setError(getString(R.string.keyNameIsRequired));
+        } else {
+            String user = ((EditText)findViewById(R.id.keyUserField)).getText().toString();
+            String password = ((EditText)findViewById(R.id.keyPasswordField)).getText().toString();
+            String url = ((EditText)findViewById(R.id.keyURLField)).getText().toString();
 
-            if (name != null) {
+            try {
                 KeyDb.getInstance().storeKey(keyID, name, user, password, url);
                 result = true;
                 this.textChanged = false;
+                Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
+            } catch (KeyDbException e) {
+                new AlertDialog.Builder(KeyDetailActivity.this)
+                        .setTitle(R.string.dlog_save_failed_title)
+                        .setMessage(getString(R.string.dlog_save_failed_msg) + e.getMessage())
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
-        } catch (Exception e) {
-
         }
 
         return result;

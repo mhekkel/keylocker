@@ -322,6 +322,9 @@ public class MainActivity extends AppCompatActivity
 
             switch (result) {
                 case SUCCESS:
+                    KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
+                    adapter.notifyDataSetChanged();
+
                     Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
                     break;
 

@@ -70,4 +70,10 @@
     <string name="sync_mkdir_exception">could not create directory on SDCard</string>
     <string name="sync_failed">Sync failed</string>
     <string name="sync_cancelled">Sync cancelled</string>
+    <string name="save_successful">Stored</string>
+    <string name="required_msg">A %s is required</string>
+    <string name="dlog_save_failed_title">Save Failed</string>
+    <string name="dlog_save_failed_msg">Saving the new data failed with message:</string>
+    <string name="dlog_discard_changes_msg">You are about to discard the changes. Continue?</string>
+    <string name="dlog_discard_changes_title">Not saved yet</string>
 </resources>
