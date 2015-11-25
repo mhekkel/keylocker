@@ -44,8 +44,7 @@ public class MainActivity extends AppCompatActivity
     private KeyDb mKeyDb;
     private List<Key> mKeys;
     private KeyCardViewAdapter mAdapter;
-    private SearchView mSearchView;
-    private boolean mSearchViewVisible = false;
+    private String mQuery;
 
     // New CardView/RecycleView based interface
     class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.ViewHolder> {
@@ -171,6 +170,8 @@ public class MainActivity extends AppCompatActivity
     private void searchKeys(String query) {
         mKeys = mKeyDb.getKeys();
 
+        mQuery = query;
+
         if (TextUtils.isEmpty(query) == false) {
             Iterator<Key> iter = mKeys.iterator();
             while (iter.hasNext()) {
@@ -211,8 +212,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, UnlockActivity.class));
             finish();
         } else {
-            mKeys = mKeyDb.getKeys();
-            mAdapter.notifyDataSetChanged();
+            searchKeys(mQuery);
 
             KeyDb.reference();
         }
