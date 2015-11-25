@@ -1,118 +1,86 @@
 package com.hekkelman.keylocker;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.HeaderViewListAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hekkelman.keylocker.datamodel.InvalidFileException;
 import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private ListView mListView;
     private KeyDb mKeyDb;
+    private List<Key> mKeys;
+    private KeyCardViewAdapter mAdapter;
 
-    protected ListView getListView() {
-        if (mListView == null) {
-            mListView = (ListView) findViewById(android.R.id.list);
-        }
-        return mListView;
-    }
-
-    protected void setListAdapter(ListAdapter adapter) {
-        getListView().setAdapter(adapter);
-    }
-
-    public class KeyAdapter extends BaseAdapter {
-
-        private List<Key> mKeys;
-
-        public KeyAdapter() {
-            mKeys = KeyDb.getInstance().getKeys();
+    // New CardView/RecycleView based interface
+    class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.ViewHolder> {
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_key_item, parent, false);
+            return new ViewHolder(v);
         }
 
         @Override
-        public int getCount() {
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            Key key = mKeys.get(position);
+            holder.nameView.setText(key.getName());
+            holder.userView.setText(key.getUser());
+        }
+
+        @Override
+        public int getItemCount() {
             return mKeys.size();
         }
 
-        @Override
-        public Object getItem(int position) {
-            return mKeys.get(position);
-        }
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            private TextView nameView;
+            private TextView userView;
 
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
+            public ViewHolder(View itemView) {
+                super(itemView);
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+                nameView = (TextView)itemView.findViewById(R.id.itemCaption);
+                userView = (TextView)itemView.findViewById(R.id.itemUser);
 
-            if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.listitem, parent, false);
+                itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                    Key key = mKeys.get(getAdapterPosition());
+
+                    Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+                    intent.putExtra("keyId", key.getId());
+                    startActivity(intent);
+                    }
+                });
             }
-
-            Key key = mKeys.get(position);
-
-            TextView caption = (TextView) convertView.findViewById(R.id.itemCaption);
-            caption.setText(key.getName());
-
-            TextView user = (TextView) convertView.findViewById(R.id.itemUser);
-            user.setText(key.getUser());
-
-            return convertView;
-        }
-
-        protected ListAdapter getListAdapter() {
-            ListAdapter adapter = getListView().getAdapter();
-            if (adapter instanceof HeaderViewListAdapter) {
-                return ((HeaderViewListAdapter) adapter).getWrappedAdapter();
-            } else {
-                return adapter;
-            }
-        }
-
-        @Override
-        public void notifyDataSetChanged() {
-            super.notifyDataSetChanged();
-
-            mKeys = KeyDb.getInstance().getKeys();
         }
     }
 
@@ -145,18 +113,35 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        setListAdapter(new KeyAdapter());
+        mAdapter = new KeyCardViewAdapter();
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(mAdapter);
 
-        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Key key = mKeyDb.getKeys().get(position);
+        recyclerView.addOnItemTouchListener(
+            new SwipeOutTouchListener(recyclerView,
+                new SwipeOutTouchListener.SwipeOutListener() {
+                    @Override
+                    public boolean canSwipe(int position) { return true; }
 
-                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-                intent.putExtra("keyId", key.getId());
-                startActivity(intent);
-            }
-        });
+                    @Override
+                    public void onSwipeOutLeft(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                        for (int position : reverseSortedPositions) {
+                            removeKey(position);
+                            mAdapter.notifyItemRemoved(position);
+                        }
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onSwipeOutRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                        for (int position : reverseSortedPositions) {
+                            removeKey(position);
+                            mAdapter.notifyItemRemoved(position);
+                        }
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }));
 
         if (getIntent().getBooleanExtra("unlocked", false)) {
             // we've just been unlocked. Check to see if there's a key left in the temp storage
@@ -170,6 +155,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void removeKey(int position) {
+        Key key = mKeys.remove(position);
+        try {
+            mKeyDb.deleteKey(key.getId());
+        } catch (KeyDbException e) {
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -180,8 +173,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, UnlockActivity.class));
             finish();
         } else {
-            KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
-            adapter.notifyDataSetChanged();
+            mKeys = mKeyDb.getKeys();
+            mAdapter.notifyDataSetChanged();
 
             KeyDb.reference();
         }
@@ -216,35 +209,45 @@ public class MainActivity extends AppCompatActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
+        boolean result = true;
+
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                result = true;
+                break;
+            case R.id.action_synchronize:
+                syncWithSDCard(false);
+                break;
+            case R.id.action_undelete:
+                try {
+                    mKeys = mKeyDb.undeleteAll().getKeys();
+                    mAdapter.notifyDataSetChanged();
+                } catch (KeyDbException e) {
+//                    e.printStackTrace();
+                }
+                break;
+            default:
+                result = super.onOptionsItemSelected(item);
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
+        return result;
     }
 
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 
     /* Checks if external storage is available to at least read */
     public boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -259,8 +262,6 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_sync) {
             syncWithSDCard(false);
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -341,8 +342,7 @@ public class MainActivity extends AppCompatActivity
 
             switch (result) {
                 case SUCCESS:
-                    KeyAdapter adapter = (KeyAdapter)mListView.getAdapter();
-                    adapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
 
                     Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
                     break;

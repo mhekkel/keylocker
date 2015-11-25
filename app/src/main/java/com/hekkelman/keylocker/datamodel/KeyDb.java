@@ -129,7 +129,12 @@ public class KeyDb {
 	// accessors
 
 	public List<Key> getKeys() {
-		List<Key> result = new ArrayList<>(keyChain.getKeys());
+		List<Key> result = new ArrayList<>();
+
+		for (Key k: keyChain.getKeys()) {
+			if (k.isDeleted() == false)
+				result.add(k);
+		}
 
 		Collections.sort(result, new Comparator<Key>() {
 			@Override
@@ -158,6 +163,15 @@ public class KeyDb {
 		key.setUser(user);
 		key.setPassword(password);
 		key.setUrl(url);
+
+		write();
+	}
+
+	public void deleteKey(String keyID) throws KeyDbException {
+		Key key = keyChain.getKeyByID(keyID);
+
+		if (key != null)
+			key.setDeleted(true);
 
 		write();
 	}
@@ -227,5 +241,17 @@ public class KeyDb {
 	public static void reference() {
 		assert(sInstance != null);
 		++sRefCount;
+	}
+
+	public KeyDb undeleteAll() throws KeyDbException {
+		for (Key k : keyChain.getKeys()) {
+			if (k.isDeleted()) {
+				k.setDeleted(false);
+			}
+		}
+
+		write();
+
+		return this;
 	}
 }

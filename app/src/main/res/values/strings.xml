@@ -76,4 +76,6 @@
     <string name="dlog_save_failed_msg">Saving the new data failed with message:</string>
     <string name="dlog_discard_changes_msg">You are about to discard the changes. Continue?</string>
     <string name="dlog_discard_changes_title">Not saved yet</string>
+    <string name="action_synchronize">Synchronize</string>
+    <string name="action_undelete">Undo delete</string>
 </resources>

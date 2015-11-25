@@ -93,8 +93,6 @@ public class KeyChain {
 				tNote.synchronize(Note);
 		}
 
-		purge();
-
 		return changed;
 	}
 
