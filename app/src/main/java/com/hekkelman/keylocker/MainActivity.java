@@ -1,6 +1,8 @@
 package com.hekkelman.keylocker;
 
 import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -14,7 +16,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +35,7 @@ import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -39,6 +44,8 @@ public class MainActivity extends AppCompatActivity
     private KeyDb mKeyDb;
     private List<Key> mKeys;
     private KeyCardViewAdapter mAdapter;
+    private SearchView mSearchView;
+    private boolean mSearchViewVisible = false;
 
     // New CardView/RecycleView based interface
     class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.ViewHolder> {
@@ -143,16 +150,37 @@ public class MainActivity extends AppCompatActivity
                     }
                 }));
 
-        if (getIntent().getBooleanExtra("unlocked", false)) {
+        Intent intent = getIntent();
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            searchKeys(query);
+        }
+        else if (intent.getBooleanExtra("unlocked", false)) {
             // we've just been unlocked. Check to see if there's a key left in the temp storage
 
             Key key = KeyDb.getCachedKey();
             if (key != null) {
-                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+                intent = new Intent(MainActivity.this, KeyDetailActivity.class);
                 intent.putExtra("restore-key", true);
                 startActivity(intent);
             }
         }
+    }
+
+    private void searchKeys(String query) {
+        mKeys = mKeyDb.getKeys();
+
+        if (TextUtils.isEmpty(query) == false) {
+            Iterator<Key> iter = mKeys.iterator();
+            while (iter.hasNext()) {
+                Key key = iter.next();
+                if (key.match(query) == false)
+                    iter.remove();
+            }
+        }
+
+        mAdapter.notifyDataSetChanged();
     }
 
     private void removeKey(int position) {
@@ -160,6 +188,16 @@ public class MainActivity extends AppCompatActivity
         try {
             mKeyDb.deleteKey(key.getId());
         } catch (KeyDbException e) {
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            searchKeys(query);
         }
     }
 
@@ -201,6 +239,27 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.mainmenu, menu);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchKeys(newText);
+                return true;
+            }
+        });
+
         return true;
     }
 
@@ -213,6 +272,9 @@ public class MainActivity extends AppCompatActivity
         boolean result = true;
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                result = false;
+                break;
             case R.id.action_settings:
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
@@ -230,11 +292,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             default:
-                result = super.onOptionsItemSelected(item);
+                result = false;
                 break;
         }
 
-        return result;
+        return result || super.onOptionsItemSelected(item);
     }
 
     /* Checks if external storage is available for read and write */

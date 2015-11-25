@@ -1,5 +1,7 @@
 package com.hekkelman.keylocker.datamodel;
 
+import android.text.TextUtils;
+
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -231,5 +233,13 @@ public class Key {
 		}
 
 		return result;
+	}
+
+	public boolean match(String query) {
+		query = query.toLowerCase();
+
+		return (TextUtils.isEmpty(name) == false && name.toLowerCase().contains(query)) ||
+				(TextUtils.isEmpty(user) == false && user.toLowerCase().contains(query)) ||
+				(TextUtils.isEmpty(url) == false && url.toLowerCase().contains(query));
 	}
 }

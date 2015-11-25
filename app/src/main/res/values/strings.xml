@@ -78,4 +78,6 @@
     <string name="dlog_discard_changes_title">Not saved yet</string>
     <string name="action_synchronize">Synchronize</string>
     <string name="action_undelete">Undo delete</string>
+    <string name="search_hint">Search Keys</string>
+    <string name="action_search">Search</string>
 </resources>
