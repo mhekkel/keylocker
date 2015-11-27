@@ -24,8 +24,8 @@
 
     <string name="action_save">Save</string>
 
-    <string name="nav_keys_str">Show Keys</string>
-    <string name="nav_notes_str">Show Notes</string>
+    <string name="nav_keys_str">Keys</string>
+    <string name="nav_notes_str">Notes</string>
     <string name="drawer_name" translatable="false">KeyLocker</string>
     <string name="drawer_addr" translatable="false">maarten@hekkelman.com</string>
 
@@ -36,7 +36,9 @@
     <string name="init_hint_1_nr">Pin Code or Password</string>
     <string name="init_hint_2_nr">Pin Code or Password (validation)</string>
 
-    <string name="sync_with_sdcard">Syncronize with SDCard</string>
+    <string name="sync_with_sdcard">SDCard</string>
+    <string name="sync_with_onedrive">OneDrive</string>
+
     <string name="action_replace">Replace Key Locker File</string>
     <string name="keyNameIsRequired">Key name is a required field</string>
 
@@ -80,4 +82,5 @@
     <string name="action_undelete">Undo delete</string>
     <string name="search_hint">Search Keys</string>
     <string name="action_search">Search</string>
+    <string name="action_help">Help and Feedback</string>
 </resources>

@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_keys" android:title="@string/nav_keys_str" />
-        <item android:id="@+id/nav_notes" android:title="@string/nav_notes_str" />
+    <group android:checkableBehavior="single" android:id="@+id/nav_group_1">
+        <item android:id="@+id/nav_keys" android:title="@string/nav_keys_str"
+            android:icon="@drawable/ic_vpn_key_white_24dp"/>
+        <item android:id="@+id/nav_notes" android:title="@string/nav_notes_str"
+            android:icon="@drawable/ic_insert_comment_white_24dp"/>
     </group>
 
-    <item android:title="Communicate">
-        <menu>
-            <item android:id="@+id/nav_sync" android:icon="@android:drawable/ic_menu_share"
-                android:title="@string/sync_with_sdcard" />
-        </menu>
-    </item>
+    <group android:id="@+id/nav_group_2" >
+        <item android:title="@string/action_synchronize">
+            <menu>
+                <item android:id="@+id/nav_sync_sdcard" android:title="@string/sync_with_sdcard"
+                    android:icon="@drawable/ic_sd_storage_white_24dp"/>
+                <item android:id="@+id/nav_sync_onedrive" android:title="@string/sync_with_onedrive"
+                    android:icon="@drawable/ic_cloud_white_24dp"/>
+            </menu>
+        </item>
+    </group>
+
+    <group android:id="@+id/nav_group_3">
+        <item android:id="@+id/action_settings" android:title="@string/action_settings"
+            android:icon="@drawable/ic_settings_white_24dp"/>
+        <item android:id="@+id/action_help" android:title="@string/action_help"
+            android:icon="@drawable/ic_feedback_white_24dp"/>
+    </group>
 
 </menu>

@@ -20,14 +20,6 @@
             android:text="Item"
             style="@style/ListItemCaption"/>
 
-        <TextView
-            android:id="@+id/itemUser"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/itemCaption"
-            android:text="username"
-            android:padding="8dp"/>
-
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>

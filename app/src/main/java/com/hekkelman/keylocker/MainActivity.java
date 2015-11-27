@@ -38,6 +38,10 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -45,6 +49,9 @@ public class MainActivity extends AppCompatActivity
     private List<Key> mKeys;
     private KeyCardViewAdapter mAdapter;
     private String mQuery;
+
+    @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
+    @Bind(R.id.nav_view) NavigationView mNavigationView;
 
     // New CardView/RecycleView based interface
     class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.ViewHolder> {
@@ -67,14 +74,12 @@ public class MainActivity extends AppCompatActivity
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            private TextView nameView;
-            private TextView userView;
+            @Bind(R.id.itemCaption) protected TextView nameView;
+            @Bind(R.id.itemUser) protected TextView userView;
 
             public ViewHolder(View itemView) {
                 super(itemView);
-
-                nameView = (TextView)itemView.findViewById(R.id.itemCaption);
-                userView = (TextView)itemView.findViewById(R.id.itemUser);
+                ButterKnife.bind(this, itemView);
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -95,20 +100,14 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        ButterKnife.bind(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-                startActivity(intent);
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -116,38 +115,42 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView.setNavigationItemSelectedListener(this);
+        MenuItem mi = mNavigationView.getMenu().findItem(R.id.nav_keys);
+        if (mi != null) {
+            mi.setChecked(true);
+        }
 
         mAdapter = new KeyCardViewAdapter();
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(mAdapter);
 
-        recyclerView.addOnItemTouchListener(
-            new SwipeOutTouchListener(recyclerView,
-                new SwipeOutTouchListener.SwipeOutListener() {
-                    @Override
-                    public boolean canSwipe(int position) { return true; }
+        mRecyclerView.addOnItemTouchListener(
+                new SwipeOutTouchListener(mRecyclerView,
+                        new SwipeOutTouchListener.SwipeOutListener() {
+                            @Override
+                            public boolean canSwipe(int position) {
+                                return true;
+                            }
 
-                    @Override
-                    public void onSwipeOutLeft(RecyclerView recyclerView, int[] reverseSortedPositions) {
-                        for (int position : reverseSortedPositions) {
-                            removeKey(position);
-                            mAdapter.notifyItemRemoved(position);
-                        }
-                        mAdapter.notifyDataSetChanged();
-                    }
+                            @Override
+                            public void onSwipeOutLeft(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                    removeKey(position);
+                                    mAdapter.notifyItemRemoved(position);
+                                }
+                                mAdapter.notifyDataSetChanged();
+                            }
 
-                    @Override
-                    public void onSwipeOutRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
-                        for (int position : reverseSortedPositions) {
-                            removeKey(position);
-                            mAdapter.notifyItemRemoved(position);
-                        }
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }));
+                            @Override
+                            public void onSwipeOutRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                    removeKey(position);
+                                    mAdapter.notifyItemRemoved(position);
+                                }
+                                mAdapter.notifyDataSetChanged();
+                            }
+                        }));
 
         Intent intent = getIntent();
 
@@ -165,6 +168,12 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         }
+    }
+
+    @OnClick(R.id.fab)
+    public void onClickFab(View view) {
+        Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+        startActivity(intent);
     }
 
     private void searchKeys(String query) {
@@ -319,11 +328,14 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_keys) {
-            // Handle the camera action
+
         } else if (id == R.id.nav_notes) {
 
-        } else if (id == R.id.nav_sync) {
+        } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard(false);
+        }
+        else if (id == R.id.nav_sync_onedrive) {
+            syncWithOneDrive(false);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -331,101 +343,90 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private SyncTask mSyncTask;
-    enum SyncResult { SUCCESS, FAILED, NEED_PASSWORD }
+    private void syncWithOneDrive(boolean needPassword) {
+
+    }
 
     private void syncWithSDCard(boolean needPassword) {
-        if (mSyncTask != null) {
+        if (isExternalStorageWritable() == false) {
             return;
         }
 
-        if (isExternalStorageWritable()) {
-            if (needPassword == false) {
-                mSyncTask = new SyncTask();
-                mSyncTask.execute();
-            } else {
-                final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
-                new AlertDialog.Builder(this)
-                        .setView(view)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                EditText pw = (EditText)view.findViewById(R.id.dlog_password);
+        Synchronize.syncWithSDCard(new Synchronize.OnSyncTaskResult() {
+            @Override
+            public void syncResult(Synchronize.SyncResult result, String message, final Synchronize.OnSyncTaskResult handler) {
+                switch (result) {
+                    case SUCCESS:
+                        mAdapter.notifyDataSetChanged();
+                        Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
+                        break;
 
-                                mSyncTask = new SyncTask();
-                                mSyncTask.execute(pw.getText().toString());
-                            }
-                        })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    case FAILED:
+                    case CANCELLED:
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle(R.string.sync_failed)
+                                .setMessage(message != null ? message : getString(R.string.sync_cancelled))
+                                .show();
+                        break;
 
-                            }
-                        })
-                        .show();
+                    case MKDIR_FAILED:
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle(R.string.sync_failed)
+                                .setMessage(message != null ? message : getString(R.string.sync_mkdir_exception))
+                                .show();
+                        break;
+
+                    case NEED_PASSWORD:
+                        final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setView(view)
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        EditText pw = (EditText) view.findViewById(R.id.dlog_password);
+                                        Synchronize.syncWithSDCard(handler, pw.getText().toString());
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                    }
+                                })
+                                .show();
+                        break;
+                }
             }
-        }
+        });
     }
 
-    private class SyncTask extends AsyncTask<String, Void, SyncResult> {
-        private String error;
+//    protected void onPostExecute(final SyncResult result) {
+//
+//        String error = sSyncTask.getError();
+//        sSyncTask = null;
+//
+//        switch (result) {
+//            case SUCCESS:
+//                break;
+//
+//            case FAILED:
+//                new AlertDialog.Builder(MainActivity.this)
+//                        .setTitle(R.string.sync_failed)
+//                        .setMessage(mSyncTask.getError())
+//                        .show();
+//                break;
+//
+//            case NEED_PASSWORD:
+//                syncWithSDCard(true);
+//                break;
+//        }
+//    }
+//
+//    @Override
+//    protected void onCancelled() {
+//        sSyncTask = null;
+//        Toast.makeText(MainActivity.this, R.string.sync_cancelled, Toast.LENGTH_LONG).show();
+//    }
 
-        public String getError() {
-            return error;
-        }
 
-        @Override
-        protected SyncResult doInBackground(String... password) {
-            try {
-                File dir = new File(Environment.getExternalStorageDirectory(), "KeyLocker");
-                if (dir.isDirectory() == false && dir.mkdir() == false)
-                    throw new Exception(getString(R.string.sync_mkdir_exception));
-
-                File file = new File(dir, KeyDb.KEY_DB_NAME);
-
-                if (password.length > 0)
-                    KeyDb.getInstance().synchronize(file, password[0].toCharArray());
-                else
-                    KeyDb.getInstance().synchronize(file);
-
-                return SyncResult.SUCCESS;
-            } catch (InvalidPasswordException e) {
-                return SyncResult.NEED_PASSWORD;
-            } catch (Exception e) {
-                this.error = e.getMessage();
-                return SyncResult.FAILED;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(final SyncResult result) {
-            String error = mSyncTask.getError();
-            mSyncTask = null;
-
-            switch (result) {
-                case SUCCESS:
-                    mAdapter.notifyDataSetChanged();
-
-                    Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
-                    break;
-
-                case FAILED:
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle(R.string.sync_failed)
-                            .setMessage(mSyncTask.getError())
-                            .show();
-                    break;
-
-                case NEED_PASSWORD:
-                    syncWithSDCard(true);
-                    break;
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mSyncTask = null;
-            Toast.makeText(MainActivity.this, R.string.sync_cancelled, Toast.LENGTH_LONG).show();
-        }
-    }
 }
