@@ -28,7 +28,7 @@
     <string name="nav_notes_str">Toon Notities</string>
     <string name="dlog_delete_locker_msg">U staat op het punt uw huidige sleutelkluis te overschrijven, alle sleutels gaan hierbij verloren. Wilt u doorgaan?</string>
     <string name="dlog_delete_locker_title">Sleutelkluis overschrijven</string>
-    <string name="sync_with_sdcard">Synchroniseer met SD kaart</string>
+    <string name="sync_with_sdcard">SD kaart</string>
     <string name="title_activity_settings">Instellingen</string>
     <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ij;ie;o;oh;oo;u</string>
     <string name="dlog_discard_changes_msg">U staat op het punt de wijzigingen ongedaan te maken. Wilt u doorgaan?</string>
@@ -61,4 +61,9 @@
     <string name="sync_mkdir_exception">Kon geen map aanmaken op de SD kaart</string>
     <string name="sync_successful">Synchronisatie geslaagd</string>
     <string name="toast_corrupt_file">De sleutelkluis lijkt beschadigd</string>
+    <string name="search_hint">Zoek Sleutels</string>
+    <string name="action_synchronize">Synchroniseer</string>
+    <string name="action_search">Zoek</string>
+    <string name="action_help">Help en ondersteuning</string>
+    <string name="dlog_caption">Geef het wachtwoord waarmee het synchronisatie bestand is versleuteld.</string>
 </resources>

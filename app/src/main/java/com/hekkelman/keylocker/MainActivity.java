@@ -281,17 +281,17 @@ public class MainActivity extends AppCompatActivity
         boolean result = true;
 
         switch (item.getItemId()) {
-            case android.R.id.home:
-                result = false;
-                break;
-            case R.id.action_settings:
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-                result = true;
-                break;
-            case R.id.action_synchronize:
-                syncWithSDCard(false);
-                break;
+//            case android.R.id.home:
+//                result = false;
+//                break;
+//            case R.id.action_settings:
+//                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+//                startActivity(intent);
+//                result = true;
+//                break;
+//            case R.id.action_synchronize:
+//                syncWithSDCard(false);
+//                break;
             case R.id.action_undelete:
                 try {
                     mKeys = mKeyDb.undeleteAll().getKeys();

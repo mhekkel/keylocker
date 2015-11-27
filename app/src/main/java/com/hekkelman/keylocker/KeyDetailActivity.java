@@ -26,6 +26,9 @@ import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.util.Random;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class KeyDetailActivity extends AppCompatActivity {
 
     private String keyID;
@@ -39,29 +42,12 @@ public class KeyDetailActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_SECURE);
 
         setContentView(R.layout.activity_key_detail);
+
+        ButterKnife.bind(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        Button btn = (Button) findViewById(R.id.gen_pw);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // get preferences
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
-                int length = Integer.parseInt(prefs.getString("password-length", "8"));
-                boolean noAmbiguous = prefs.getBoolean("password-no-ambiguous", true);
-                boolean includeCapitals = prefs.getBoolean("password-include-capitals", true);
-                boolean includeDigits = prefs.getBoolean("password-include-digits", true);
-                boolean includeSymbols = prefs.getBoolean("password-include-symbols", true);
-
-                String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
-
-                EditText passwordFld = (EditText) findViewById(R.id.keyPasswordField);
-                passwordFld.setText(pw);
-            }
-        });
 
         if (getIntent().getBooleanExtra("restore-key", false)) {
             Key key = KeyDb.getCachedKey();
@@ -282,6 +268,32 @@ public class KeyDetailActivity extends AppCompatActivity {
         super.onStop();
 
         KeyDb.release();
+    }
+
+    public void onClickRenewPassword(View v) {
+
+        // get preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
+        int length = Integer.parseInt(prefs.getString("password-length", "8"));
+        boolean noAmbiguous = prefs.getBoolean("password-no-ambiguous", true);
+        boolean includeCapitals = prefs.getBoolean("password-include-capitals", true);
+        boolean includeDigits = prefs.getBoolean("password-include-digits", true);
+        boolean includeSymbols = prefs.getBoolean("password-include-symbols", true);
+
+        String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
+
+        EditText passwordFld = (EditText) findViewById(R.id.keyPasswordField);
+        passwordFld.setText(pw);
+    }
+
+    public void onClickVisitURL(View v) {
+
+    }
+
+    @OnClick(R.id.fab)
+    public void onClickFab(View view) {
+//        Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+//        startActivity(intent);
     }
 
     private String generatePassword(int length, boolean noAmbiguous, boolean includeCapitals, boolean includeDigits, boolean includeSymbols)

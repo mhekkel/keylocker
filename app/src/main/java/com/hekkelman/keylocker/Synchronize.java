@@ -23,14 +23,14 @@ public class Synchronize {
     }
 
     static void syncWithSDCard(OnSyncTaskResult handler) {
-        if (sSyncTask != null) {
+        if (sSyncTask == null) {
             sSyncTask = new SyncTask(handler);
             sSyncTask.execute();
         }
     }
 
     static void syncWithSDCard(OnSyncTaskResult handler, String password) {
-        if (sSyncTask != null) {
+        if (sSyncTask == null) {
             sSyncTask = new SyncTask(handler);
             sSyncTask.execute(password);
         }

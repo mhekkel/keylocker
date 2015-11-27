@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -28,12 +28,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:layout_marginLeft="32dp"
                 android:hint="@string/keyNameCaptionHint"
                 android:imeOptions="actionGo"
                 android:inputType="text"
-                android:singleLine="true"
-                />
+                android:singleLine="true" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -47,58 +45,72 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:layout_marginLeft="32dp"
                 android:hint="@string/keyUserCaptionHint"
                 android:imeOptions="actionGo"
                 android:inputType="text"
-                android:singleLine="true"
-                />
+                android:singleLine="true" />
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            app:hintTextAppearance="@style/TextAppearance.AppCompat">
+            android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/keyPasswordField"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="32dp"
-                android:hint="@string/keyPasswordCaptionHint"
-                android:imeOptions="actionGo"
-                android:inputType="text"
-                android:singleLine="true"
-                android:selectAllOnFocus="true"
-                />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_alignParentTop="true"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-        <android.support.design.widget.TextInputLayout
+                <EditText
+                    android:id="@+id/keyPasswordField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/keyPasswordCaptionHint"
+                    android:imeOptions="actionGo"
+                    android:inputType="text"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+            </android.support.design.widget.TextInputLayout>
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentRight="true"
+                android:onClick="onClickRenewPassword"
+                android:src="@drawable/ic_autorenew_black_24dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            app:hintTextAppearance="@style/TextAppearance.AppCompat">
+            android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/keyURLField"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="32dp"
-                android:hint="@string/keyURLCaptionHint"
-                android:imeOptions="actionGo"
-                android:inputType="textUri"
-                android:singleLine="true"
-                />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_alignParentTop="true"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-        <Button
+                <EditText
+                    android:id="@+id/keyURLField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/keyURLCaptionHint"
+                    android:imeOptions="actionGo"
+                    android:inputType="textUri"
+                    android:singleLine="true" />
 
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:id="@+id/gen_pw"
-            android:text="Generate Password" />
+            </android.support.design.widget.TextInputLayout>
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentRight="true"
+                android:onClick="onClickVisitURL"
+                android:src="@drawable/ic_arrow_forward_black_24dp" />
+
+        </RelativeLayout>
+
 
     </LinearLayout>
 
@@ -106,8 +118,7 @@
         android:id="@+id/lastModifiedCaption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        />
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
 

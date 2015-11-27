@@ -37,7 +37,7 @@
     <string name="init_hint_2_nr">Pin Code or Password (validation)</string>
 
     <string name="sync_with_sdcard">SDCard</string>
-    <string name="sync_with_onedrive">OneDrive</string>
+    <string name="sync_with_onedrive" translatable="false">OneDrive</string>
 
     <string name="action_replace">Replace Key Locker File</string>
     <string name="keyNameIsRequired">Key name is a required field</string>
@@ -83,4 +83,5 @@
     <string name="search_hint">Search Keys</string>
     <string name="action_search">Search</string>
     <string name="action_help">Help and Feedback</string>
+    <string name="dlog_caption">Please enter the password for the synchronized keylocker file.</string>
 </resources>
