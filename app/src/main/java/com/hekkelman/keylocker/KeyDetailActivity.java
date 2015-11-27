@@ -1,14 +1,17 @@
 package com.hekkelman.keylocker;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.content.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -26,6 +29,7 @@ import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.util.Random;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -33,6 +37,12 @@ public class KeyDetailActivity extends AppCompatActivity {
 
     private String keyID;
     private boolean textChanged = false;
+
+    @Bind(R.id.keyNameField) protected EditText nameField;
+    @Bind(R.id.keyUserField) protected EditText userField;
+    @Bind(R.id.keyPasswordField) protected EditText passwordField;
+    @Bind(R.id.keyURLField) protected EditText urlField;
+    @Bind(R.id.lastModifiedCaption) protected TextView lastModified;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +74,7 @@ public class KeyDetailActivity extends AppCompatActivity {
 
             if (this.keyID == null)
             {
-                View view = findViewById(R.id.lastModifiedCaption);
-                view.setVisibility(View.INVISIBLE);
+                lastModified.setVisibility(View.INVISIBLE);
             }
             else {
                 Key key = KeyDb.getInstance().getKey(this.keyID);
@@ -87,60 +96,53 @@ public class KeyDetailActivity extends AppCompatActivity {
             }
         }
 
-        int fieldIds[] = { R.id.keyNameField, R.id.keyPasswordField, R.id.keyUserField, R.id.keyURLField };
+        TextWatcher listener = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-        for (int fieldId : fieldIds) {
-            EditText field = (EditText) findViewById(fieldId);
-            field.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
+            @Override
+            public void afterTextChanged(Editable s) {
+                KeyDetailActivity.this.textChanged = true;
+            }
+        };
 
-                @Override
-                public void afterTextChanged(Editable s) {
-                    KeyDetailActivity.this.textChanged = true;
-                }
-            });
-        }
+        nameField.addTextChangedListener(listener);
+        passwordField.addTextChangedListener(listener);
+        userField.addTextChangedListener(listener);
+        urlField.addTextChangedListener(listener);
     }
 
     private void setKey(Key key) {
-        EditText editText;
-
         this.keyID = key.getId();
 
         String name = key.getName();
         if (name != null) {
-            editText = (EditText) findViewById(R.id.keyNameField);
-            editText.setText(name);
+            nameField.setText(name);
         }
 
-        editText = (EditText) findViewById(R.id.keyPasswordField);
         String password = key.getPassword();
         if (password != null) {
-            editText.setText(password);
+            passwordField.setText(password);
         }
 
-        editText = (EditText) findViewById(R.id.keyUserField);
         String user= key.getUser();
         if (user!= null) {
-            editText.setText(user);
+            userField.setText(user);
         }
 
-        editText = (EditText) findViewById(R.id.keyURLField);
         String url= key.getUrl();
         if (url != null) {
-            editText.setText(url);
+            urlField.setText(url);
         }
 
         String lastModified = key.getTimestamp();
         if (lastModified != null) {
-            TextView field = (TextView)findViewById(R.id.lastModifiedCaption);
-            field.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
+            this.lastModified.setText( String.format(getString(R.string.lastModifiedTemplate), lastModified));
         }
     }
 
@@ -199,17 +201,14 @@ public class KeyDetailActivity extends AppCompatActivity {
     private boolean saveKey() {
         boolean result = false;
 
-        EditText field;
-
-        field = (EditText) findViewById(R.id.keyNameField);
-        String name = field.getText().toString();
+        String name = nameField.getText().toString();
 
         if (name == null || name.length() == 0) {
-            field.setError(getString(R.string.keyNameIsRequired));
+            nameField.setError(getString(R.string.keyNameIsRequired));
         } else {
-            String user = ((EditText)findViewById(R.id.keyUserField)).getText().toString();
-            String password = ((EditText)findViewById(R.id.keyPasswordField)).getText().toString();
-            String url = ((EditText)findViewById(R.id.keyURLField)).getText().toString();
+            String user = userField.getText().toString();
+            String password = passwordField.getText().toString();
+            String url = urlField.getText().toString();
 
             try {
                 KeyDb.getInstance().storeKey(keyID, name, user, password, url);
@@ -241,10 +240,10 @@ public class KeyDetailActivity extends AppCompatActivity {
 
         // store the data in case we're about to disappear
         if (textChanged) {
-            String name = ((EditText) findViewById(R.id.keyNameField)).getText().toString();
-            String user = ((EditText)findViewById(R.id.keyUserField)).getText().toString();
-            String password = ((EditText)findViewById(R.id.keyPasswordField)).getText().toString();
-            String url = ((EditText)findViewById(R.id.keyURLField)).getText().toString();
+            String name = nameField.getText().toString();
+            String user = userField.getText().toString();
+            String password = passwordField.getText().toString();
+            String url = urlField.getText().toString();
 
             KeyDb.storeCachedKey(keyID, name, user, password, url);
         }
@@ -282,18 +281,33 @@ public class KeyDetailActivity extends AppCompatActivity {
 
         String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
 
-        EditText passwordFld = (EditText) findViewById(R.id.keyPasswordField);
-        passwordFld.setText(pw);
+        passwordField.setText(pw);
     }
 
     public void onClickVisitURL(View v) {
+        String url = urlField.getText().toString();
+        if (url.startsWith("http://") == false)
+            url = "http://" + url;
 
+        try {
+            Uri uri = Uri.parse(url);
+
+            onCopyPassword(null);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+        }
     }
 
     @OnClick(R.id.fab)
-    public void onClickFab(View view) {
-//        Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-//        startActivity(intent);
+    public void onCopyPassword(View view) {
+        ClipboardManager clipboard = (ClipboardManager)
+                getSystemService(Context.CLIPBOARD_SERVICE);
+
+        ClipData clip = ClipData.newPlainText("password", passwordField.getText().toString());
+        clipboard.setPrimaryClip(clip);
     }
 
     private String generatePassword(int length, boolean noAmbiguous, boolean includeCapitals, boolean includeDigits, boolean includeSymbols)

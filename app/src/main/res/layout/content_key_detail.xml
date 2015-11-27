@@ -65,6 +65,7 @@
                     android:id="@+id/keyPasswordField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="40dp"
                     android:hint="@string/keyPasswordCaptionHint"
                     android:imeOptions="actionGo"
                     android:inputType="text"
@@ -73,11 +74,16 @@
             </android.support.design.widget.TextInputLayout>
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="8dp"
+                android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:onClick="onClickRenewPassword"
-                android:src="@drawable/ic_autorenew_black_24dp" />
+                android:src="@drawable/ic_autorenew_black_24dp"
+                android:background="@drawable/btn_background_circle"
+                android:elevation="4dp"
+                />
 
         </RelativeLayout>
 
@@ -95,6 +101,7 @@
                     android:id="@+id/keyURLField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="40dp"
                     android:hint="@string/keyURLCaptionHint"
                     android:imeOptions="actionGo"
                     android:inputType="textUri"
@@ -103,14 +110,17 @@
             </android.support.design.widget.TextInputLayout>
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="8dp"
                 android:layout_alignParentRight="true"
                 android:onClick="onClickVisitURL"
-                android:src="@drawable/ic_arrow_forward_black_24dp" />
+                android:src="@drawable/ic_arrow_forward_black_24dp"
+                android:background="@drawable/btn_background_circle"
+                android:elevation="4dp" />
 
         </RelativeLayout>
-
 
     </LinearLayout>
 
