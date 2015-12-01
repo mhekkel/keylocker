@@ -73,10 +73,10 @@
                     android:singleLine="true" />
             </android.support.design.widget.TextInputLayout>
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_margin="8dp"
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="4dp"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:onClick="onClickRenewPassword"
@@ -109,11 +109,11 @@
 
             </android.support.design.widget.TextInputLayout>
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_centerVertical="true"
-                android:layout_margin="8dp"
+                android:layout_margin="4dp"
                 android:layout_alignParentRight="true"
                 android:onClick="onClickVisitURL"
                 android:src="@drawable/ic_arrow_forward_black_24dp"
