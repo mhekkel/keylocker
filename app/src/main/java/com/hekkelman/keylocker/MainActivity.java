@@ -35,6 +35,7 @@ import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +50,8 @@ public class MainActivity extends AppCompatActivity
     private List<Key> mKeys;
     private KeyCardViewAdapter mAdapter;
     private String mQuery;
+
+    private AsyncTask<List<String>,Void,Void> mDeleteTask;
 
     @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
     @Bind(R.id.nav_view) NavigationView mNavigationView;
@@ -129,26 +132,29 @@ public class MainActivity extends AppCompatActivity
                 new SwipeOutTouchListener(mRecyclerView,
                         new SwipeOutTouchListener.SwipeOutListener() {
                             @Override
-                            public boolean canSwipe(int position) {
-                                return true;
+                            public boolean canSwipe(int position)
+                            {
+                                return mDeleteTask == null;     // only one at a time
                             }
 
                             @Override
                             public void onSwipeOutLeft(RecyclerView recyclerView, int[] reverseSortedPositions) {
                                 for (int position : reverseSortedPositions) {
-                                    removeKey(position);
                                     mAdapter.notifyItemRemoved(position);
                                 }
                                 mAdapter.notifyDataSetChanged();
+
+                                removeKeys(reverseSortedPositions);
                             }
 
                             @Override
                             public void onSwipeOutRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
                                 for (int position : reverseSortedPositions) {
-                                    removeKey(position);
                                     mAdapter.notifyItemRemoved(position);
                                 }
                                 mAdapter.notifyDataSetChanged();
+
+                                removeKeys(reverseSortedPositions);
                             }
                         }));
 
@@ -193,12 +199,31 @@ public class MainActivity extends AppCompatActivity
         mAdapter.notifyDataSetChanged();
     }
 
-    private void removeKey(int position) {
-        Key key = mKeys.remove(position);
-        try {
-            mKeyDb.deleteKey(key.getId());
-        } catch (KeyDbException e) {
+    private void removeKeys(int position[]) {
+        List<String> ids = new ArrayList<String>();
+
+        for (int pos: position) {
+            Key key = mKeys.remove(pos);
+            ids.add(key.getId());
         }
+
+        mDeleteTask = new AsyncTask<List<String>, Void, Void>() {
+            @Override
+            protected Void doInBackground(List<String>... params) {
+                try {
+                    for (String keyId: params[0])
+                        mKeyDb.deleteKey(keyId);
+                } catch (KeyDbException e) {
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                mDeleteTask = null;
+            }
+        }.execute(ids);
     }
 
     @Override
@@ -231,7 +256,14 @@ public class MainActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
-        KeyDb.release();
+        if (mDeleteTask != null) {
+            try {
+                mDeleteTask.wait();
+                KeyDb.release();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

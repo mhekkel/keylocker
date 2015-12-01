@@ -49,6 +49,9 @@ public class SwipeOutTouchListener implements RecyclerView.OnItemTouchListener {
     public SwipeOutTouchListener(RecyclerView recyclerView, SwipeOutListener listener) {
         ViewConfiguration vc = ViewConfiguration.get(recyclerView.getContext());
         this.slop = vc.getScaledTouchSlop();
+
+        this.slop *= 2;
+
         this.minFlingVelocity = vc.getScaledMinimumFlingVelocity() * 16;
         this.maxFlingVelocity = vc.getScaledMaximumFlingVelocity();
         this.animationTime = recyclerView.getContext().getResources().getInteger(
