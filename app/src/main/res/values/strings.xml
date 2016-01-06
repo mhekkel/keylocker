@@ -84,4 +84,7 @@
     <string name="action_search">Search</string>
     <string name="action_help">Help and Feedback</string>
     <string name="dlog_caption">Please enter the password for the synchronized keylocker file.</string>
+    <string name="wifi_unavailable_error_message">Unable to access the internet, please visit connection settings</string>
+    <string name="error_title">Error!</string>
+    <string name="close">Close</string>
 </resources>

@@ -1,9 +1,10 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
+- refactor KeyDb, van singleton naar Application member
+
 - Synchroniseren over netwerk
-- Groepsgewijs in lijst plaatsen
 - Weergave en wijzigen notities
-- Backup ondersteuning?
 - Foutafhandeling helemaal nalopen
-- copy/paste
-- url bezoeken
+
+- Groepsgewijs in lijst plaatsen
+- Backup ondersteuning?

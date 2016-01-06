@@ -1,11 +1,21 @@
 package com.hekkelman.keylocker;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Toast;
 
 import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.onedrive.sdk.authentication.ADALAuthenticator;
+import com.onedrive.sdk.authentication.MSAAuthenticator;
+import com.onedrive.sdk.concurrency.ICallback;
+import com.onedrive.sdk.core.ClientException;
+import com.onedrive.sdk.core.DefaultClientConfig;
+import com.onedrive.sdk.core.IClientConfig;
+import com.onedrive.sdk.extensions.Drive;
+import com.onedrive.sdk.extensions.IOneDriveClient;
+import com.onedrive.sdk.extensions.OneDriveClient;
 
 import java.io.File;
 
@@ -24,28 +34,67 @@ public class Synchronize {
 
     static void syncWithSDCard(OnSyncTaskResult handler) {
         if (sSyncTask == null) {
-            sSyncTask = new SyncTask(handler);
+            sSyncTask = new SDSyncTask(handler);
             sSyncTask.execute();
         }
     }
 
     static void syncWithSDCard(OnSyncTaskResult handler, String password) {
         if (sSyncTask == null) {
-            sSyncTask = new SyncTask(handler);
+            sSyncTask = new SDSyncTask(handler);
+            sSyncTask.execute(password);
+        }
+    }
+
+    static void syncWithOneDrive(OnSyncTaskResult handler) {
+        if (sSyncTask == null) {
+            sSyncTask = new OneDriveSyncTask(handler);
+            sSyncTask.execute();
+        }
+    }
+
+    static void syncWithOneDrive(OnSyncTaskResult handler, String password) {
+        if (sSyncTask == null) {
+            sSyncTask = new OneDriveSyncTask(handler);
             sSyncTask.execute(password);
         }
     }
 
     public interface OnSyncTaskResult {
         void syncResult(SyncResult result, String message, final OnSyncTaskResult handler);
+        Activity getActivity();
     }
 
-    private static class SyncTask extends AsyncTask<String, Void, SyncResult> {
-        private String error;
-        private OnSyncTaskResult handler;
+    private static abstract class SyncTask extends AsyncTask<String, Void, SyncResult> {
+        protected String error;
+        protected OnSyncTaskResult handler;
 
         public SyncTask(OnSyncTaskResult handler) {
             this.handler = handler;
+        }
+
+        @Override
+        protected void onPostExecute(final SyncResult result) {
+            sSyncTask = null;
+
+            try {
+                handler.syncResult(result, error, handler);
+            }
+            catch (Exception e) {
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            sSyncTask = null;
+            handler.syncResult(SyncResult.CANCELLED, null, handler);
+        }
+    }
+
+    private static class SDSyncTask extends SyncTask {
+
+        public SDSyncTask(OnSyncTaskResult handler) {
+            super(handler);
         }
 
         @Override
@@ -70,22 +119,31 @@ public class Synchronize {
                 return SyncResult.FAILED;
             }
         }
+    }
 
-        @Override
-        protected void onPostExecute(final SyncResult result) {
-            sSyncTask = null;
+//    final ADALAuthenticator adalAuthenticator = new ADALAuthenticator() {
+//        @Override
+//        public String getClientId() {
+//            return "<adal-client-id>";
+//        }
+//
+//        @Override
+//        protected String getRedirectUrl() {
+//            return "https://localhost";
+//        }
+//    }
 
-            try {
-                handler.syncResult(result, error, handler);
-            }
-            catch (Exception e) {
-            }
+    private static class OneDriveSyncTask extends SyncTask {
+
+        public OneDriveSyncTask(OnSyncTaskResult handler) {
+            super(handler);
+
         }
 
         @Override
-        protected void onCancelled() {
-            sSyncTask = null;
-            handler.syncResult(SyncResult.CANCELLED, null, handler);
+        protected SyncResult doInBackground(String... params) {
+            return SyncResult.FAILED;
         }
     }
+
 }

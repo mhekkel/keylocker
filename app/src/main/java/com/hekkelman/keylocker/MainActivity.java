@@ -1,5 +1,6 @@
 package com.hekkelman.keylocker;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -33,8 +34,18 @@ import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
+import com.onedrive.sdk.authentication.MSAAuthenticator;
+import com.onedrive.sdk.concurrency.ICallback;
+import com.onedrive.sdk.core.ClientException;
+import com.onedrive.sdk.core.DefaultClientConfig;
+import com.onedrive.sdk.core.IClientConfig;
+import com.onedrive.sdk.extensions.Drive;
+import com.onedrive.sdk.extensions.IOneDriveClient;
+import com.onedrive.sdk.extensions.Item;
+import com.onedrive.sdk.extensions.OneDriveClient;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +55,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener
+//        , ItemFragment.OnFragmentInteractionListener
+{
 
     private KeyDb mKeyDb;
     private List<Key> mKeys;
@@ -55,6 +68,16 @@ public class MainActivity extends AppCompatActivity
 
     @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
     @Bind(R.id.nav_view) NavigationView mNavigationView;
+
+//    @Override
+//    public void onFragmentInteraction(final DisplayItem item) {
+//        getFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.fragment, ItemFragment.newInstance(item.getId()))
+//                .addToBackStack(null)
+//                .commit();
+//    }
+
 
     // New CardView/RecycleView based interface
     class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.ViewHolder> {
@@ -376,7 +399,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void syncWithOneDrive(boolean needPassword) {
+        final BaseApplication app = (BaseApplication)getApplication();
+        final ICallback<Void> serviceCreated = new DefaultCallback<Void>(this) {
+            @Override
+            public void success(final Void result) {
+                fetchKeyLockerFile();
+            }
+        };
+        try {
+            app.getOneDriveClient();
+        } catch (final UnsupportedOperationException ignored) {
+            app.createOneDriveClient(this, serviceCreated);
+        }
+    }
 
+    private void fetchKeyLockerFile() {
+        final BaseApplication app = (BaseApplication)getApplication();
+
+        try {
+            IOneDriveClient oneDriveClient = app.getOneDriveClient();
+
+            InputStream file = oneDriveClient
+                    .getDrive()
+                    .getRoot()
+                    .getItemWithPath("keylockerfile.txt")
+//                    .getItemWithPath("/documents/keylockerfile.txt")
+                    .getContent()
+                    .buildRequest()
+                    .get();
+
+            KeyDb.getInstance().synchronize(file);
+//        } catch (InvalidPasswordException e) {
+//
+//        } catch (KeyDbException e) {
+//            e.printStackTrace();
+        } catch (Exception e) {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(R.string.sync_failed)
+                    .setMessage(e.getMessage())
+                    .show();
+        }
     }
 
     private void syncWithSDCard(boolean needPassword) {
@@ -428,6 +490,11 @@ public class MainActivity extends AppCompatActivity
                                 .show();
                         break;
                 }
+            }
+
+            @Override
+            public Activity getActivity() {
+                return MainActivity.this;
             }
         });
     }

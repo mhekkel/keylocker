@@ -47,7 +47,7 @@ public class KeyDb {
 		this.password = password;
 		this.file = file;
 
-		if (file.exists())
+		if (file != null && file.exists())
 			read();
 		else
 			keyChain = new KeyChain();
@@ -118,6 +118,22 @@ public class KeyDb {
 		KeyDb db = new KeyDb(password, file);
 		if (synchronize(db))
 			db.write();
+	}
+
+	public OutputStream synchronize(InputStream file) throws KeyDbException {
+		KeyDb db = new KeyDb(this.password, null);
+		db.read(file);
+//		if (synchronize(db))
+//			db.write();
+		return null;
+	}
+
+	public OutputStream synchronize(InputStream file, char password[]) throws KeyDbException {
+		KeyDb db = new KeyDb(password, null);
+		db.read(file);
+//		if (synchronize(db))
+//			db.write();
+		return null;
 	}
 
 	public boolean synchronize(KeyDb db) throws KeyDbException {
