@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -30,22 +29,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
-import com.onedrive.sdk.authentication.MSAAuthenticator;
 import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
-import com.onedrive.sdk.core.DefaultClientConfig;
-import com.onedrive.sdk.core.IClientConfig;
-import com.onedrive.sdk.extensions.Drive;
-import com.onedrive.sdk.extensions.IOneDriveClient;
-import com.onedrive.sdk.extensions.Item;
-import com.onedrive.sdk.extensions.OneDriveClient;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -387,10 +375,14 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_notes) {
 
         } else if (id == R.id.nav_sync_sdcard) {
-            syncWithSDCard(false);
+            syncWithSDCard();
         }
         else if (id == R.id.nav_sync_onedrive) {
-            syncWithOneDrive(false);
+            syncWithOneDrive();
+        }
+        else if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -398,12 +390,65 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void syncWithOneDrive(boolean needPassword) {
+    final Synchronize.OnSyncTaskResult mSyncHandler = new Synchronize.OnSyncTaskResult() {
+        @Override
+        public void syncResult(Synchronize.SyncResult result, String message, final Synchronize.SyncTask task) {
+            switch (result) {
+                case SUCCESS:
+                    mAdapter.notifyDataSetChanged();
+                    Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
+                    break;
+
+                case FAILED:
+                case CANCELLED:
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.sync_failed)
+                            .setMessage(message != null ? message : getString(R.string.sync_cancelled))
+                            .show();
+                    break;
+
+                case MKDIR_FAILED:
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.sync_failed)
+                            .setMessage(message != null ? message : getString(R.string.sync_mkdir_exception))
+                            .show();
+                    break;
+
+                case NEED_PASSWORD:
+                    final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setView(view)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    EditText pw = (EditText) view.findViewById(R.id.dlog_password);
+                                    task.retryWithPassword(pw.getText().toString());
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .show();
+                    break;
+            }
+        }
+
+        @Override
+        public Activity getActivity() {
+            return MainActivity.this;
+        }
+    };
+
+    private void syncWithOneDrive() {
         final BaseApplication app = (BaseApplication)getApplication();
         final ICallback<Void> serviceCreated = new DefaultCallback<Void>(this) {
             @Override
             public void success(final Void result) {
-                fetchKeyLockerFile();
+                final BaseApplication app = (BaseApplication)getApplication();
+                Synchronize.syncWithOneDrive(mSyncHandler, app);
             }
         };
         try {
@@ -413,90 +458,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void fetchKeyLockerFile() {
-        final BaseApplication app = (BaseApplication)getApplication();
-
-        try {
-            IOneDriveClient oneDriveClient = app.getOneDriveClient();
-
-            InputStream file = oneDriveClient
-                    .getDrive()
-                    .getRoot()
-                    .getItemWithPath("keylockerfile.txt")
-//                    .getItemWithPath("/documents/keylockerfile.txt")
-                    .getContent()
-                    .buildRequest()
-                    .get();
-
-            KeyDb.getInstance().synchronize(file);
-//        } catch (InvalidPasswordException e) {
-//
-//        } catch (KeyDbException e) {
-//            e.printStackTrace();
-        } catch (Exception e) {
-            new AlertDialog.Builder(MainActivity.this)
-                    .setTitle(R.string.sync_failed)
-                    .setMessage(e.getMessage())
-                    .show();
+    private void syncWithSDCard() {
+        if (isExternalStorageWritable()) {
+            Synchronize.syncWithSDCard(mSyncHandler);
         }
-    }
-
-    private void syncWithSDCard(boolean needPassword) {
-        if (isExternalStorageWritable() == false) {
-            return;
-        }
-
-        Synchronize.syncWithSDCard(new Synchronize.OnSyncTaskResult() {
-            @Override
-            public void syncResult(Synchronize.SyncResult result, String message, final Synchronize.OnSyncTaskResult handler) {
-                switch (result) {
-                    case SUCCESS:
-                        mAdapter.notifyDataSetChanged();
-                        Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
-                        break;
-
-                    case FAILED:
-                    case CANCELLED:
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setTitle(R.string.sync_failed)
-                                .setMessage(message != null ? message : getString(R.string.sync_cancelled))
-                                .show();
-                        break;
-
-                    case MKDIR_FAILED:
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setTitle(R.string.sync_failed)
-                                .setMessage(message != null ? message : getString(R.string.sync_mkdir_exception))
-                                .show();
-                        break;
-
-                    case NEED_PASSWORD:
-                        final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setView(view)
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        EditText pw = (EditText) view.findViewById(R.id.dlog_password);
-                                        Synchronize.syncWithSDCard(handler, pw.getText().toString());
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                    }
-                                })
-                                .show();
-                        break;
-                }
-            }
-
-            @Override
-            public Activity getActivity() {
-                return MainActivity.this;
-            }
-        });
     }
 
 //    protected void onPostExecute(final SyncResult result) {

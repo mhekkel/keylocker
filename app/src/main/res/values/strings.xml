@@ -87,4 +87,10 @@
     <string name="wifi_unavailable_error_message">Unable to access the internet, please visit connection settings</string>
     <string name="error_title">Error!</string>
     <string name="close">Close</string>
+    <string name="oneDriveSyncProgressTitle">Synchronizing with OneDrive</string>
+    <string name="oneDriveSyncProgressMessageInit">Initializing</string>
+    <string name="oneDriveSyncProgressMessage2">Locating keys file</string>
+    <string name="oneDriveSyncProgressMessage3">Downloading old keys file</string>
+    <string name="oneDriveSyncProgressMessage4">Synchronizing files</string>
+    <string name="oneDriveSyncProgressMessage5">Saving keys file</string>
 </resources>

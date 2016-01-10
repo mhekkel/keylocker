@@ -120,20 +120,16 @@ public class KeyDb {
 			db.write();
 	}
 
-	public OutputStream synchronize(InputStream file) throws KeyDbException {
+	public void synchronize(InputStream file) throws KeyDbException {
 		KeyDb db = new KeyDb(this.password, null);
 		db.read(file);
-//		if (synchronize(db))
-//			db.write();
-		return null;
+		synchronize(db);
 	}
 
-	public OutputStream synchronize(InputStream file, char password[]) throws KeyDbException {
+	public void synchronize(InputStream file, char password[]) throws KeyDbException {
 		KeyDb db = new KeyDb(password, null);
 		db.read(file);
-//		if (synchronize(db))
-//			db.write();
-		return null;
+		synchronize(db);
 	}
 
 	public boolean synchronize(KeyDb db) throws KeyDbException {

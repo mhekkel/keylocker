@@ -1,23 +1,20 @@
 package com.hekkelman.keylocker;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.widget.Toast;
+import android.util.Log;
 
 import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.onedrive.sdk.authentication.ADALAuthenticator;
-import com.onedrive.sdk.authentication.MSAAuthenticator;
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
-import com.onedrive.sdk.core.DefaultClientConfig;
-import com.onedrive.sdk.core.IClientConfig;
-import com.onedrive.sdk.extensions.Drive;
 import com.onedrive.sdk.extensions.IOneDriveClient;
-import com.onedrive.sdk.extensions.OneDriveClient;
+import com.onedrive.sdk.extensions.Item;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 
 /**
  * Created by maarten on 27-11-15.
@@ -32,40 +29,26 @@ public class Synchronize {
         return sSyncTask;
     }
 
-    static void syncWithSDCard(OnSyncTaskResult handler) {
-        if (sSyncTask == null) {
-            sSyncTask = new SDSyncTask(handler);
-            sSyncTask.execute();
-        }
-    }
-
-    static void syncWithSDCard(OnSyncTaskResult handler, String password) {
+    static void syncWithSDCard(OnSyncTaskResult handler, String... password) {
         if (sSyncTask == null) {
             sSyncTask = new SDSyncTask(handler);
             sSyncTask.execute(password);
         }
     }
 
-    static void syncWithOneDrive(OnSyncTaskResult handler) {
+    static void syncWithOneDrive(OnSyncTaskResult handler, BaseApplication app, String... password) {
         if (sSyncTask == null) {
-            sSyncTask = new OneDriveSyncTask(handler);
-            sSyncTask.execute();
-        }
-    }
-
-    static void syncWithOneDrive(OnSyncTaskResult handler, String password) {
-        if (sSyncTask == null) {
-            sSyncTask = new OneDriveSyncTask(handler);
+            sSyncTask = new OneDriveSyncTask(handler, app);
             sSyncTask.execute(password);
         }
     }
 
     public interface OnSyncTaskResult {
-        void syncResult(SyncResult result, String message, final OnSyncTaskResult handler);
+        void syncResult(SyncResult result, String message, final SyncTask task);
         Activity getActivity();
     }
 
-    private static abstract class SyncTask extends AsyncTask<String, Void, SyncResult> {
+    public static abstract class SyncTask extends AsyncTask<String, Void, SyncResult> {
         protected String error;
         protected OnSyncTaskResult handler;
 
@@ -78,7 +61,7 @@ public class Synchronize {
             sSyncTask = null;
 
             try {
-                handler.syncResult(result, error, handler);
+                handler.syncResult(result, error, this);
             }
             catch (Exception e) {
             }
@@ -87,14 +70,21 @@ public class Synchronize {
         @Override
         protected void onCancelled() {
             sSyncTask = null;
-            handler.syncResult(SyncResult.CANCELLED, null, handler);
+            handler.syncResult(SyncResult.CANCELLED, null, this);
         }
+
+        public abstract void retryWithPassword(String password);
     }
 
     private static class SDSyncTask extends SyncTask {
 
         public SDSyncTask(OnSyncTaskResult handler) {
             super(handler);
+        }
+
+        @Override
+        public void retryWithPassword(String password) {
+            Synchronize.syncWithSDCard(handler, password);
         }
 
         @Override
@@ -121,28 +111,129 @@ public class Synchronize {
         }
     }
 
-//    final ADALAuthenticator adalAuthenticator = new ADALAuthenticator() {
-//        @Override
-//        public String getClientId() {
-//            return "<adal-client-id>";
-//        }
-//
-//        @Override
-//        protected String getRedirectUrl() {
-//            return "https://localhost";
-//        }
-//    }
-
     private static class OneDriveSyncTask extends SyncTask {
 
-        public OneDriveSyncTask(OnSyncTaskResult handler) {
+        private final BaseApplication app;
+        private final ProgressDialog dlog;
+
+        public OneDriveSyncTask(OnSyncTaskResult handler, BaseApplication app) {
             super(handler);
 
+            this.app = app;
+            this.dlog = ProgressDialog.show(handler.getActivity(),
+                    app.getString(R.string.oneDriveSyncProgressTitle),
+                    app.getString(R.string.oneDriveSyncProgressMessageInit),
+                    false, true,
+                    new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            OneDriveSyncTask.this.onStopped();
+                        }
+                    });
+        }
+
+        private void onStopped() {
+            cancel(false);
+        }
+
+        private void setProgressMessage(final CharSequence message) {
+            handler.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dlog.setMessage(message);
+                }
+            });
+        }
+
+        private void dismissProgressDialog() {
+            handler.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dlog.dismiss();
+                }
+            });
         }
 
         @Override
-        protected SyncResult doInBackground(String... params) {
-            return SyncResult.FAILED;
+        protected SyncResult doInBackground(String... password) {
+            try {
+                IOneDriveClient oneDriveClient = app.getOneDriveClient();
+
+                setProgressMessage(app.getString(R.string.oneDriveSyncProgressMessage2));
+
+                Item dir = oneDriveClient
+                        .getDrive()
+                        .getSpecial("approot")
+                        .buildRequest()
+                        .expand("children")
+                        .select("id,name")
+                        .get();
+
+                if (isCancelled())
+                    return SyncResult.CANCELLED;
+
+                if (dir.children != null) {
+                    for (Item i: dir.children.getCurrentPage()) {
+                        Log.d("INFO", "item: " + i.name);
+
+                        if (i.name.equals("keys.xml"))
+                        {
+                            setProgressMessage(app.getString(R.string.oneDriveSyncProgressMessage3));
+
+                            InputStream file = oneDriveClient
+                                    .getDrive()
+                                    .getItems(i.id)
+                                    .getContent()
+                                    .buildRequest()
+                                    .get();
+
+                            if (isCancelled())
+                                return SyncResult.CANCELLED;
+
+                            setProgressMessage(app.getString(R.string.oneDriveSyncProgressMessage4));
+                            if (password.length > 0)
+                                KeyDb.getInstance().synchronize(file, password[0].toCharArray());
+                            else
+                                KeyDb.getInstance().synchronize(file);
+                        }
+                    }
+                }
+
+                if (isCancelled())
+                    return SyncResult.CANCELLED;
+
+                setProgressMessage(app.getString(R.string.oneDriveSyncProgressMessage5));
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                KeyDb.getInstance().write(outputStream);
+
+                if (isCancelled())
+                    return SyncResult.CANCELLED;
+
+                oneDriveClient
+                        .getDrive()
+                        .getItems(dir.id)
+                        .getChildren()
+                        .byId("keys.xml")
+                        .getContent()
+                        .buildRequest()
+                        .put(outputStream.toByteArray());
+
+                return SyncResult.SUCCESS;
+            } catch (InvalidPasswordException e) {
+                return SyncResult.NEED_PASSWORD;
+            } catch (Exception e) {
+                this.error = e.getMessage();
+                return SyncResult.FAILED;
+            }
+            finally {
+                dismissProgressDialog();
+            }
+        }
+
+        @Override
+        public void retryWithPassword(String password) {
+            Synchronize.syncWithOneDrive(handler, app, password);
         }
     }
 
