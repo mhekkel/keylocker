@@ -298,6 +298,7 @@ public class KeyDetailActivity extends AppCompatActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
+            Toast.makeText(KeyDetailActivity.this, R.string.visitFailed, Toast.LENGTH_SHORT).show();
         }
     }
 

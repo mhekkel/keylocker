@@ -93,4 +93,5 @@
     <string name="oneDriveSyncProgressMessage3">Downloading old keys file</string>
     <string name="oneDriveSyncProgressMessage4">Synchronizing files</string>
     <string name="oneDriveSyncProgressMessage5">Saving keys file</string>
+    <string name="visitFailed">Is that a valid URL?</string>
 </resources>

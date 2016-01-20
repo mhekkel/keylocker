@@ -50,16 +50,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class BaseApplication extends Application {
 
     /**
-     * The number of thumbnails to cache
-     */
-    private static final int MAX_IMAGE_CACHE_SIZE = 300;
-
-    /**
-     * Thumbnail cache
-     */
-    private LruCache<String, Bitmap> mImageCache;
-
-    /**
      * The service instance
      */
     private final AtomicReference<IOneDriveClient> mClient = new AtomicReference<>();
@@ -95,18 +85,6 @@ public class BaseApplication extends Application {
                 return new String[] {"onedrive.readwrite", "onedrive.appfolder", "wl.offline_access"};
             }
         };
-
-//        final MSAAuthenticator msaAuthenticator = new MSAAuthenticator() {
-//            @Override
-//            public String getClientId() {
-//                return "000000004C146A60";
-//            }
-//
-//            @Override
-//            public String[] getScopes() {
-//                return new String[] {"onedrive.readwrite", "onedrive.appfolder", "wl.offline_access"};
-//            }
-//        };
 
         final IClientConfig config = DefaultClientConfig.createWithAuthenticator(msaAuthenticator);
         config.getLogger().setLoggingLevel(LoggerLevel.Debug);
@@ -187,17 +165,5 @@ public class BaseApplication extends Application {
             .Builder()
             .fromConfig(createConfig())
             .loginAndBuildClient(activity, callback);
-    }
-
-    /**
-     * Gets the image cache for this application
-     *
-     * @return the image loader
-     */
-    public synchronized LruCache<String, Bitmap> getImageCache() {
-        if (mImageCache == null) {
-            mImageCache = new LruCache<>(BaseApplication.MAX_IMAGE_CACHE_SIZE);
-        }
-        return mImageCache;
     }
 }

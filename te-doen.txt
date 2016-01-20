@@ -1,10 +1,13 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
-- refactor KeyDb, van singleton naar Application member
+- deleten van items afronden (Toast met link?)
 
 - Synchroniseren over netwerk
 - Weergave en wijzigen notities
 - Foutafhandeling helemaal nalopen
 
+Eventueel:
+
+- refactor KeyDb, van singleton naar Application member
 - Groepsgewijs in lijst plaatsen
 - Backup ondersteuning?
