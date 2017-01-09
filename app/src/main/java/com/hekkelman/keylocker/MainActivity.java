@@ -414,6 +414,20 @@ public class MainActivity extends AppCompatActivity
                             .show();
                     break;
 
+                case PERMISSION_DENIED:
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.sync_failed)
+                            .setMessage(message != null ? message : getString(R.string.sync_permission_denied))
+                            .show();
+                    break;
+
+                case MEDIA_NOT_MOUNTED:
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.sync_failed)
+                            .setMessage(message != null ? message : getString(R.string.sync_media_not_mounted))
+                            .show();
+                    break;
+
                 case NEED_PASSWORD:
                     final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
                     new AlertDialog.Builder(MainActivity.this)
@@ -459,8 +473,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void syncWithSDCard() {
+        final BaseApplication app = (BaseApplication)getApplication();
         if (isExternalStorageWritable()) {
-            Synchronize.syncWithSDCard(mSyncHandler);
+            Synchronize.syncWithSDCard(mSyncHandler, app);
         }
     }
 

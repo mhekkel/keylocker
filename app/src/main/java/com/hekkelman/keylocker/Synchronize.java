@@ -1,10 +1,14 @@
 package com.hekkelman.keylocker;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
@@ -16,12 +20,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 
+import static android.support.v7.widget.StaggeredGridLayoutManager.TAG;
+
 /**
  * Created by maarten on 27-11-15.
  */
 public class Synchronize {
 
-    enum SyncResult { SUCCESS, FAILED, CANCELLED, NEED_PASSWORD, MKDIR_FAILED}
+    enum SyncResult { SUCCESS, FAILED, CANCELLED, NEED_PASSWORD, PERMISSION_DENIED, MEDIA_NOT_MOUNTED, MKDIR_FAILED}
 
     private static SyncTask sSyncTask;
 
@@ -29,9 +35,9 @@ public class Synchronize {
         return sSyncTask;
     }
 
-    static void syncWithSDCard(OnSyncTaskResult handler, String... password) {
+    static void syncWithSDCard(OnSyncTaskResult handler, BaseApplication app, String... password) {
         if (sSyncTask == null) {
-            sSyncTask = new SDSyncTask(handler);
+            sSyncTask = new SDSyncTask(handler, app);
             sSyncTask.execute(password);
         }
     }
@@ -78,20 +84,36 @@ public class Synchronize {
 
     private static class SDSyncTask extends SyncTask {
 
-        public SDSyncTask(OnSyncTaskResult handler) {
+        private final BaseApplication app;
+
+        public SDSyncTask(OnSyncTaskResult handler, BaseApplication app) {
             super(handler);
+            this.app = app;
         }
 
         @Override
         public void retryWithPassword(String password) {
-            Synchronize.syncWithSDCard(handler, password);
+            Synchronize.syncWithSDCard(handler, this.app, password);
         }
 
         @Override
         protected SyncResult doInBackground(String... password) {
             try {
-                File dir = new File(Environment.getExternalStorageDirectory(), "KeyLocker");
-                if (dir.isDirectory() == false && dir.mkdir() == false)
+                Context context = app.getApplicationContext();
+
+                final boolean extStoragePermission = ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED;
+
+                if (extStoragePermission == false)
+                    return SyncResult.PERMISSION_DENIED;
+
+                if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) == false)
+                    return SyncResult.MEDIA_NOT_MOUNTED;
+
+                File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "KeyLocker");
+
+                if (dir.isDirectory() == false && dir.mkdirs() == false)
                     return SyncResult.MKDIR_FAILED;
 
                 File file = new File(dir, KeyDb.KEY_DB_NAME);

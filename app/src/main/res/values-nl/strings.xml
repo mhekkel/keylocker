@@ -66,4 +66,6 @@
     <string name="action_search">Zoek</string>
     <string name="action_help">Help en ondersteuning</string>
     <string name="dlog_caption">Geef het wachtwoord waarmee het synchronisatie bestand is versleuteld.</string>
+    <string name="sync_permission_denied">KeyLocker heeft geen toestemming om te schrijven op de SD kaart</string>
+    <string name="sync_media_not_mounted">SD kaart niet aanwezig?</string>
 </resources>
