@@ -68,4 +68,16 @@
     <string name="dlog_caption">Geef het wachtwoord waarmee het synchronisatie bestand is versleuteld.</string>
     <string name="sync_permission_denied">KeyLocker heeft geen toestemming om te schrijven op de SD kaart</string>
     <string name="sync_media_not_mounted">SD kaart niet aanwezig?</string>
+    <string name="action_undelete">Verwijderen ongedaan maken</string>
+    <string name="close">Sluiten</string>
+    <string name="error_title">Fout!</string>
+    <string name="oneDriveSyncProgressMessage2">Sleutelbestand zoeken</string>
+    <string name="oneDriveSyncProgressMessage3">Downloaden oude sleutels</string>
+    <string name="oneDriveSyncProgressMessage4">Synchroniseren van bestanden</string>
+    <string name="oneDriveSyncProgressMessage5">Sleutelbestand bewaren</string>
+    <string name="oneDriveSyncProgressMessageInit">Initialiseren</string>
+    <string name="oneDriveSyncProgressTitle">Synchroniseren</string>
+    <string name="pref_title_display_name">Weergaven naam</string>
+    <string name="visitFailed">Is dat wel een geldige URL?</string>
+    <string name="wifi_unavailable_error_message">Kan internet niet bereieken, controleer WIFI instellingen</string>
 </resources>
