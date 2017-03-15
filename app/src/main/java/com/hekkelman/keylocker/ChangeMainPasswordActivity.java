@@ -62,7 +62,7 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
 
                         if (password_1.length() < 5)
                             pw1.setError("Password is too short");
-                        if (password_1.equals(password_2) == false)
+                        else if (password_1.equals(password_2) == false)
                             pw2.setError("Passwords do not match");
                         else {
                             try {
