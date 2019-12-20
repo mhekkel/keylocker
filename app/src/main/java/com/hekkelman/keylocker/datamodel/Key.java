@@ -209,7 +209,7 @@ public class Key {
 	public int synchronize(Key key) {
 		int result = _timestamp.compareTo(key._timestamp);
 
-		assert(this.id.equals(key.id));
+		if (!this.id.equals(key.id)) throw new AssertionError();
 
 		if (result < 0)
 		{
