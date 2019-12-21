@@ -85,7 +85,7 @@ public class UnlockActivity extends AppCompatActivity {
                             mPasswordView.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
                         }
 
-                        prefs.edit().putBoolean("numeric-password", isChecked).commit();
+                        prefs.edit().putBoolean("numeric-password", isChecked).apply();
                     }
                 }
         );

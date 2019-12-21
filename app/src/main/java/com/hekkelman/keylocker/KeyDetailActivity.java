@@ -23,6 +23,7 @@ import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
+import java.util.Locale;
 import java.util.Random;
 
 public class KeyDetailActivity extends AppCompatActivity {
@@ -351,7 +352,7 @@ public class KeyDetailActivity extends AppCompatActivity {
 
             if (includeCapitals && (result.length() == s.length() || vowel == false) && rng.nextInt(10) < 2)
             {
-                result += s.toUpperCase();
+                result += s.toUpperCase(Locale.ROOT);
                 hasCapitals = true;
             }
             else

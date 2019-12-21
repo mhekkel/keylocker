@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -238,8 +239,8 @@ public class Key {
 	public boolean match(String query) {
 		query = query.toLowerCase();
 
-		return (TextUtils.isEmpty(name) == false && name.toLowerCase().contains(query)) ||
-				(TextUtils.isEmpty(user) == false && user.toLowerCase().contains(query)) ||
-				(TextUtils.isEmpty(url) == false && url.toLowerCase().contains(query));
+		return (TextUtils.isEmpty(name) == false && name.toLowerCase(Locale.getDefault()).contains(query)) ||
+				(TextUtils.isEmpty(user) == false && user.toLowerCase(Locale.getDefault()).contains(query)) ||
+				(TextUtils.isEmpty(url) == false && url.toLowerCase(Locale.getDefault()).contains(query));
 	}
 }

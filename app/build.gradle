@@ -12,18 +12,10 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        debug {
-            storeFile file('/home/maarten/projects/AndroidKeyStore/MyFirstAndroidKeyStore.jks')
-            storePassword 'jei]NG9a'
-            keyAlias = 'key0'
-            keyPassword 'jei]NG9a'
-        }
-    }
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.hekkelman.keylocker"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
         versionName '1.1'
