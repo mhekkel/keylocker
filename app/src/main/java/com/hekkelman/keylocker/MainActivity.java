@@ -54,9 +54,14 @@ public class MainActivity extends AppCompatActivity
 
     private AsyncTask<List<String>,Void,Void> mDeleteTask;
 
+    @Bind(R.id.recycler_view_parent)
+    RecyclerView mRecyclerViewParent;
+
     @Bind(R.id.recycler_view)
     RecyclerView mRecyclerView;
-    @Bind(R.id.nav_view) NavigationView mNavigationView;
+
+    @Bind(R.id.nav_view)
+    NavigationView mNavigationView;
 
 //    @Override
 //    public void onFragmentInteraction(final DisplayItem item) {
