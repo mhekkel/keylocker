@@ -80,4 +80,5 @@
     <string name="pref_title_display_name">Weergaven naam</string>
     <string name="visitFailed">Is dat wel een geldige URL?</string>
     <string name="wifi_unavailable_error_message">Kan internet niet bereieken, controleer WIFI instellingen</string>
+    <string name="keylocker_logo">KeyLocker logo</string>
 </resources>

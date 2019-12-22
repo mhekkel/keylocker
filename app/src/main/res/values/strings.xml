@@ -96,4 +96,5 @@
     <string name="sync_permission_denied">Permission denied in settings</string>
     <string name="sync_media_not_mounted">Media not mounted</string>
     <string name="visitFailed">Is that a valid URL?</string>
+    <string name="keylocker_logo">KeyLocker logo</string>
 </resources>

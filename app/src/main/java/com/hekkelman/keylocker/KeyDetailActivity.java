@@ -366,7 +366,7 @@ public class KeyDetailActivity extends AppCompatActivity {
             if (hasDigits == false && includeDigits && rng.nextInt(10) < 3)
             {
                 String ch;
-                do ch = new Character((char)(rng.nextInt(10) + '0')).toString();
+                do ch = Character.valueOf((char)(rng.nextInt(10) + '0')).toString();
                 while (noAmbiguous && kAmbiguous.contains(ch));
 
                 result += ch;
