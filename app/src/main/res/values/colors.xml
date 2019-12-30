@@ -13,10 +13,3 @@
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
 </resources>
-
-    <!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<resources>-->
-    <!--&lt;!&ndash;<color name="colorPrimary">#3F51B5</color>&ndash;&gt;-->
-    <!--&lt;!&ndash;<color name="colorPrimaryDark">#303F9F</color>&ndash;&gt;-->
-    <!--&lt;!&ndash;<color name="colorAccent">#FF4081</color>&ndash;&gt;-->
-<!--</resources>-->

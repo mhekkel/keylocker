@@ -16,4 +16,7 @@
     <item android:id="@+id/action_undelete" android:title="@string/action_undelete"
         android:orderInCategory="100" app:showAsAction="never" />
 
+    <item android:id="@+id/action_do_je_ding" android:title="Ding"
+        android:orderInCategory="101" app:showAsAction="never"/>
+
 </menu>
