@@ -48,7 +48,7 @@ public class KeyDetailActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -109,6 +109,8 @@ public class KeyDetailActivity extends AppCompatActivity {
         userField.addTextChangedListener(listener);
         urlField.addTextChangedListener(listener);
     }
+
+
 
     private void setKey(Key key) {
         this.keyID = key.getId();
@@ -196,7 +198,7 @@ public class KeyDetailActivity extends AppCompatActivity {
 
         String name = nameField.getText().toString();
 
-        if (name == null || name.length() == 0) {
+        if (name.length() == 0) {
             nameField.setError(getString(R.string.keyNameIsRequired));
         } else {
             String user = userField.getText().toString();

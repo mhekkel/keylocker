@@ -68,7 +68,7 @@
                     android:layout_marginRight="40dp"
                     android:hint="@string/keyPasswordCaptionHint"
                     android:imeOptions="actionGo"
-                    android:inputType="text"
+                    android:inputType="textPassword"
                     android:selectAllOnFocus="true"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>

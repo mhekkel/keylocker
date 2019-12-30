@@ -36,9 +36,9 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    //    testCompile 'junit:junit:4.12'
+
     annotationProcessor 'com.jakewharton:butterknife:7.0.1'
-//    implementation 'androidx.legacy:legacy-support-v4'
+
     implementation('org.simpleframework:simple-xml:2.7.1') {
         exclude module: 'stax'
         exclude module: 'stax-api'

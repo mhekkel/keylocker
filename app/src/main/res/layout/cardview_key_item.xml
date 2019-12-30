@@ -18,7 +18,7 @@
             android:id="@+id/itemCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Item"
+            android:text="@string/item"
             style="@style/ListItemCaption"/>
 
         <TextView
@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/itemCaption"
-            android:text="username"
+            android:text="@string/username"
             android:padding="8dp"/>
 
     </RelativeLayout>

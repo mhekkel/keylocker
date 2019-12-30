@@ -97,4 +97,6 @@
     <string name="sync_media_not_mounted">Media not mounted</string>
     <string name="visitFailed">Is that a valid URL?</string>
     <string name="keylocker_logo">KeyLocker logo</string>
+    <string name="item">Item</string>
+    <string name="username">username</string>
 </resources>
