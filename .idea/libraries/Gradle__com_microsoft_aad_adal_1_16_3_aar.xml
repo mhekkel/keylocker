@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.microsoft.aad:adal:1.16.3@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f999b68495ac1d46f4169567563c986a/jetified-adal-1.16.3/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f999b68495ac1d46f4169567563c986a/jetified-adal-1.16.3/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.microsoft.aad/adal/1.16.3/1627a55af811b3c83f0aeb7d1a6ad1229d7313da/adal-1.16.3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.microsoft.aad/adal/1.16.3/54b002a249ab835a74f8703e4695dd8228ca56b3/adal-1.16.3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

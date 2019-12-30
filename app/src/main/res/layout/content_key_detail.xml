@@ -20,7 +20,6 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
             <EditText
@@ -37,7 +36,6 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
             <EditText
@@ -101,7 +99,7 @@
                     android:id="@+id/keyURLField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="40dp"
+                    android:layout_marginEnd="40dp"
                     android:hint="@string/keyURLCaptionHint"
                     android:imeOptions="actionGo"
                     android:inputType="textUri"
@@ -114,7 +112,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_margin="4dp"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:onClick="onClickVisitURL"
                 android:src="@drawable/ic_arrow_forward_black_24dp"
                 android:background="@drawable/btn_background_circle"
