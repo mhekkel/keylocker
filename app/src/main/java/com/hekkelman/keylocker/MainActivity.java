@@ -31,13 +31,13 @@ import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.onedrive.sdk.concurrency.ICallback;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 	implements NavigationView.OnNavigationItemSelectedListener
-//        , ItemFragment.OnFragmentInteractionListener
 {
 
 	private KeyDb mKeyDb;
@@ -52,16 +52,6 @@ public class MainActivity extends AppCompatActivity
 
 	@Bind(R.id.nav_view)
 	NavigationView mNavigationView;
-
-//    @Override
-//    public void onFragmentInteraction(final DisplayItem item) {
-//        getFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.fragment, ItemFragment.newInstance(item.getId()))
-//                .addToBackStack(null)
-//                .commit();
-//    }
-
 
 	// New CardView/RecycleView based interface
 	class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.ViewHolder> {
@@ -204,6 +194,39 @@ public class MainActivity extends AppCompatActivity
 		mAdapter.notifyDataSetChanged();
 	}
 
+	private static class DeleteKeysTask extends AsyncTask<List<String>, Void, Void> {
+
+		private final WeakReference<MainActivity> mainActivityWeakReference;
+
+		private DeleteKeysTask(MainActivity mainActivity) {
+			this.mainActivityWeakReference = new WeakReference<>(mainActivity);
+		}
+
+		@SafeVarargs
+		@Override
+		protected final Void doInBackground(List<String>... params) {
+			try {
+				MainActivity mainActivity = mainActivityWeakReference.get();
+				if (mainActivity != null)
+				{
+					KeyDb keyDb = mainActivity.mKeyDb;
+					for (String keyId : params[0])
+						keyDb.deleteKey(keyId);
+				}
+			} catch (KeyDbException ignored) {
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void aVoid) {
+			super.onPostExecute(aVoid);
+			MainActivity mainActivity = mainActivityWeakReference.get();
+			if (mainActivity != null)
+				mainActivity.mDeleteTask = null;
+		}
+	}
+
 	private void removeKeys(int[] position) {
 		List<String> ids = new ArrayList<String>();
 
@@ -212,23 +235,8 @@ public class MainActivity extends AppCompatActivity
 			ids.add(key.getId());
 		}
 
-		mDeleteTask = new AsyncTask<List<String>, Void, Void>() {
-			@Override
-			protected Void doInBackground(List<String>... params) {
-				try {
-					for (String keyId : params[0])
-						mKeyDb.deleteKey(keyId);
-				} catch (KeyDbException e) {
-				}
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Void aVoid) {
-				super.onPostExecute(aVoid);
-				mDeleteTask = null;
-			}
-		}.execute(ids);
+		mDeleteTask = new DeleteKeysTask(this);
+		mDeleteTask.execute(ids);
 	}
 
 	@Override
@@ -273,7 +281,7 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onBackPressed() {
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		DrawerLayout drawer = findViewById(R.id.drawer_layout);
 		if (drawer.isDrawerOpen(GravityCompat.START)) {
 			drawer.closeDrawer(GravityCompat.START);
 		} else {

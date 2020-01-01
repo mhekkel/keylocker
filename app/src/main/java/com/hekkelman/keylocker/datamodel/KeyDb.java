@@ -29,7 +29,7 @@ public class KeyDb {
 	private final File file;
 
 	// fields
-	private char password[];
+	private char[] password;
 	private KeyChain keyChain;
 
 	public static void setInstance(KeyDb keyDb) {
@@ -114,7 +114,7 @@ public class KeyDb {
 			db.write();
 	}
 
-	public void synchronize(File file, char password[]) throws KeyDbException {
+	public void synchronize(File file, char[] password) throws KeyDbException {
 		KeyDb db = new KeyDb(password, file);
 		if (synchronize(db))
 			db.write();
@@ -126,7 +126,7 @@ public class KeyDb {
 		synchronize(db);
 	}
 
-	public void synchronize(InputStream file, char password[]) throws KeyDbException {
+	public void synchronize(InputStream file, char[] password) throws KeyDbException {
 		KeyDb db = new KeyDb(password, null);
 		db.read(file);
 		synchronize(db);
@@ -144,8 +144,9 @@ public class KeyDb {
 		List<Key> result = new ArrayList<>();
 
 		for (Key k: keyChain.getKeys()) {
-			if (k.isDeleted() == false)
-				result.add(k);
+			if (k.isDeleted())
+				continue;
+			result.add(k);
 		}
 
 		Collections.sort(result, new Comparator<Key>() {
@@ -162,7 +163,7 @@ public class KeyDb {
 		return keyChain.getKeyByID(keyId);
 	}
 
-	public void storeKey(String keyID, String name, String user, String password, String url) throws KeyDbException {
+	public Key storeKey(String keyID, String name, String user, String password, String url) throws KeyDbException {
 		Key key = null;
 
 		if (keyID != null)
@@ -177,6 +178,8 @@ public class KeyDb {
 		key.setUrl(url);
 
 		write();
+
+		return key;
 	}
 
 	public void deleteKey(String keyID) throws KeyDbException {

@@ -41,7 +41,7 @@
 			android:layout_height="wrap_content"
             app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-		<EditText
+		<com.google.android.material.textfield.TextInputEditText
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:inputType="numberPassword"
@@ -58,7 +58,7 @@
             app:hintTextAppearance="@style/TextAppearance.AppCompat"
 			android:layout_gravity="center_horizontal">
 
-		<EditText
+		<com.google.android.material.textfield.TextInputEditText
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:inputType="numberPassword"

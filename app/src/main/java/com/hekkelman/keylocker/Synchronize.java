@@ -71,7 +71,7 @@ public class Synchronize {
             try {
                 handler.syncResult(result, error, this);
             }
-            catch (Exception e) {
+            catch (Exception ignored) {
             }
         }
 
