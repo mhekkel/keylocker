@@ -1,5 +1,7 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
+- Key twee keer opgeslagen
+
 - deleten van items afronden (Toast met link?)
 
 - Synchroniseren over netwerk

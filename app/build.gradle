@@ -32,6 +32,10 @@ android {
     buildToolsVersion '30.0.2'
     productFlavors {
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {

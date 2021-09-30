@@ -29,7 +29,8 @@
             <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <EditText android:id="@+id/password" android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:hint="@string/prompt_password"
                     android:imeActionId="6543"
                     android:imeActionLabel="@string/action_sign_in_short"

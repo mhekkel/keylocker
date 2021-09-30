@@ -29,7 +29,10 @@
     <string name="drawer_name" translatable="false">KeyLocker</string>
     <string name="drawer_addr" translatable="false">maarten@hekkelman.com</string>
 
-    <string name="init_text">You are about to create a new key locker file. Please choose a strong password consisting of at least five digits to protect your locker and make sure you do not forget this. There\'s no way to retrieve a lost locker password.</string>
+    <string name="init_text">You are about to create a new key locker file. Please choose a strong password consisting
+        of at least five digits to protect your locker and make sure you do not forget this. There\'s no way to retrieve
+        a lost locker password.
+    </string>
     <string name="init_caption">New Locker</string>
     <string name="init_numeric_cb">Numeric password</string>
     <string name="init_create_btn">Create</string>
@@ -42,7 +45,9 @@
     <string name="action_replace">Replace Key Locker File</string>
     <string name="keyNameIsRequired">Key name is a required field</string>
 
-    <string name="dlog_delete_locker_msg">You are about to overwrite your key locker file, this will delete all your current passwords and notes. Continue?</string>
+    <string name="dlog_delete_locker_msg">You are about to overwrite your key locker file, this will delete all your
+        current passwords and notes. Continue?
+    </string>
     <string name="dlog_delete_locker_title">Delete Key Locker File</string>
 
     <string name="title_activity_settings">Settings</string>
@@ -60,7 +65,9 @@
     <string name="prefs_change_pw">Change Main Password</string>
     <string name="pref_title_locker_password">Change Main Password</string>
     <string name="title_activity_change_main_password">Main Password</string>
-    <string name="pref_change_password_text">You can change the main password for KeyLocker here. You can choose between a pin code (digits only, easier to use but less secure) or a full password or pass phrase (much more secure).</string>
+    <string name="pref_change_password_text">You can change the main password for KeyLocker here. You can choose between
+        a pin code (digits only, easier to use but less secure) or a full password or pass phrase (much more secure).
+    </string>
     <string name="change_pw_hint_1">New password</string>
     <string name="change_pw_hint_2">New password (validate)</string>
     <string name="change_pw_btn">Change</string>
@@ -84,7 +91,8 @@
     <string name="action_search">Search</string>
     <string name="action_help">Help and Feedback</string>
     <string name="dlog_caption">Please enter the password for the synchronized keylocker file.</string>
-    <string name="wifi_unavailable_error_message">Unable to access the internet, please visit connection settings</string>
+    <string name="wifi_unavailable_error_message">Unable to access the internet, please visit connection settings
+    </string>
     <string name="error_title">Error!</string>
     <string name="close">Close</string>
     <string name="oneDriveSyncProgressTitle">Synchronizing with OneDrive</string>

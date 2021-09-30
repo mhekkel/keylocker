@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/keyNameField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/keyUserField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -59,11 +59,11 @@
                 android:layout_alignParentTop="true"
                 app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/keyPasswordField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="40dp"
+                    android:layout_marginEnd="40dp"
                     android:hint="@string/keyPasswordCaptionHint"
                     android:imeOptions="actionGo"
                     android:inputType="text"
@@ -76,7 +76,7 @@
                 android:layout_height="40dp"
                 android:layout_margin="4dp"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:onClick="onClickRenewPassword"
                 android:src="@drawable/ic_autorenew_black_24dp"
                 android:background="@drawable/btn_background_circle"
@@ -95,7 +95,7 @@
                 android:layout_alignParentTop="true"
                 app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/keyURLField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
