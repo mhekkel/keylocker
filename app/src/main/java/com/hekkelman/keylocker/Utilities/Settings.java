@@ -9,6 +9,7 @@ import com.hekkelman.keylocker.Activities.MainActivity;
 import com.hekkelman.keylocker.R;
 
 import java.util.Locale;
+import java.util.Set;
 
 public class Settings {
     private final Context context;
@@ -46,6 +47,33 @@ public class Settings {
     private int getIntValue(int keyId, int defaultValue) {
         return settings.getInt(getResString(keyId), defaultValue);
     }
+
+    public void setBoolean(int keyId, boolean value) {
+        settings.edit()
+                .putBoolean(getResString(keyId), value)
+                .apply();
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void setInt(int keyId, int value) {
+        settings.edit()
+                .putInt(getResString(keyId), value)
+                .apply();
+    }
+
+    private void setString(int keyId, String value) {
+        settings.edit()
+                .putString(getResString(keyId), value)
+                .apply();
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void setStringSet(int keyId, Set<String> value) {
+        settings.edit()
+                .putStringSet(getResString(keyId), value)
+                .apply();
+    }
+
 
     public Locale getLocale() {
         String lang = getString(R.string.settings_key_lang, R.string.settings_default_lang);
@@ -107,6 +135,9 @@ public class Settings {
 
     public boolean getUsePin() {
         return getBoolean(R.string.settings_key_use_pin, false);
+    }
+    public void setUsePin(boolean usePin) {
+        setBoolean(R.string.settings_key_use_pin, usePin);
     }
 
     public boolean getBlockAccessibility() {

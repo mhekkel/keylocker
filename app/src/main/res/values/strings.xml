@@ -109,13 +109,12 @@
     <string name="username">username</string>
     <string name="button_keycard_copy">Copy password</string>
     <string name="button_keycard_options">Edit password</string>
-    <string name="auth_msg_authenticate">Please authenticate to start KeyLocker</string>
     <string name="auth_msg_confirm_encryption">Please confirm authentication to generate your encryption key!</string>
     <string name="activity_unlock_title">Unlock KeyLocker</string>
-    <string name="settings_key_use_pin">pref_use_pin</string>
-    <string name="settings_key_block_accessibility">pref_block_accessibility</string>
+    <string name="settings_key_use_pin" translatable="false">pref_use_pin</string>
+    <string name="settings_key_block_accessibility" translatable="false">pref_block_accessibility</string>
     <string name="unlock_hint_pin">PIN</string>
     <string name="unlock_hint_password">Password</string>
-    <string name="settings_key_block_autofill">pref_block_autofill</string>
+    <string name="settings_key_block_autofill" translatable="false">pref_block_autofill</string>
     <string name="title_activity_init">Create new KeyLocker</string>
 </resources>

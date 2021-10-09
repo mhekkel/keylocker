@@ -22,7 +22,7 @@
         <LinearLayout android:id="@+id/email_unlock_form" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:orientation="vertical">
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/init_numeric_cb"

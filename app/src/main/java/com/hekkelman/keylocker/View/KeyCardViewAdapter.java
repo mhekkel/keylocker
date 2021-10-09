@@ -1,6 +1,7 @@
 package com.hekkelman.keylocker.View;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,10 +31,15 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 	private List<Key> mKeys;
 	private Callback callback;
 
-	public void setPassword(char[] password, File file) throws KeyDbException {
-		mKeyDb = new KeyDb(password, file);
-		mKeys = mKeyDb.getKeys();
-		notifyDataSetChanged();
+	public void setPassword(char[] password, File file) {
+		try {
+			mKeyDb = new KeyDb(password, file);
+
+			mKeys = mKeyDb.getKeys();
+			notifyDataSetChanged();
+		} catch (KeyDbException exception) {
+			// TODO What next?
+		}
 	}
 
 	public interface Callback {

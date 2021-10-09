@@ -13,6 +13,7 @@ import android.view.ViewStub;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,16 +32,17 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 		implements EditText.OnEditorActionListener, View.OnClickListener {
 
 	public final static String EXTRA_AUTH_PASSWORD_KEY	= "password_key";
-	public final static String UNLOCK_RETRY_COUNT		= "unlock_retry_count";
+	public final static String EXTRA_AUTH_DB_RESET		= "reset_key_db";
 	public final static int SHOW_RESET_AT_RETRY_COUNT	= 3;
 
 	// UI references.
 	private TextInputLayout mPasswordLayout;
 	private TextInputEditText mPasswordInput;
-	private Switch mPINSwitch;
+	private SwitchCompat mPINSwitch;
 	private Button mUnlockButton;
 	private File mKeyFile;
 	private Button mResetButton;
+	private int mRetryCount = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -130,13 +132,6 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 
 		mResetButton = v.findViewById(R.id.replace_locker);
 		mResetButton.setOnClickListener(this);
-
-		Intent callingIntent = getIntent();
-		if (callingIntent != null &&
-				callingIntent.hasExtra(UNLOCK_RETRY_COUNT) &&
-				callingIntent.getIntExtra(UNLOCK_RETRY_COUNT, 0) >= SHOW_RESET_AT_RETRY_COUNT) {
-			resetLocker();
-		}
 	}
 
 	@Override
@@ -165,14 +160,7 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	}
 
 	private void resetLocker() {
-		File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
-		if (keyFile.exists()) {
-			keyFile.delete();
-		}
-
-		Intent intent = new Intent(UnlockActivity.this, InitActivity.class);
-		startActivity(intent);
-		finish();
+		finishWithResult(true, null, true);
 	}
 
 	/**
@@ -230,13 +218,25 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 
 	@Override
 	void onTaskResult(Result result) {
-		finishWithResult(result.encryptionKey != null, result.encryptionKey);
+		if (result.encryptionKey != null)
+			finishWithResult(true, result.encryptionKey, result.requestReset);
+		else {
+			mPasswordInput.setText("");
+			if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT) {
+				mResetButton.setVisibility(View.VISIBLE);
+			}
+
+			mPasswordInput.setError(getString(R.string.error_incorrect_password));
+			mPasswordInput.requestFocus();
+		}
 	}
 
-	private void finishWithResult(boolean success, char[] encryptionKey) {
+	private void finishWithResult(boolean success, char[] encryptionKey, boolean requestReset) {
 		Intent data = new Intent();
 		if (encryptionKey != null)
 			data.putExtra(EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
+		if (requestReset)
+			data.putExtra(EXTRA_AUTH_DB_RESET, true);
 		if (success)
 			setResult(RESULT_OK, data);
 		finish();

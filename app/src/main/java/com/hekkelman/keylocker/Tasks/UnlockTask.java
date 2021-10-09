@@ -43,7 +43,6 @@ public class UnlockTask extends UiBasedBackgroundTask<Result> {
     @NonNull
     private Result confirmAuthentication() {
         try {
-            Log.e("UnlockTask", "Unlock attempt");
             KeyDb keyDb = new KeyDb(plainPassword, keyDbFile);
             return Result.success(plainPassword);
         } catch (IllegalArgumentException | KeyDbException e) {
@@ -55,16 +54,19 @@ public class UnlockTask extends UiBasedBackgroundTask<Result> {
     public static class Result {
         @Nullable
         public final char[] encryptionKey;
+        public final boolean requestReset;
 
-        public Result(@Nullable char[] encryptionKey) {
+        public Result(@Nullable char[] encryptionKey, boolean requestReset) {
             this.encryptionKey = encryptionKey;
+            this.requestReset = requestReset;
         }
 
         public static Result success(char[] encryptionKey) {
-            return new Result(encryptionKey);
+            return new Result(encryptionKey, false);
         }
+
         public static Result failure() {
-            return new Result(null);
+            return new Result(null, false);
         }
     }
 }
