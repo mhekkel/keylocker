@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">KeyLocker</string>
     <string name="action_settings">Instellingen</string>
-    <string name="action_sign_in">Ontgrendel</string>
-    <string name="action_sign_in_short">Ontgrendel</string>
+    <string name="action_unlock">Ontgrendel</string>
+    <string name="action_unlock_short">Ontgrendel</string>
     <string name="error_field_required">Dit veld is verplicht</string>
     <string name="error_incorrect_password">Dit wachtwoord in onjuist</string>
     <string name="error_invalid_password">Dit wachtwoord is te kort</string>
@@ -12,7 +12,7 @@
     <string name="navigation_drawer_close">Sluit navigatie balk</string>
     <string name="prompt_password">Wachtwoord of pincode</string>
     <string name="title_activity_key_detail">Wachtwoord</string>
-    <string name="title_activity_login">KeyLocker</string>
+    <string name="title_activity_unlock">KeyLocker</string>
     <string name="navigation_drawer_open">Open navigatie balk</string>
     <string name="lastModifiedTemplate">Laatste wijziging: %s</string>
     <string name="keyUserCaptionHint">Gebruikersnaam</string>
@@ -83,4 +83,10 @@
     <string name="keylocker_logo">KeyLocker logo</string>
     <string name="item">Item</string>
     <string name="username">username</string>
+    <string name="button_keycard_copy">Copy password</string>
+    <string name="button_keycard_options">Edit password</string>
+    <string name="activity_unlock_title">Unlock KeyLocker</string>
+    <string name="unlock_hint_pin">PIN</string>
+    <string name="unlock_hint_password">Password</string>
+    <string name="title_activity_init">Create new KeyLocker</string>
 </resources>

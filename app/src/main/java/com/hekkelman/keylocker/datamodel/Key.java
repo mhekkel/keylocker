@@ -1,5 +1,6 @@
 package com.hekkelman.keylocker.datamodel;
 
+import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
 import java.io.StringWriter;
@@ -20,27 +21,28 @@ import org.simpleframework.xml.core.Validate;
 
 @Root
 public class Key {
+	@SuppressLint("SimpleDateFormat")
 	private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Attribute(name="id")
-	private String id;
+	private final String id;
 
 	@Attribute(name="timestamp")
 	private String timestamp;
 	private Date _timestamp;		// converted
-	
+
 	@Attribute(name="deleted", required=false)
 	private String deleted;
-	
+
 	@Element(name="name", required=false)
 	private String name;
-	
+
 	@Element(name="user", required=false)
 	private String user;
-	
+
 	@Element(name="pass", required=false)
 	private String password;
-	
+
 	@Element(name="url", required=false)
 	private String url;
 

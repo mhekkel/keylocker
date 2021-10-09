@@ -1,72 +1,81 @@
-buildscript {
-    repositories {
-        jcenter()
-        google()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
-    }
-}
-
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
+    buildToolsVersion '30.0.2'
+
     defaultConfig {
         applicationId "com.hekkelman.keylocker"
-        minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 1
-        versionName '1.1'
+        minSdkVersion 28
+        targetSdkVersion 30
+        versionCode 2
+        versionName '2.0'
+        vectorDrawables.useSupportLibrary = true
     }
-    repositories {
-        jcenter()
-    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    buildToolsVersion '28.0.3'
-    productFlavors {
+
+        debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            testCoverageEnabled = true
+
+            tasks.withType(JavaCompile) {
+                options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+            }
+        }
     }
 
     lintOptions {
         abortOnError false
     }
+
+    flavorDimensions 'market'
+    productFlavors {
+        fdroid {
+            dimension = 'market'
+        }
+        play {
+            dimension = 'market'
+            versionNameSuffix = "-play"
+        }
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-
-    annotationProcessor 'com.jakewharton:butterknife:7.0.1'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
 
     implementation('org.simpleframework:simple-xml:2.7.1') {
         exclude module: 'stax'
         exclude module: 'stax-api'
         exclude module: 'xpp3'
     }
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 
     implementation "androidx.cardview:cardview:1.0.0"
 
-    implementation "androidx.recyclerview:recyclerview:1.1.0"
     // For control over item selection of both touch and mouse driven selection
-    implementation "androidx.recyclerview:recyclerview-selection:1.1.0-beta01"
 
-    implementation 'com.google.android.material:material:1.1.0-rc01'
+    implementation 'com.google.android.material:material:1.4.0'
 
     // Include the sdk as a dependency
-    implementation('com.onedrive.sdk:onedrive-sdk-android:1.3.1') {
-        transitive = false
-    }
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.microsoft.services.msa:msa-auth:0.8.6'
-    implementation 'com.microsoft.aad:adal:1.16.3'
-    implementation 'com.jakewharton:butterknife:7.0.1'
+    implementation 'com.google.code.gson:gson:2.8.8'
 
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

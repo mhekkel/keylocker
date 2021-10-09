@@ -1,0 +1,73 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.hekkelman.keylocker.Activities.UnlockActivity">
+
+    <!-- unlock progress -->
+    <ProgressBar android:id="@+id/unlock_progress" style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" android:visibility="gone" />
+
+    <ScrollView android:id="@+id/unlock_form" android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout android:id="@+id/email_unlock_form" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="vertical">
+
+            <Switch
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/init_numeric_cb"
+                android:id="@+id/numeric_cb"
+                android:checked="true"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/passwordLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:endIconMode="password_toggle" >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_password"
+                    android:imeActionId="6543"
+                    android:imeActionLabel="@string/action_unlock_short"
+                    android:imeOptions="actionDone"
+                    android:inputType="numberPassword"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:autofillHints="password"
+                    />
+
+                <requestFocus/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button android:id="@+id/sign_in_button" style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:text="@string/action_unlock"
+                android:textStyle="bold" />
+
+            <Button android:id="@+id/replace_locker" style="?android:textAppearanceSmall"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:text="@string/action_replace"
+                    android:textStyle="bold" android:visibility="invisible" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
