@@ -32,7 +32,6 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 		implements EditText.OnEditorActionListener, View.OnClickListener {
 
 	public final static String EXTRA_AUTH_PASSWORD_KEY	= "password_key";
-	public final static String EXTRA_AUTH_DB_RESET		= "reset_key_db";
 	public final static int SHOW_RESET_AT_RETRY_COUNT	= 3;
 
 	// UI references.
@@ -160,7 +159,9 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	}
 
 	private void resetLocker() {
-		finishWithResult(true, null, true);
+		if (mKeyFile.exists())
+			mKeyFile.delete();
+		finishWithResult(false, null);
 	}
 
 	/**
@@ -219,7 +220,7 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	@Override
 	void onTaskResult(Result result) {
 		if (result.encryptionKey != null)
-			finishWithResult(true, result.encryptionKey, result.requestReset);
+			finishWithResult(true, result.encryptionKey);
 		else {
 			mPasswordInput.setText("");
 			if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT) {
@@ -231,12 +232,10 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 		}
 	}
 
-	private void finishWithResult(boolean success, char[] encryptionKey, boolean requestReset) {
+	private void finishWithResult(boolean success, char[] encryptionKey) {
 		Intent data = new Intent();
 		if (encryptionKey != null)
 			data.putExtra(EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
-		if (requestReset)
-			data.putExtra(EXTRA_AUTH_DB_RESET, true);
 		if (success)
 			setResult(RESULT_OK, data);
 		finish();

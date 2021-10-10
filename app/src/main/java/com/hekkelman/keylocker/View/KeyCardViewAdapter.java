@@ -17,29 +17,24 @@ import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.crypto.SecretKey;
 
 // New CardView/RecycleView based interface
 public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 
 	private final Settings settings;
 	private final Context context;
-	private KeyDb mKeyDb;
-	private List<Key> mKeys;
+	private char[] password;
+	private File keyDbFile;
+	private List<Key> keys;
 	private Callback callback;
 
-	public void setPassword(char[] password, File file) {
-		try {
-			mKeyDb = new KeyDb(password, file);
+	public void setPassword(char[] password) {
 
-			mKeys = mKeyDb.getKeys();
-			notifyDataSetChanged();
-		} catch (KeyDbException exception) {
-			// TODO What next?
-		}
+		this.password = password;
+		loadEntries();
+
+		notifyDataSetChanged();
 	}
 
 	public interface Callback {
@@ -47,9 +42,10 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 		void onMoveEventStop();
 	}
 
-	public KeyCardViewAdapter(Context context) {
+	public KeyCardViewAdapter(Context context, File keyDbFile) {
 		this.context = context;
 		this.settings = new Settings(context);
+		this.keyDbFile = keyDbFile;
 	}
 
 	public void setCallback(Callback cb) {
@@ -153,14 +149,13 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 	}
 
 	public void loadEntries() {
-        if (mKeyDb != null) {
-			mKeys = mKeyDb.getKeys();
-			notifyDataSetChanged();
+		KeyDb keyDb = new KeyDb(password, keyDbFile);
+		keys = keyDb.getKeys();
+		notifyDataSetChanged();
 //			ArrayList<Entry> newEntries = DatabaseHelper.loadDatabase(context, encryptionKey);
 //
 //			entries.updateEntries(newEntries, true);
 //			entriesChanged(RecyclerView.NO_POSITION);
-        }
 	}
 
 
@@ -177,13 +172,13 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 
 	@Override
 	public void onBindViewHolder(KeyCardHolder holder, int position) {
-		Key key = mKeys.get(position);
+		Key key = keys.get(position);
 		holder.nameView.setText(key.getName());
 		holder.userView.setText(key.getUser());
 	}
 
 	@Override
 	public int getItemCount() {
-		return mKeys.size();
+		return keys.size();
 	}
 }

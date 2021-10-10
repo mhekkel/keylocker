@@ -74,14 +74,8 @@ public class MainActivity extends BaseActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
-//		ButterKnife.bind(this);
-
-        if (mRecyclerView == null)
-            mRecyclerView = findViewById(R.id.recycler_view);
-
-        if (mNavigationView == null)
-            mNavigationView = findViewById(R.id.nav_view);
+        mRecyclerView = findViewById(R.id.recycler_view);
+        mNavigationView = findViewById(R.id.nav_view);
 
         if (!mSettings.getScreenshotsEnabled())
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
@@ -118,9 +112,11 @@ public class MainActivity extends BaseActivity
         MenuItem mi = mNavigationView.getMenu().findItem(R.id.nav_keys);
         if (mi != null) mi.setChecked(true);
 
-        mAdapter = new KeyCardViewAdapter(this);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(mAdapter);
+		File keyDbFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+
+		mAdapter = new KeyCardViewAdapter(this, keyDbFile);
+		mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+		mRecyclerView.setAdapter(mAdapter);
 
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -160,13 +156,15 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        if (savedInstanceState != null) {
-            byte[] encKey = savedInstanceState.getByteArray("encKey");
-            if (encKey != null) {
-//				mAdapter.setEncryptionKey(EncryptionHelper.generateSymmetricKey(encKey));
-                mRequireAuthentication = false;
-            }
-        }
+//		if (savedInstanceState != null) {
+//			byte[] encKey = savedInstanceState.getByteArray("encKey");
+//			if (encKey != null) {
+////				mAdapter.setEncryptionKey(EncryptionHelper.generateSymmetricKey(encKey));
+//				mRequireAuthentication = false;
+//			}
+//		}
+
+
 
 
 //		mRecyclerView.addOnItemTouchListener(
@@ -215,36 +213,19 @@ public class MainActivity extends BaseActivity
         }
     }
 
-    @Override
-    public void onActivityResult(ActivityResult result) {
-        if (result.getResultCode() == Activity.RESULT_OK) {
-            Intent intent = result.getData();
-            if (intent != null) {
-                File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+	@Override
+	public void onActivityResult(ActivityResult result) {
+		if (result.getResultCode() == Activity.RESULT_OK) {
+			Intent intent = result.getData();
+			if (intent != null)
+			{
+				char[] password = intent.getCharArrayExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY);
 
-                if (intent.hasExtra(UnlockActivity.EXTRA_AUTH_DB_RESET))
-                {
-                    if (keyFile.exists())
-                        keyFile.delete();
-                    Intent authIntent = new Intent(this, InitActivity.class);
-                    mInitResult.launch(authIntent);
-                    return;
-                }
-
-                if (intent.hasExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY)) {
-                    char[] password = intent.getCharArrayExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY);
-
-                    mAdapter.setPassword(password, keyFile);
-                    mRequireAuthentication = false;
-                    return;
-                }
-
-                authenticate();
-            }
-        } else {
-            authenticate();
-        }
-    }
+				mAdapter.setPassword(password);
+				mRequireAuthentication = false;
+			}
+		}
+	}
 
     //	@OnClick(R.id.fab)
     public void onClickFab(View view) {

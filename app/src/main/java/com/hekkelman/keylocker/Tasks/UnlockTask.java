@@ -42,13 +42,10 @@ public class UnlockTask extends UiBasedBackgroundTask<Result> {
 
     @NonNull
     private Result confirmAuthentication() {
-        try {
-            KeyDb keyDb = new KeyDb(plainPassword, keyDbFile);
+        if (KeyDb.isValidPassword(plainPassword, keyDbFile))
             return Result.success(plainPassword);
-        } catch (IllegalArgumentException | KeyDbException e) {
-            Log.e("UnlockTask", "Problem decoding password", e);
+        else
             return Result.failure();
-        }
     }
 
     public static class Result {

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/KeyLockerII.iml" filepath="$PROJECT_DIR$/.idea/modules/KeyLockerII.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/KeyLockerII.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/KeyLockerII.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/KeyLocker.iml" filepath="$PROJECT_DIR$/.idea/modules/KeyLocker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/KeyLocker.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/KeyLocker.app.iml" />
     </modules>
   </component>
 </project>

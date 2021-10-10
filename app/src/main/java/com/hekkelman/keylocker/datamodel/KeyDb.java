@@ -42,15 +42,36 @@ public class KeyDb {
 	}
 
 	// constructor
-	public KeyDb(char[] password, File file) throws KeyDbException
+	public KeyDb(char[] password, File file)
 	{
 		this.password = password;
 		this.file = file;
 
 		if (file != null && file.exists())
-			read();
+		{
+			try {
+				read();
+			} catch (KeyDbException e) {
+				// TODO Fix this
+				e.printStackTrace();
+				keyChain = new KeyChain();
+			}
+		}
 		else
 			keyChain = new KeyChain();
+	}
+
+	public static boolean isValidPassword(char[] plainPassword, File keyDbFile) {
+		boolean result = false;
+
+		try {
+			KeyDb keyDb = new KeyDb(plainPassword, keyDbFile);
+			keyDb.read();
+			result = true;
+		} catch (KeyDbException e) {
+		}
+
+		return result;
 	}
 
 	public void changePassword(char[] password) throws KeyDbException {
@@ -208,22 +229,18 @@ public class KeyDb {
 	}
 
 	public static void removeCachedKey(String keyID) {
-		try {
-			if (sInstance == null)	// cannot continue if there's no instance at all
-				return;
+		if (sInstance == null)	// cannot continue if there's no instance at all
+			return;
 
-			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-			if (cacheFile.exists()) {
-				KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
-				Key key = tempDb.getKey(keyID);
+		File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
+		if (cacheFile.exists()) {
+			KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
+			Key key = tempDb.getKey(keyID);
 
-				if (key != null)
-					Log.d("debug", "Key is not stored in temp file");
+			if (key != null)
+				Log.d("debug", "Key is not stored in temp file");
 
-				cacheFile.delete();
-			}
-		} catch (KeyDbException e) {
-			e.printStackTrace();
+			cacheFile.delete();
 		}
 	}
 
@@ -231,17 +248,13 @@ public class KeyDb {
 		Key key = null;
 
 		if (sInstance != null) {    // cannot continue if there's no instance at all
-			try {
-				File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-				if (cacheFile.exists()) {
-					KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
+			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
+			if (cacheFile.exists()) {
+				KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
 
-					List<Key> keys = tempDb.getKeys();
-					if (keys.isEmpty() == false)
-						key = keys.get(0);
-				}
-			} catch (KeyDbException e) {
-				e.printStackTrace();
+				List<Key> keys = tempDb.getKeys();
+				if (keys.isEmpty() == false)
+					key = keys.get(0);
 			}
 		}
 
