@@ -82,30 +82,6 @@ public class EncryptedData
 		}
 
 		return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
-//
-//		BufferedInputStream bis = new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
-//
-//		try {
-//			// check if this is valid ascii, to check the password. Result should be XML
-//			bis.mark(16);
-//
-//			byte[] buffer = new byte[16];
-//			int len = bis.read(buffer);
-//			bis.reset();
-//
-//			for (int i = 0; i < len; ++i) {
-//				if (Character.isSpaceChar((buffer[i])) || buffer[i] == 10)
-//					continue;
-//
-//				if (buffer[i] < 0 || Character.isISOControl(buffer[i])) {
-//					throw new InvalidPasswordException();
-//				}
-//			}
-//		} catch (IOException e) {
-//			throw new KeyDbRuntimeException(e);
-//		}
-//
-//		return bis;
 	}
 	
 	static public void encrypt(char[] password, InputStream data, OutputStream os) throws KeyDbException {

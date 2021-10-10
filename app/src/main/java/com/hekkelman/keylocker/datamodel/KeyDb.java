@@ -1,157 +1,261 @@
 package com.hekkelman.keylocker.datamodel;
 
-import android.util.Log;
+import android.app.Activity;
+import android.content.Context;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.io.*;
+import java.security.*;
+import java.util.*;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
+import android.content.Intent;
+import androidx.security.crypto.MasterKeys;
+import com.hekkelman.keylocker.UnlockActivity;
 
-import com.hekkelman.keylocker.xmlenc.EncryptedData;
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class KeyDb {
+
 	public static final String KEY_DB_NAME = "keylockerfile.txt";
-	public static final String KEY_DB_TEMP_NAME = "keylockerfile-temp.txt";
-	private static KeyDb sInstance;
-	private static int sRefCount = 0;
-	private final File file;
+	private static final String KEY_PASSWORD_NAME = "keylocker-password";
+
+//	private static KeyDb sInstance;
+//	private final File file;
 
 	// fields
-	private char[] password;
 	private KeyChain keyChain;
 
-	public static void setInstance(KeyDb keyDb) {
-		sInstance = keyDb;
-		sRefCount = 1;
+	// we store the password encrypted with a max duration of validity
+	private static final int KEY_BYTE_SIZE = 16;
+	private byte[] stored_password;
+	private Timer password_timer;
+
+//	private class Password
+//	{
+//
+//	}
+
+
+//	public static boolean keyDbExists() {
+//		return new File(KEY_DB_NAME).exists();
+//	}
+	// constructors
+
+	// First constructor used to create a new global instance
+	public KeyDb(Context context)
+	{
+		this.password_timer = new Timer();
 	}
 
-	public static KeyDb getInstance() {
-		return sInstance;
-	}
-
-	// constructor
 	public KeyDb(char[] password, File file) throws KeyDbException
 	{
-		this.password = password;
-		this.file = file;
+		this.password_timer = new Timer();
 
-		if (file != null && file.exists())
-			read();
-		else
-			keyChain = new KeyChain();
+		setPassword(password);
+
+//		this.file = file;
+		this.keyChain = new KeyChain();
 	}
 
-	public void changePassword(char[] password) throws KeyDbException {
-		this.password = password;
-		write();
-	}
+	private void setPassword(char[] password) {
+		try (ByteArrayOutputStream bs = new ByteArrayOutputStream())
+		{
+			String masterKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+			KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+			keyStore.load(null);
+			java.security.Key key = keyStore.getKey(masterKey, null);
 
-	public void read() throws KeyDbException
-	{
-		try {
-			read(new FileInputStream(this.file));
-		} catch (FileNotFoundException e) {
-			throw new MissingFileException();
+			byte[] iv = new byte[KEY_BYTE_SIZE];
+
+			SecureRandom random = new SecureRandom();
+			random.nextBytes(iv);
+
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			cipher.init(Cipher.ENCRYPT_MODE,
+				new SecretKeySpec(key.getEncoded(), "AES"),
+				new IvParameterSpec(iv));
+
+			try (OutputStream cs = new CipherOutputStream(bs, cipher))
+			{
+				cs.write(iv);
+// TODO moet anders, maar hoe?
+				cs.write(password.toString().getBytes());
+			}
+
+			this.stored_password = bs.toByteArray();
+
+			this.password_timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					clearPassword();
+				}
+			}, 60);
+
+		} catch (GeneralSecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
-	public void read(InputStream input) throws KeyDbException {
-		InputStream is = EncryptedData.decrypt(this.password, input);
+	public void clearPassword() {
+		// TODO overwrite with null
+		this.stored_password = null;
+	}
 
-		try {
-			Serializer serializer = new Persister();
-			keyChain = serializer.read(KeyChain.class, is);
-		} catch (Exception e) {
-			throw new InvalidPasswordException();
+	public void checkPassword(Activity activity) {
+		if (this.stored_password == null)
+		{
+			activity.startActivity(new Intent(activity, UnlockActivity.class));
+				activity.finish();
 		}
 	}
 
-	public void write() throws KeyDbException {
-		try {
-			// intermediate storage of unencrypted data
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
+	private char[] getPassword() throws IOException, GeneralSecurityException {
+		try (ByteArrayOutputStream bs = new ByteArrayOutputStream();
+			 ByteArrayInputStream is = new ByteArrayInputStream(this.stored_password))
+		{
+			String masterKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+			KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+			keyStore.load(null);
+			java.security.Key key = keyStore.getKey(masterKey, null);
 
-			Serializer serializer = new Persister();
-			serializer.write(keyChain, os);
+			byte[] iv = new byte[KEY_BYTE_SIZE];
+			is.read(iv);
 
-			EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), new FileOutputStream(this.file));
-		} catch (Exception e) {
-			throw new KeyDbRuntimeException(e);
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+			cipher.init(Cipher.DECRYPT_MODE,
+				new SecretKeySpec(key.getEncoded(), "AES"),
+				new IvParameterSpec(iv));
+
+			try (InputStream dis = new BufferedInputStream(new CipherInputStream(is, cipher)))
+			{
+				int available = is.available();
+				byte[] data = new byte[available];
+				is.read(data);
+
+				return new String(data).toCharArray();
+			}
 		}
 	}
 
-	public void write(OutputStream output) throws KeyDbException {
-		try {
-			// intermediate storage of unencrypted data
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
+	public static void create(char[] password) throws KeyDbException {
+		File file = new File(KEY_DB_NAME);
+		if (file.exists() && ! file.delete())
+			throw new KeyDbException();
 
-			Serializer serializer = new Persister();
-			serializer.write(keyChain, os);
-
-			EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output);
-		} catch (Exception e) {
-			throw new KeyDbRuntimeException(e);
-		}
+		new KeyDb(password, file);
 	}
 
-	// synchronisation
+//	public static void load(Context context, LoadKeyDbCallback cb) {
+//		try
+//		{
+//			sInstance = new KeyDb(context);
+//			cb.onLoaded();
+//		}
+//		catch (KeyDbException ex)
+//		{
+//			cb.onFailed(ex);
+//		}
+//	}
+//
+//	private static char[] decryptPassword(Context context) {
+//	}
 
-	public void synchronize(File file) throws KeyDbException {
-		KeyDb db = new KeyDb(this.password, file);
-		if (synchronize(db))
-			db.write();
-	}
+//	public static KeyDb getInstance() {
+//		return sInstance;
+//	}
 
-	public void synchronize(File file, char[] password) throws KeyDbException {
-		KeyDb db = new KeyDb(password, file);
-		if (synchronize(db))
-			db.write();
-	}
+//	public void changePassword(char[] password) throws KeyDbException {
+//		this.password = password;
+//		write();
+//	}
 
-	public void synchronize(InputStream file) throws KeyDbException {
-		KeyDb db = new KeyDb(this.password, null);
-		db.read(file);
-		synchronize(db);
-	}
-
-	public void synchronize(InputStream file, char[] password) throws KeyDbException {
-		KeyDb db = new KeyDb(password, null);
-		db.read(file);
-		synchronize(db);
-	}
-
-	public boolean synchronize(KeyDb db) throws KeyDbException {
-		boolean result = this.keyChain.synchronize(db.keyChain);
-		write();
-		return result;
-	}
+//	public void read(char[] password) throws KeyDbException
+//	{
+//		try {
+//			read(password, new FileInputStream(this.file));
+//		} catch (FileNotFoundException e) {
+//			throw new MissingFileException();
+//		}
+//	}
+//
+//	public void write() throws KeyDbException {
+//		try {
+//			write(new FileOutputStream(this.file));
+//		} catch (Exception e) {
+//			throw new KeyDbRuntimeException(e);
+//		}
+//	}
+//
+//	public void read(char[] password, InputStream input) throws KeyDbException {
+//		InputStream is = EncryptedData.decrypt(password, input);
+//
+//		try {
+//			Serializer serializer = new Persister();
+//			keyChain = serializer.read(KeyChain.class, is);
+//		} catch (Exception e) {
+//			throw new InvalidPasswordException();
+//		}
+//	}
+//
+//	public void write(OutputStream output) throws KeyDbException {
+//		try {
+//			char[] password = getPassword();
+//			keyChain.encrypt(output, password);
+//		} catch (Exception e) {
+//			throw new KeyDbRuntimeException(e);
+//		}
+//	}
+//
+//	// synchronisation
+//
+//	public void synchronize(File file) throws KeyDbException {
+//		KeyDb db = new KeyDb(this.password, file);
+//		if (synchronize(db))
+//			db.write();
+//	}
+//
+//	public void synchronize(File file, char[] password) throws KeyDbException {
+//		KeyDb db = new KeyDb(password, file);
+//		if (synchronize(db))
+//			db.write();
+//	}
+//
+//	public void synchronize(InputStream file) throws KeyDbException {
+//		KeyDb db = new KeyDb(this.password, null);
+//		db.read(file);
+//		synchronize(db);
+//	}
+//
+//	public void synchronize(InputStream file, char[] password) throws KeyDbException {
+//		KeyDb db = new KeyDb(password, null);
+//		db.read(file);
+//		synchronize(db);
+//	}
+//
+//	public boolean synchronize(KeyDb db) throws KeyDbException {
+//		boolean result = this.keyChain.synchronize(db.keyChain);
+//		write();
+//		return result;
+//	}
 
 	// accessors
 
-	public List<Key> getKeys() {
-		List<Key> result = new ArrayList<>();
+	public List<KeyInfo> getKeys() {
+		List<KeyInfo> result = new ArrayList<>();
 
 		for (Key k: keyChain.getKeys()) {
 			if (k.isDeleted())
 				continue;
-			result.add(k);
+			result.add(new KeyInfo(k.getUser(), k.getName(), k.getUrl(), k.getId()));
 		}
 
-		Collections.sort(result, new Comparator<Key>() {
+		Collections.sort(result, new Comparator<KeyInfo>() {
 			@Override
-			public int compare(Key lhs, Key rhs) {
+			public int compare(KeyInfo lhs, KeyInfo rhs) {
 				return lhs.getName().compareToIgnoreCase(rhs.getName());
 			}
 		});
@@ -163,24 +267,24 @@ public class KeyDb {
 		return keyChain.getKeyByID(keyId);
 	}
 
-	public Key storeKey(String keyID, String name, String user, String password, String url) throws KeyDbException {
-		Key key = null;
-
-		if (keyID != null)
-			key = keyChain.getKeyByID(keyID);
-
-		if (key == null)
-			key = keyChain.createKey();
-
-		key.setName(name);
-		key.setUser(user);
-		key.setPassword(password);
-		key.setUrl(url);
-
-		write();
-
-		return key;
-	}
+//	public Key storeKey(String keyID, String name, String user, String password, String url) throws KeyDbException {
+//		Key key = null;
+//
+//		if (keyID != null)
+//			key = keyChain.getKeyByID(keyID);
+//
+//		if (key == null)
+//			key = keyChain.createKey();
+//
+//		key.setName(name);
+//		key.setUser(user);
+//		key.setPassword(password);
+//		key.setUrl(url);
+//
+//		write();
+//
+//		return key;
+//	}
 
 	public void deleteKey(String keyID) throws KeyDbException {
 		Key key = keyChain.getKeyByID(keyID);
@@ -188,85 +292,85 @@ public class KeyDb {
 		if (key != null)
 			key.setDeleted(true);
 
-		write();
+//		write();
 	}
 
-	public static void storeCachedKey(String keyID, String name, String user, String password, String url) {
-		try {
-			if (sInstance == null)	// cannot continue if there's no instance at all
-				return;
+//	public static void storeCachedKey(String keyID, String name, String user, String password, String url) {
+//		try {
+//			if (sInstance == null)	// cannot continue if there's no instance at all
+//				return;
+//
+//			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
+//			if (cacheFile.exists())
+//				cacheFile.delete();
+//
+//			KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
+//			tempDb.storeKey(keyID, name, user, password, url);
+//		} catch (KeyDbException e) {
+//			e.printStackTrace();
+//		}
+//	}
+//
+//	public static void removeCachedKey(String keyID) {
+//		try {
+//			if (sInstance == null)	// cannot continue if there's no instance at all
+//				return;
+//
+//			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
+//			if (cacheFile.exists()) {
+//				KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
+//				Key key = tempDb.getKey(keyID);
+//
+//				if (key != null)
+//					Log.d("debug", "Key is not stored in temp file");
+//
+//				cacheFile.delete();
+//			}
+//		} catch (KeyDbException e) {
+//			e.printStackTrace();
+//		}
+//	}
+//
+//	public static Key getCachedKey() {
+//		Key key = null;
+//
+//		if (sInstance != null) {    // cannot continue if there's no instance at all
+//			try {
+//				File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
+//				if (cacheFile.exists()) {
+//					KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
+//
+//					List<Key> keys = tempDb.getKeys();
+//					if (keys.isEmpty() == false)
+//						key = keys.get(0);
+//				}
+//			} catch (KeyDbException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		return key;
+//	}
 
-			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-			if (cacheFile.exists())
-				cacheFile.delete();
+//	public static void release() {
+//		if (--sRefCount == 0)
+//			sInstance = null;
+//	}
+//
+// 	public static void reference() {
+//		assert(sInstance != null);
+//		++sRefCount;
+//	}
 
-			KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
-			tempDb.storeKey(keyID, name, user, password, url);
-		} catch (KeyDbException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void removeCachedKey(String keyID) {
-		try {
-			if (sInstance == null)	// cannot continue if there's no instance at all
-				return;
-
-			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-			if (cacheFile.exists()) {
-				KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
-				Key key = tempDb.getKey(keyID);
-
-				if (key != null)
-					Log.d("debug", "Key is not stored in temp file");
-
-				cacheFile.delete();
-			}
-		} catch (KeyDbException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static Key getCachedKey() {
-		Key key = null;
-
-		if (sInstance != null) {    // cannot continue if there's no instance at all
-			try {
-				File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-				if (cacheFile.exists()) {
-					KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
-
-					List<Key> keys = tempDb.getKeys();
-					if (keys.isEmpty() == false)
-						key = keys.get(0);
-				}
-			} catch (KeyDbException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return key;
-	}
-
-	public static void release() {
-		if (--sRefCount == 0)
-			sInstance = null;
-	}
-
-	public static void reference() {
-		assert(sInstance != null);
-		++sRefCount;
-	}
-
-	public KeyDb undeleteAll() throws KeyDbException {
-		for (Key k : keyChain.getKeys()) {
-			if (k.isDeleted()) {
-				k.setDeleted(false);
-			}
-		}
-
-		write();
-
-		return this;
-	}
+//	public KeyDb undeleteAll() throws KeyDbException {
+//		for (Key k : keyChain.getKeys()) {
+//			if (k.isDeleted()) {
+//				k.setDeleted(false);
+//			}
+//		}
+//
+//		write();
+//
+//		return this;
+//	}
 }

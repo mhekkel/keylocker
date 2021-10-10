@@ -30,9 +30,13 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
+import android.util.Log;
 import android.util.LruCache;
 import android.widget.Toast;
 
+import androidx.security.crypto.MasterKeys;
+import com.hekkelman.keylocker.datamodel.*;
+import com.hekkelman.keylocker.xmlenc.EncryptedData;
 import com.onedrive.sdk.authentication.MSAAuthenticator;
 import com.onedrive.sdk.concurrency.ICallback;
 import com.onedrive.sdk.core.ClientException;
@@ -41,13 +45,25 @@ import com.onedrive.sdk.core.IClientConfig;
 import com.onedrive.sdk.extensions.IOneDriveClient;
 import com.onedrive.sdk.extensions.OneDriveClient;
 import com.onedrive.sdk.logger.LoggerLevel;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base application
  */
-public class BaseApplication extends Application {
+public class KeyLockerApplication extends Application {
+
+    private char[] password;
+    private KeyDb keyDb = null;
 
     /**
      * The service instance
@@ -59,13 +75,23 @@ public class BaseApplication extends Application {
      */
     private ConnectivityManager mConnectivityManager;
 
+    private static KeyLockerApplication sInstance = null;
+
+
     /**
      * What to do when the application starts
      */
     @Override
     public void onCreate() {
         super.onCreate();
+
+        sInstance = this;
+
         mConnectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+    static KeyLockerApplication getInstance() {
+        return sInstance;
     }
 
     /**
@@ -166,4 +192,99 @@ public class BaseApplication extends Application {
             .fromConfig(createConfig())
             .loginAndBuildClient(activity, callback);
     }
+
+    KeyDb getKeyDb() {
+        if (this.keyDb == null)
+            this.keyDb = new KeyDb(this);
+        else
+            this.keyDb.checkPassword();
+
+        return this.keyDb;
+    }
+
+//    // Unlock the KeyDb file
+//    public void unlockKeyDb(char[] password) throws KeyDbException {
+//        KeyDb newKeyDb = new KeyDb(password);
+//        this.keyDb = newKeyDb;
+//    }
+
+    public Key decryptKey(byte[] data) throws KeyDbException {
+
+        Key key = null;
+        InputStream is = EncryptedData.decrypt(this.password, new ByteArrayInputStream(data));
+
+        try {
+            Serializer serializer = new Persister();
+            key = serializer.read(Key.class, is);
+        } catch (Exception e) {
+//            throw new InvalidPasswordException();
+            Log.d("DEBUG", "Error decrypting key");
+        }
+
+        return key;
+    }
+
+    public byte[] encryptKey(Key key) {
+        byte[] data = null;
+
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Serializer serializer = new Persister();
+            serializer.write(key, os);
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output);
+
+            data = output.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
+    public void setPassword(char[] password) {
+    }
+
+    private char[] getPassword() throws GeneralSecurityException, IOException {
+        try (ByteArrayOutputStream bs = new ByteArrayOutputStream();
+             ByteArrayInputStream is = new ByteArrayInputStream(this.stored_password))
+        {
+            String masterKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            java.security.Key key = keyStore.getKey(masterKey, null);
+
+            byte[] iv = new byte[KEY_BYTE_SIZE];
+            is.read(iv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+            cipher.init(Cipher.DECRYPT_MODE,
+                new SecretKeySpec(key.getEncoded(), "AES"),
+                new IvParameterSpec(iv));
+
+            try (InputStream dis = new BufferedInputStream(new CipherInputStream(is, cipher)))
+            {
+                int available = is.available();
+                byte[] data = new byte[available];
+                is.read(data);
+
+                return new String(data).toCharArray();
+            }
+        }
+    }
+
+    public void validatePassword() throws InvalidPasswordException {
+    }
+
+//    public void saveKey(Key key) throws KeyDbException {
+//        if (keyDb == null)
+//            throw new KeyDbException();
+////        keyDb.storeKey(key);
+//    }
+//
+//    public Key loadKey(String keyID) {
+//        return keyDb.getKey(keyID);
+//    }
 }

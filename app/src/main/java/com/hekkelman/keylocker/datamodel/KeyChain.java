@@ -1,12 +1,19 @@
 package com.hekkelman.keylocker.datamodel;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import com.hekkelman.keylocker.xmlenc.EncryptedData;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
 @Root
 public class KeyChain {
@@ -109,10 +116,31 @@ public class KeyChain {
 				noteIterator.remove();
 		}
 	}
+//
+//	public Key createKey() {
+//		Key key = new Key();
+//		this.keys.add(key);
+//		return key;
+//	}
 
-	public Key createKey() {
-		Key key = new Key();
-		this.keys.add(key);
-		return key;
+	static KeyChain decrypt(InputStream input, char[] password) throws KeyDbException {
+		InputStream is = EncryptedData.decrypt(password, input);
+
+		try {
+			Serializer serializer = new Persister();
+			return serializer.read(KeyChain.class, is);
+		} catch (Exception e) {
+			throw new InvalidPasswordException();
+		}
+	}
+
+	void encrypt(OutputStream output, char[] password) throws Exception {
+		// intermediate storage of unencrypted data
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+		Serializer serializer = new Persister();
+		serializer.write(this, os);
+
+		EncryptedData.encrypt(password, new ByteArrayInputStream(os.toByteArray()), output);
 	}
 }

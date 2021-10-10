@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -20,6 +21,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
+import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
@@ -29,6 +31,8 @@ import java.lang.ref.WeakReference;
  * A login screen that offers login via email/password.
  */
 public class UnlockActivity extends AppCompatActivity {
+
+	private final KeyLockerApplication app = KeyLockerApplication.getInstance();
 
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
@@ -56,7 +60,6 @@ public class UnlockActivity extends AppCompatActivity {
 		}
 
 		// Set up the login form.
-		KeyDb.setInstance(null);
 
 		mPasswordView = findViewById(R.id.password);
 		mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -156,34 +159,31 @@ public class UnlockActivity extends AppCompatActivity {
 		// Reset errors.
 		mPasswordView.setError(null);
 
-		// Store values at the time of the login attempt.
-		String password = mPasswordView.getText().toString();
-
-		boolean cancel = false;
-		View focusView = null;
+		Editable text = mPasswordView.getText();
+		int length = text.length();
 
 		// Check for a valid password, if the user entered one.
-		if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+		if (length < 5) {
 			mPasswordView.setError(getString(R.string.error_invalid_password));
-			focusView = mPasswordView;
-			cancel = true;
+			mPasswordView.requestFocus();
+			return;
 		}
 
-		if (cancel) {
-			// There was an error; don't attempt login and focus the first
-			// form field with an error.
-			focusView.requestFocus();
-		} else {
+		char[] password = new char[text.length()];
+		text.getChars(0, text.length(), password, 0);
+
+		try {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			showProgress(true);
-			mAuthTask = new UserLoginTask(password, this);
-			mAuthTask.execute((Void) null);
-		}
-	}
 
-	private boolean isPasswordValid(String password) {
-		return password.length() >= 5;
+			app.setPassword(password);
+
+			mAuthTask = new UserLoginTask(this);
+			mAuthTask.execute((Void) null);
+		} finally {
+			Utils.clear(password);
+		}
 	}
 
 	/**
@@ -219,11 +219,9 @@ public class UnlockActivity extends AppCompatActivity {
 	 */
 	public static class UserLoginTask extends AsyncTask<Void, Void, UnlockResult> {
 
-		private final String mPassword;
 		private final WeakReference<UnlockActivity> unlockActivityWeakReference;
 
-		UserLoginTask(String password, UnlockActivity unlockActivity) {
-			mPassword = password;
+		UserLoginTask(UnlockActivity unlockActivity) {
             this.unlockActivityWeakReference = new WeakReference<>(unlockActivity);
         }
 
@@ -234,10 +232,7 @@ public class UnlockActivity extends AppCompatActivity {
                 if (unlockActivity == null)
                     return UnlockResult.ACTIVITY_GONE;
 
-                KeyDb keyDb = new KeyDb(mPassword.toCharArray(),
-                    new File(unlockActivity.getFilesDir(), KeyDb.KEY_DB_NAME));
-
-				KeyDb.setInstance(keyDb);
+                unlockActivity.app.validatePassword();
 
 				return UnlockResult.VALID;
 			} catch (InvalidPasswordException ex) {
@@ -292,12 +287,5 @@ public class UnlockActivity extends AppCompatActivity {
         mAuthTask = null;
         showProgress(false);
     }
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-
-		KeyDb.release();
-	}
 }
 

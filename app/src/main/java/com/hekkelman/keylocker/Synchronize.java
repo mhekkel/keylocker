@@ -37,14 +37,14 @@ public class Synchronize {
         return sSyncTask;
     }
 
-    static void syncWithSDCard(OnSyncTaskResult handler, BaseApplication app, String... password) {
+    static void syncWithSDCard(OnSyncTaskResult handler, KeyLockerApplication app, String... password) {
         if (sSyncTask == null) {
             sSyncTask = new SDSyncTask(handler, app);
             sSyncTask.execute(password);
         }
     }
 
-    static void syncWithOneDrive(OnSyncTaskResult handler, BaseApplication app, String... password) {
+    static void syncWithOneDrive(OnSyncTaskResult handler, KeyLockerApplication app, String... password) {
         if (sSyncTask == null) {
             sSyncTask = new OneDriveSyncTask(handler, app);
             sSyncTask.execute(password);
@@ -86,9 +86,9 @@ public class Synchronize {
 
     private static class SDSyncTask extends SyncTask {
 
-        private final BaseApplication app;
+        private final KeyLockerApplication app;
 
-        public SDSyncTask(OnSyncTaskResult handler, BaseApplication app) {
+        public SDSyncTask(OnSyncTaskResult handler, KeyLockerApplication app) {
             super(handler);
             this.app = app;
         }
@@ -137,10 +137,10 @@ public class Synchronize {
 
     private static class OneDriveSyncTask extends SyncTask {
 
-        private final BaseApplication app;
+        private final KeyLockerApplication app;
         private final ProgressDialog dlog;
 
-        public OneDriveSyncTask(OnSyncTaskResult handler, BaseApplication app) {
+        public OneDriveSyncTask(OnSyncTaskResult handler, KeyLockerApplication app) {
             super(handler);
 
             this.app = app;

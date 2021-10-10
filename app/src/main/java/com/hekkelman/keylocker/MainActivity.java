@@ -26,9 +26,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.google.android.material.navigation.NavigationView;
-import com.hekkelman.keylocker.datamodel.Key;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.KeyDbException;
+import com.hekkelman.keylocker.datamodel.*;
 import com.onedrive.sdk.concurrency.ICallback;
 
 import java.lang.ref.WeakReference;
@@ -39,9 +37,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
 	implements NavigationView.OnNavigationItemSelectedListener
 {
+	private final KeyLockerApplication app = KeyLockerApplication.getInstance();
 
-	private KeyDb mKeyDb;
-	private List<Key> mKeys;
+	private List<KeyInfo> mKeys;
 	private KeyCardViewAdapter mAdapter;
 	private String mQuery;
 
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity
 
 		@Override
 		public void onBindViewHolder(ViewHolder holder, int position) {
-			Key key = mKeys.get(position);
+			KeyInfo key = mKeys.get(position);
 			holder.nameView.setText(key.getName());
 			holder.userView.setText(key.getUser());
 		}
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 				itemView.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						Key key = mKeys.get(getAdapterPosition());
+						KeyInfo key = mKeys.get(getAdapterPosition());
 
 						Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
 						intent.putExtra("keyId", key.getId());
@@ -162,13 +160,63 @@ public class MainActivity extends AppCompatActivity
 		} else if (intent.getBooleanExtra("unlocked", false)) {
 			// we've just been unlocked. Check to see if there's a key left in the temp storage
 
-			Key key = KeyDb.getCachedKey();
-			if (key != null) {
-				intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-				intent.putExtra("restore-key", true);
-				startActivity(intent);
+//			Key key = KeyDb.getCachedKey();
+//			if (key != null) {
+//				intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+//				intent.putExtra("restore-key", true);
+//				startActivity(intent);
+//			}
+		}
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+//		if (mKeyDb == null) {
+//			startActivity(new Intent(this, UnlockActivity.class));
+//			finish();
+//		} else {
+//			searchKeys(mQuery);
+//
+//			KeyDb.reference();
+//		}
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		if (mDeleteTask != null) {
+			try {
+				mDeleteTask.wait();
+//				KeyDb.release();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
+
+		mKeys = null;
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		KeyDb keyDb = app.getKeyDb();
+		mKeys = keyDb.getKeys();
+
+		//		KeyDb.load(new LoadKeyDbCallback() {
+//			@Override
+//			public void onLoaded() {
+//
+//			}
+//
+//			@Override
+//			public void onFailed(KeyDbException ex) {
+//				MainActivity.this.finish();
+//			}
+//		});
 	}
 
 	@OnClick(R.id.fab)
@@ -178,14 +226,12 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	private void searchKeys(String query) {
-		mKeys = mKeyDb.getKeys();
-
 		mQuery = query;
 
 		if (TextUtils.isEmpty(query) == false) {
-			Iterator<Key> iter = mKeys.iterator();
+			Iterator<KeyInfo> iter = mKeys.iterator();
 			while (iter.hasNext()) {
-				Key key = iter.next();
+				KeyInfo key = iter.next();
 				if (key.match(query) == false)
 					iter.remove();
 			}
@@ -209,9 +255,10 @@ public class MainActivity extends AppCompatActivity
 				MainActivity mainActivity = mainActivityWeakReference.get();
 				if (mainActivity != null)
 				{
-					KeyDb keyDb = mainActivity.mKeyDb;
+					KeyDb keyDb = mainActivity.app.getKeyDb();
 					for (String keyId : params[0])
 						keyDb.deleteKey(keyId);
+//					keyDb.write();
 				}
 			} catch (KeyDbException ignored) {
 			}
@@ -231,7 +278,7 @@ public class MainActivity extends AppCompatActivity
 		List<String> ids = new ArrayList<String>();
 
 		for (int pos : position) {
-			Key key = mKeys.remove(pos);
+			KeyInfo key = mKeys.remove(pos);
 			ids.add(key.getId());
 		}
 
@@ -249,35 +296,7 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
 
-		mKeyDb = KeyDb.getInstance();
-
-		if (mKeyDb == null) {
-			startActivity(new Intent(this, UnlockActivity.class));
-			finish();
-		} else {
-			searchKeys(mQuery);
-
-			KeyDb.reference();
-		}
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-
-		if (mDeleteTask != null) {
-			try {
-				mDeleteTask.wait();
-				KeyDb.release();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
 	@Override
 	public void onBackPressed() {
@@ -338,12 +357,12 @@ public class MainActivity extends AppCompatActivity
 //                syncWithSDCard(false);
 //                break;
 			case R.id.action_undelete:
-				try {
-					mKeys = mKeyDb.undeleteAll().getKeys();
-					mAdapter.notifyDataSetChanged();
-				} catch (KeyDbException e) {
-//                    e.printStackTrace();
-				}
+//				try {
+////					mKeys = mKeyDb.undeleteAll().getKeys();
+//					mAdapter.notifyDataSetChanged();
+//				} catch (KeyDbException e) {
+////                    e.printStackTrace();
+//				}
 				break;
 			default:
 				result = false;
@@ -457,11 +476,11 @@ public class MainActivity extends AppCompatActivity
 	};
 
 	private void syncWithOneDrive() {
-		final BaseApplication app = (BaseApplication) getApplication();
+		final KeyLockerApplication app = (KeyLockerApplication) getApplication();
 		final ICallback<Void> serviceCreated = new DefaultCallback<Void>(this) {
 			@Override
 			public void success(final Void result) {
-				final BaseApplication app = (BaseApplication) getApplication();
+				final KeyLockerApplication app = (KeyLockerApplication) getApplication();
 				Synchronize.syncWithOneDrive(mSyncHandler, app);
 			}
 		};
@@ -473,7 +492,7 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	private void syncWithSDCard() {
-		final BaseApplication app = (BaseApplication) getApplication();
+		final KeyLockerApplication app = (KeyLockerApplication) getApplication();
 		if (isExternalStorageWritable()) {
 			Synchronize.syncWithSDCard(mSyncHandler, app);
 		}

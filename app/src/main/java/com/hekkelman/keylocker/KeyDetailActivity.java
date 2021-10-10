@@ -14,8 +14,8 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -32,8 +32,52 @@ public class KeyDetailActivity extends AppCompatActivity {
 
 	public static long MAX_INACTIVITY_TIME = 10 * 1000;
 
-	private String keyID;
-	private boolean textChanged = false;
+	private KeyLockerApplication app = KeyLockerApplication.getInstance();
+
+	private class EditableKey extends Key {
+		private boolean modified = false;
+
+		public EditableKey() {
+		}
+
+		public EditableKey(Key key) {
+			super(key);
+		}
+
+		@Override
+		public void setName(String name) {
+			super.setName(name);
+			modified = true;
+		}
+
+		@Override
+		public void setUser(String user) {
+			super.setUser(user);
+			modified = true;
+		}
+
+		@Override
+		public void setPassword(String password) {
+			super.setPassword(password);
+			modified = true;
+		}
+
+		@Override
+		public void setUrl(String url) {
+			super.setUrl(url);
+			modified = true;
+		}
+
+		public boolean isModified() {
+			return modified;
+		}
+
+		public void setModified(boolean modified) {
+			this.modified = modified;
+		}
+	}
+
+	private EditableKey key;
 	private long pausedAt = 0;
 
 	@Bind(R.id.keyNameField)
@@ -46,6 +90,53 @@ public class KeyDetailActivity extends AppCompatActivity {
 	protected EditText urlField;
 	@Bind(R.id.lastModifiedCaption)
 	protected TextView lastModified;
+
+	private enum KeyField
+	{
+		NAME("key name"),
+		USER("user name"),
+		PASSWORD("password"),
+		URL("url");
+
+		KeyField(String name)
+		{
+			this.name = name;
+		}
+
+		private final String name;
+	}
+
+	private class KeyFieldTextWatcher implements TextWatcher
+	{
+		private final Key key;
+		private final KeyField field;
+
+		private KeyFieldTextWatcher(Key key, KeyField field) {
+			this.key = key;
+			this.field = field;
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+		}
+
+		@Override
+		public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+		}
+
+		@Override
+		public void afterTextChanged(Editable editable) {
+			switch (field)
+			{
+				case NAME: key.setName(editable.toString()); break;
+				case USER: key.setUser(editable.toString()); break;
+				case PASSWORD: key.setPassword(editable.toString()); break;
+				case URL: key.setUrl(editable.toString());
+			}
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,61 +154,66 @@ public class KeyDetailActivity extends AppCompatActivity {
 
         pausedAt = new Date().getTime();
 
-        if (getIntent().getBooleanExtra("restore-key", false)) {
-			Key key = KeyDb.getCachedKey();
-			if (key != null) {
-				setKey(key);
-				textChanged = true;
-			} else
-				finish();   // there was no key!
+		String keyID = getIntent().getStringExtra("keyId");
+
+		if (keyID == null) {
+			this.key = new EditableKey();
+			lastModified.setVisibility(View.INVISIBLE);
 		} else {
-			this.keyID = getIntent().getStringExtra("keyId");
-
-			if (this.keyID == null) {
-				lastModified.setVisibility(View.INVISIBLE);
-			} else {
-				Key key = KeyDb.getInstance().getKey(this.keyID);
-				if (key == null) {
-					new AlertDialog.Builder(KeyDetailActivity.this)
-						.setTitle(R.string.dlog_missing_key_title)
-						.setMessage(R.string.dlog_missing_key_msg)
-						.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int which) {
-								finish();
-							}
-						})
-						.setIcon(android.R.drawable.ic_dialog_alert)
-						.show();
-					return;
-				}
-
-				setKey(key);
+			Key key = app.loadKey(keyID);
+			if (key == null) {
+				new AlertDialog.Builder(KeyDetailActivity.this)
+					.setTitle(R.string.dlog_missing_key_title)
+					.setMessage(R.string.dlog_missing_key_msg)
+					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					})
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.show();
+				return;
 			}
 		}
 
-		TextWatcher listener = new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-			}
+		setKey(key);
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				KeyDetailActivity.this.textChanged = true;
-			}
-		};
-
-		nameField.addTextChangedListener(listener);
-		passwordField.addTextChangedListener(listener);
-		userField.addTextChangedListener(listener);
-		urlField.addTextChangedListener(listener);
+		nameField.addTextChangedListener(new KeyFieldTextWatcher(key, KeyField.NAME));
+		passwordField.addTextChangedListener(new KeyFieldTextWatcher(key, KeyField.PASSWORD));
+		userField.addTextChangedListener(new KeyFieldTextWatcher(key, KeyField.USER));
+		urlField.addTextChangedListener(new KeyFieldTextWatcher(key, KeyField.URL));
 	}
 
-	private void setKey(Key key) {
-		this.keyID = key.getId();
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		outState.putByteArray("key-data", app.encryptKey(this.key));
+
+		nameField.setText("");
+		passwordField.setText("");
+		userField.setText("");
+		urlField.setText("");
+		lastModified.setText("");
+
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+
+		// Restore the key from the bundle
+		try {
+			byte[] data = savedInstanceState.getByteArray("key-data");
+			Key savedKey = app.decryptKey(data);
+			if (savedKey != null)
+				setKey(new EditableKey(savedKey));
+		} catch (KeyDbException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void setKey(EditableKey key) {
+		this.key = key;
 
 		String name = key.getName();
 		if (name != null) {
@@ -147,7 +243,7 @@ public class KeyDetailActivity extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (textChanged == false) {
+		if (key.isModified() == false) {
 			finish();
 		} else {
 			new AlertDialog.Builder(KeyDetailActivity.this)
@@ -155,8 +251,7 @@ public class KeyDetailActivity extends AppCompatActivity {
 				.setMessage(R.string.dlog_discard_changes_msg)
 				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						textChanged = false; // do not store this key again, please
-						KeyDb.removeCachedKey(keyID);
+						key.setModified(false); // do not store this key again, please
 						finish();
 					}
 				})
@@ -202,17 +297,14 @@ public class KeyDetailActivity extends AppCompatActivity {
 		if (name.length() == 0) {
 			nameField.setError(getString(R.string.keyNameIsRequired));
 		} else {
-			String user = userField.getText().toString();
-			String password = passwordField.getText().toString();
-			String url = urlField.getText().toString();
+
+			key.setName(userField.getText().toString());
+			key.setPassword(passwordField.getText().toString());
+			key.setUrl(urlField.getText().toString());
 
 			try {
-				Key key = KeyDb.getInstance().storeKey(keyID, name, user, password, url);
-
-				keyID = key.getId();
-				textChanged = false;
-
-				KeyDb.removeCachedKey(keyID);
+				app.saveKey(key);
+				key.setModified(false);
 
 				Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
 
@@ -236,17 +328,6 @@ public class KeyDetailActivity extends AppCompatActivity {
 
 	@Override
 	protected void onPause() {
-
-		// store the data in case we're about to disappear
-		if (textChanged) {
-			String name = nameField.getText().toString();
-			String user = userField.getText().toString();
-			String password = passwordField.getText().toString();
-			String url = urlField.getText().toString();
-
-			KeyDb.storeCachedKey(keyID, name, user, password, url);
-		}
-
 		pausedAt = new Date().getTime();
 
 		super.onPause();
@@ -265,19 +346,11 @@ public class KeyDetailActivity extends AppCompatActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if (KeyDb.getInstance() == null) {
-			startActivity(new Intent(this, UnlockActivity.class));
-			finish();
-		} else {
-			KeyDb.reference();
-		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-
-		KeyDb.release();
 	}
 
 	public void onClickRenewPassword(View v) {

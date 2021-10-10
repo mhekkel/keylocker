@@ -22,10 +22,10 @@ public class InitActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
 
-        final EditText pw1 = (EditText)findViewById(R.id.password_1);
-        final EditText pw2 = (EditText)findViewById(R.id.password_2);
+        final EditText pw1 = findViewById(R.id.password_1);
+        final EditText pw2 = findViewById(R.id.password_2);
 
-        final Switch sw = (Switch) findViewById(R.id.numeric_cb);
+        final Switch sw = findViewById(R.id.numeric_cb);
 
         sw.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
@@ -45,7 +45,7 @@ public class InitActivity extends AppCompatActivity {
                 }
         );
 
-        Button btn = (Button) findViewById(R.id.create_btn);
+        Button btn = findViewById(R.id.create_btn);
         btn.setOnClickListener(
             new View.OnClickListener() {
                @Override
@@ -85,6 +85,6 @@ public class InitActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        KeyDb.release();
+//        KeyDb.release();
     }
 }
