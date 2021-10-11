@@ -3,18 +3,23 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.20625" />
         <entry key="app/src/main/res/drawable-xxxhdpi/ic_content_copy_gray.xml" value="0.2625" />
         <entry key="app/src/main/res/drawable-xxxhdpi/ic_more_vert_gray.xml" value="0.27447916666666666" />
         <entry key="app/src/main/res/layout/activity_container.xml" value="0.22509057971014493" />
         <entry key="app/src/main/res/layout/activity_init.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.22509057971014493" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23278985507246377" />
+        <entry key="app/src/main/res/layout/activity_unlock.xml" value="0.20652173913043478" />
+        <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.19114583333333332" />
         <entry key="app/src/main/res/layout/cardview_key_item.xml" value="0.23278985507246377" />
         <entry key="app/src/main/res/layout/cardview_note_item.xml" value="0.23278985507246377" />
         <entry key="app/src/main/res/layout/component_frame.xml" value="0.22509057971014493" />
         <entry key="app/src/main/res/layout/content_change_main_password.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/content_key_detail.xml" value="0.23278985507246377" />
+        <entry key="app/src/main/res/layout/content_main.xml" value="0.19114583333333332" />
         <entry key="app/src/main/res/layout/content_unlock.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.20652173913043478" />
       </map>
     </option>
   </component>

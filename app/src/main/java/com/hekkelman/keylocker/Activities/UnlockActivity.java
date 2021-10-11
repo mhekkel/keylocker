@@ -79,7 +79,7 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	}
 
 	private void initPasswordPinSwitch(View v) {
-		boolean usePin = mSettings.getUsePin();
+		boolean usePin = settings.getUsePin();
 
 		mPINSwitch.setOnCheckedChangeListener(
 			new CompoundButton.OnCheckedChangeListener() {
@@ -89,8 +89,10 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 
 					if (isChecked) {
 						mPasswordInput.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD | InputType.TYPE_CLASS_NUMBER);
+						mPasswordLayout.setHint(getString(R.string.unlock_hint_pin));
 					} else {
 						mPasswordInput.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
+						mPasswordLayout.setHint(getString(R.string.unlock_hint_password));
 					}
 				}
 			}
@@ -108,10 +110,10 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	private void initPasswordLayoutView(View v) {
 		int hintResId = (mPINSwitch.isChecked()) ? R.string.unlock_hint_pin :  R.string.unlock_hint_password;
 		mPasswordLayout.setHint(getString(hintResId));
-		if (mSettings.getBlockAccessibility()) {
+		if (settings.getBlockAccessibility()) {
 			mPasswordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
 		}
-		if (mSettings.getBlockAutofill()) {
+		if (settings.getBlockAutofill()) {
 			mPasswordLayout.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
 		}
 	}

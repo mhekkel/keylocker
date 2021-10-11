@@ -34,15 +34,10 @@ public class KeyDetailActivity extends AppCompatActivity {
 	private boolean textChanged = false;
 	private long pausedAt = 0;
 
-//	@BindView(R.id.keyNameField)
 	protected EditText nameField;
-//	@BindView(R.id.keyUserField)
 	protected EditText userField;
-//	@BindView(R.id.keyPasswordField)
 	protected EditText passwordField;
-//	@BindView(R.id.keyURLField)
 	protected EditText urlField;
-//	@BindView(R.id.lastModifiedCaption)
 	protected TextView lastModified;
 
 	@Override
@@ -57,7 +52,11 @@ public class KeyDetailActivity extends AppCompatActivity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
 			WindowManager.LayoutParams.FLAG_SECURE);
 
-//		ButterKnife.bind(this);
+		nameField = findViewById(R.id.keyNameField);
+		userField = findViewById(R.id.keyUserField);
+		passwordField = findViewById(R.id.keyPasswordField);
+		urlField = findViewById(R.id.keyURLField);
+		lastModified = findViewById(R.id.lastModifiedCaption);
 
         pausedAt = new Date().getTime();
 

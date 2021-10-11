@@ -117,4 +117,5 @@
     <string name="unlock_hint_password">Password</string>
     <string name="settings_key_block_autofill" translatable="false">pref_block_autofill</string>
     <string name="title_activity_init">Create new KeyLocker</string>
+    <string name="fab_create_new">Create new</string>
 </resources>

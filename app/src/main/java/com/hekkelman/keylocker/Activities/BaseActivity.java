@@ -30,7 +30,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.LocaleList;
-import android.util.DisplayMetrics;
 
 //import com.onedrive.sdk.authentication.MSAAuthenticator;
 //import com.onedrive.sdk.concurrency.ICallback;
@@ -58,8 +57,8 @@ public class BaseActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                if (mBroadcastReceivedCallback != null) {
-                    mBroadcastReceivedCallback.onReceivedScreenOff();
+                if (broadcastReceivedCallback != null) {
+                    broadcastReceivedCallback.onReceivedScreenOff();
                 }
                 if (shouldDestroyOnScreenOff()) {
                     finish();
@@ -72,13 +71,13 @@ public class BaseActivity extends AppCompatActivity {
         void onReceivedScreenOff();
     }
 
-    public Settings mSettings;
-    private ScreenOffReceiver mScreenOffReceiver;
-    private BroadcastReceivedCallback mBroadcastReceivedCallback;
+    public Settings settings;
+    private ScreenOffReceiver screenOffReceiver;
+    private BroadcastReceivedCallback broadcastReceivedCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mSettings = new Settings(this);
+        settings = new Settings(this);
 
 //        setTheme(settings.getTheme());
         setLocale();
@@ -88,18 +87,18 @@ public class BaseActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        mScreenOffReceiver = new ScreenOffReceiver();
-        registerReceiver(mScreenOffReceiver, mScreenOffReceiver.filter);
+        screenOffReceiver = new ScreenOffReceiver();
+        registerReceiver(screenOffReceiver, screenOffReceiver.filter);
     }
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(mScreenOffReceiver);
+        unregisterReceiver(screenOffReceiver);
         super.onDestroy();
     }
 
     public void setBroadcastCallback(BroadcastReceivedCallback cb) {
-        this.mBroadcastReceivedCallback = cb;
+        this.broadcastReceivedCallback = cb;
     }
 
     protected boolean shouldDestroyOnScreenOff() {
@@ -115,7 +114,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void setLocale() {
-        Locale locale = mSettings.getLocale();
+        Locale locale = settings.getLocale();
 
         Resources resources = getResources();
         Configuration config = resources.getConfiguration();

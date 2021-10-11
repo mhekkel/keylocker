@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +37,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.Utilities.Synchronize;
@@ -54,30 +56,34 @@ public class MainActivity extends BaseActivity
     private class ProcessLifecycleObserver implements DefaultLifecycleObserver {
         @Override
         public void onStop(@NonNull LifecycleOwner owner) {
-            if (MainActivity.this.mSettings.getRelockOnBackground())
-                MainActivity.this.mRequireAuthentication = true;
+            if (MainActivity.this.settings.getRelockOnBackground())
+                MainActivity.this.requireAuthentication = true;
         }
     }
 
-    private boolean mRequireAuthentication = false;
-    private KeyCardViewAdapter mAdapter;
-    private String mQuery;
-    private RecyclerView mRecyclerView;
-    private NavigationView mNavigationView;
-    private CountDownTimer mCountDownTimer;
-    private ActivityResultLauncher<Intent> mUnlockResult;
-    private ActivityResultLauncher<Intent> mInitResult;
-    private AsyncTask<List<String>, Void, Void> mDeleteTask;
+    private boolean requireAuthentication = false;
+    private KeyCardViewAdapter adapter;
+    private String query;
+    private RecyclerView recyclerView;
+    private NavigationView navigationView;
+    private CountDownTimer countDownTimer;
+    private FloatingActionButton fabView;
+
+    private ActivityResultLauncher<Intent> unlockResult;
+    private ActivityResultLauncher<Intent> initResult;
+    private ActivityResultLauncher<Intent> newKeyResult;
+    private AsyncTask<List<String>, Void, Void> deleteTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        mRecyclerView = findViewById(R.id.recycler_view);
-        mNavigationView = findViewById(R.id.nav_view);
+        recyclerView = findViewById(R.id.recycler_view);
+        navigationView = findViewById(R.id.nav_view);
+        fabView = findViewById(R.id.fab);
 
-        if (!mSettings.getScreenshotsEnabled())
+        if (!settings.getScreenshotsEnabled())
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                     WindowManager.LayoutParams.FLAG_SECURE);
 
@@ -85,19 +91,23 @@ public class MainActivity extends BaseActivity
         setSupportActionBar(toolbar);
 
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
-        mSettings.registerPreferenceChangeListener(this);
+        settings.registerPreferenceChangeListener(this);
 
-        mUnlockResult = registerForActivityResult(
+        unlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this);
-        mInitResult = registerForActivityResult(
+        initResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this);
+
+        newKeyResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                this::onNewKeyResult);
 
         if (savedInstanceState == null)
-            mRequireAuthentication = true;
+            requireAuthentication = true;
 
         setBroadcastCallback(() -> {
-            if (mSettings.getRelockOnScreenOff())
-                mRequireAuthentication = true;
+            if (settings.getRelockOnScreenOff())
+                requireAuthentication = true;
         });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
@@ -108,17 +118,17 @@ public class MainActivity extends BaseActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        mNavigationView.setNavigationItemSelectedListener(this);
-        MenuItem mi = mNavigationView.getMenu().findItem(R.id.nav_keys);
+        navigationView.setNavigationItemSelectedListener(this);
+        MenuItem mi = navigationView.getMenu().findItem(R.id.nav_keys);
         if (mi != null) mi.setChecked(true);
 
 		File keyDbFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
 
-		mAdapter = new KeyCardViewAdapter(this, keyDbFile);
-		mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-		mRecyclerView.setAdapter(mAdapter);
+		adapter = new KeyCardViewAdapter(this, keyDbFile);
+		recyclerView.setLayoutManager(new LinearLayoutManager(this));
+		recyclerView.setAdapter(adapter);
 
-        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 super.onChanged();
@@ -164,6 +174,7 @@ public class MainActivity extends BaseActivity
 //			}
 //		}
 
+        fabView.setOnClickListener(this::onClickFab);
 
 
 
@@ -213,7 +224,20 @@ public class MainActivity extends BaseActivity
         }
     }
 
-	@Override
+    private void onNewKeyResult(ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            Intent intent = result.getData();
+            if (intent != null)
+            {
+//                char[] password = intent.getCharArrayExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY);
+//
+//                adapter.setPassword(password);
+//                requireAuthentication = false;
+            }
+        }
+    }
+
+    @Override
 	public void onActivityResult(ActivityResult result) {
 		if (result.getResultCode() == Activity.RESULT_OK) {
 			Intent intent = result.getData();
@@ -221,8 +245,8 @@ public class MainActivity extends BaseActivity
 			{
 				char[] password = intent.getCharArrayExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY);
 
-				mAdapter.setPassword(password);
-				mRequireAuthentication = false;
+				adapter.setPassword(password);
+				requireAuthentication = false;
 			}
 		}
 	}
@@ -230,7 +254,7 @@ public class MainActivity extends BaseActivity
     //	@OnClick(R.id.fab)
     public void onClickFab(View view) {
         Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-        startActivity(intent);
+        newKeyResult.launch(intent);
     }
 
     private void searchKeys(String query) {
@@ -305,7 +329,7 @@ public class MainActivity extends BaseActivity
             super.onPostExecute(aVoid);
             MainActivity mainActivity = mainActivityWeakReference.get();
             if (mainActivity != null)
-                mainActivity.mDeleteTask = null;
+                mainActivity.deleteTask = null;
         }
     }
 
@@ -335,7 +359,7 @@ public class MainActivity extends BaseActivity
     public void onResume() {
         super.onResume();
 
-        if (mRequireAuthentication) {
+        if (requireAuthentication) {
             authenticate();
         } else {
             populateAdapter();
@@ -344,7 +368,7 @@ public class MainActivity extends BaseActivity
 ////			}
 
             if (setCountDownTimerNow())
-                mCountDownTimer.start();
+                countDownTimer.start();
         }
     }
 
@@ -352,10 +376,10 @@ public class MainActivity extends BaseActivity
         File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
         if (!keyFile.exists()) {
             Intent authIntent = new Intent(this, InitActivity.class);
-            mInitResult.launch(authIntent);
+            initResult.launch(authIntent);
         } else {
             Intent authIntent = new Intent(this, UnlockActivity.class);
-            mUnlockResult.launch(authIntent);
+            unlockResult.launch(authIntent);
         }
     }
 
@@ -384,7 +408,7 @@ public class MainActivity extends BaseActivity
 //	}
 
     private void populateAdapter() {
-        mAdapter.loadEntries();
+        adapter.loadEntries();
 //		tagsDrawerAdapter.setTags(TagsAdapter.createTagsMap(adapter.getEntries(), settings));
 //		adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
     }
@@ -410,9 +434,9 @@ public class MainActivity extends BaseActivity
     protected void onStop() {
         super.onStop();
 
-        if (mDeleteTask != null) {
+        if (deleteTask != null) {
             try {
-                mDeleteTask.wait();
+                deleteTask.wait();
                 KeyDb.release();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -536,7 +560,7 @@ public class MainActivity extends BaseActivity
         public void syncResult(Synchronize.SyncResult result, String message, final Synchronize.SyncTask task) {
             switch (result) {
                 case SUCCESS:
-                    mAdapter.notifyDataSetChanged();
+                    adapter.notifyDataSetChanged();
                     Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
                     break;
 
@@ -649,12 +673,12 @@ public class MainActivity extends BaseActivity
 //    }
 
     private boolean setCountDownTimerNow() {
-        int secondsToBlackout = 1000 * mSettings.getAuthInactivityDelay();
+        int secondsToBlackout = 1000 * settings.getAuthInactivityDelay();
 
-        if (!mSettings.getAuthInactivity() || secondsToBlackout == 0)
+        if (!settings.getAuthInactivity() || secondsToBlackout == 0)
             return false;
 
-        mCountDownTimer = new CountDownTimer(secondsToBlackout, 1000) {
+        countDownTimer = new CountDownTimer(secondsToBlackout, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
             }

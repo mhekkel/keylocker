@@ -15,18 +15,11 @@ import com.hekkelman.keylocker.Utilities.Tools;
 
 public class KeyCardHolder extends RecyclerView.ViewHolder {
     private final Context context;
-//    @BindView(R.id.cardView)
     protected CardView card;
-//    @BindView(R.id.itemCaption)
     protected TextView nameView;
-//    @BindView(R.id.itemUser)
     protected TextView userView;
-//    @BindView(R.id.copyButton)
     protected ImageButton copyButton;
-//    @BindView(R.id.menuButton)
     protected ImageButton menuButton;
-
-//    @BindView(R.id.passwordView)
     protected TextView passwordView;
 
     private Callback callback;
@@ -49,8 +42,6 @@ public class KeyCardHolder extends RecyclerView.ViewHolder {
         super(itemView);
 
         this.context = context;
-
-//        ButterKnife.bind(this, itemView);
 
         // Style the buttons in the current theme colors
         ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);

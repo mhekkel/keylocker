@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.Tasks.UnlockTask;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
@@ -71,7 +70,7 @@ public class InitActivity extends BaseActivity
 
                 KeyDb.setInstance(keyDb);
 
-                mSettings.setUsePin(mPINSwitch.isChecked());
+                settings.setUsePin(mPINSwitch.isChecked());
 
                 finishWithResult(true, password);
             } catch (Exception e) {
