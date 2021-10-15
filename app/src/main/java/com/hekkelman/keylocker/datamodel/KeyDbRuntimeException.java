@@ -8,8 +8,6 @@ import android.os.Build;
 public class KeyDbRuntimeException extends KeyDbException {
     public KeyDbRuntimeException(Exception ex) {
         super();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            addSuppressed(ex);
-        }
+        addSuppressed(ex);
     }
 }

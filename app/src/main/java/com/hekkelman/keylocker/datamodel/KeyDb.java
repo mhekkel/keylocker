@@ -35,7 +35,7 @@ public class KeyDb {
 	public static final String KEY_DB_NAME = "keylockerfile.txt";
 
 	private static KeyDb sInstance;
-	private static Settings settings;
+//	private static Settings settings;
 
 	private final File file;
 	private final boolean backup;
@@ -45,8 +45,8 @@ public class KeyDb {
 	private KeyChain keyChain;
 
 	public static void init(Settings settings) {
-		if (KeyDb.settings == null) {
-			KeyDb.settings = settings;
+//		if (KeyDb.settings == null) {
+//			KeyDb.settings = settings;
 			ProcessLifecycleOwner.get().getLifecycle().addObserver(new DefaultLifecycleObserver() {
 				@Override
 				public void onStop(@NonNull LifecycleOwner owner) {
@@ -54,11 +54,11 @@ public class KeyDb {
 						KeyDb.sInstance = null;
 				}
 			});
-		}
+//		}
 	}
 
 	public static void onReceivedScreenOff() {
-		if (settings.getRelockOnScreenOff())
+//		if (settings.getRelockOnScreenOff())
 			KeyDb.sInstance = null;
 	}
 

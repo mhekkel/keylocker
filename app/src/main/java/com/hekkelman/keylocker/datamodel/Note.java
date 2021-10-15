@@ -1,5 +1,7 @@
 package com.hekkelman.keylocker.datamodel;
 
+import android.annotation.SuppressLint;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -11,6 +13,7 @@ import org.simpleframework.xml.Root;
 
 @Root
 public class Note {
+	@SuppressLint("SimpleDateFormat")
 	private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Attribute(name="id")

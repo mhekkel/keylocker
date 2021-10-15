@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -47,7 +48,8 @@ public class Key {
 	@Element(name="url", required=false)
 	private String url;
 
-	private long listID = 0;
+	private static final AtomicLong currentListID = new AtomicLong();
+	private long listID = currentListID.incrementAndGet();
 
 	// constructors
 	public Key(Key key) {

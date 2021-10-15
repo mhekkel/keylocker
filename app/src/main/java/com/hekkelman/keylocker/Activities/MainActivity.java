@@ -103,7 +103,7 @@ public class MainActivity extends BaseActivity
         if (mi != null) mi.setChecked(true);
 
 		adapter = new KeyCardViewAdapter(this);
-		adapter.setCallback(new KeyCardViewAdapter.Callback() {
+		adapter.setCallback(new KeyCardViewAdapter.KeyCardViewCallback() {
             @Override
             public void onEditKey(String keyID) {
                 Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
@@ -124,9 +124,8 @@ public class MainActivity extends BaseActivity
 
         Intent intent = getIntent();
 
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
             query = intent.getStringExtra(SearchManager.QUERY);
-        }
     }
 
     private void onEditKeyResult(ActivityResult result) {
@@ -138,7 +137,6 @@ public class MainActivity extends BaseActivity
             finish();
 	}
 
-    //	@OnClick(R.id.fab)
     public void onClickFab(View view) {
         Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
         newKeyResult.launch(intent);

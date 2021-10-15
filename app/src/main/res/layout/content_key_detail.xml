@@ -31,6 +31,7 @@
                 android:imeOptions="actionGo"
                 android:inputType="text"
                 android:singleLine="true" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -57,16 +58,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
+                app:endIconMode="password_toggle"
                 app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/keyPasswordField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="40dp"
+                    android:layout_marginEnd="@dimen/margin_key_input_field_with_button"
                     android:hint="@string/keyPasswordCaptionHint"
                     android:imeOptions="actionGo"
-                    android:inputType="text"
+                    android:inputType="textPassword"
                     android:selectAllOnFocus="true"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -99,7 +101,7 @@
                     android:id="@+id/keyURLField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="40dp"
+                    android:layout_marginEnd="@dimen/margin_key_input_field_with_button"
                     android:hint="@string/keyURLCaptionHint"
                     android:imeOptions="actionGo"
                     android:inputType="textUri"

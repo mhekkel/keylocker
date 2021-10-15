@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId "com.hekkelman.keylocker"
@@ -69,6 +69,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 
     implementation "androidx.cardview:cardview:1.0.0"
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     // For control over item selection of both touch and mouse driven selection
 
@@ -76,6 +77,7 @@ dependencies {
 
     // Include the sdk as a dependency
     implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

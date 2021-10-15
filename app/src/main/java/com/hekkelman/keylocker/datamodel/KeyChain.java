@@ -22,8 +22,6 @@ public class KeyChain {
 		this.notes = new Vector<Note>();
 	}
 
-	private final AtomicLong currentListID = new AtomicLong();
-
 	public List<Key> getKeys() {
 		return keys;
 	}
@@ -33,10 +31,7 @@ public class KeyChain {
 //	}
 //
 	public void addKey(Key key) {
-		if (! this.keys.contains(key)) {
-			this.keys.add(key);
-			key.setListID(currentListID.incrementAndGet());
-		}
+		if (! this.keys.contains(key)) this.keys.add(key);
 	}
 
 	public List<Note> getNotes() {
@@ -49,10 +44,9 @@ public class KeyChain {
 
 	// more accessors
 	Key getKeyByID(String id) {
-		for (Key k : this.keys) {
+		for (Key k : this.keys)
 			if (k.getId().equals(id))
 				return k;
-		}
 		return null;
 	}
 
@@ -107,17 +101,8 @@ public class KeyChain {
 	}
 
 	private void purge() {
-		for (Iterator<Key> keyIterator = this.keys.listIterator(); keyIterator.hasNext(); ) {
-			Key key = keyIterator.next();
-			if (key.isDeleted())
-				keyIterator.remove();
-		}
-
-		for (Iterator<Note> noteIterator = this.notes.listIterator(); noteIterator.hasNext(); ) {
-			Note note = noteIterator.next();
-			if (note.isDeleted())
-				noteIterator.remove();
-		}
+		this.keys.removeIf(Key::isDeleted);
+		this.notes.removeIf(Note::isDeleted);
 	}
 
 	public Key createKey() {
