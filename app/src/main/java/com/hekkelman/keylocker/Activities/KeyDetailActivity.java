@@ -17,29 +17,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.google.android.material.navigation.NavigationView;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.Tasks.SaveKeyTask;
+import com.hekkelman.keylocker.Tasks.UnlockTask;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
-import java.io.Serializable;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
-public class KeyDetailActivity extends BaseActivity
-		implements ActivityResultCallback<ActivityResult> {
+public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result> {
 
 	public static long MAX_INACTIVITY_TIME = 10 * 1000;
 
@@ -73,13 +65,9 @@ public class KeyDetailActivity extends BaseActivity
 		lastModified = findViewById(R.id.lastModifiedCaption);
 
 		unlockResult = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(), result -> {
-					if (result.getResultCode() != RESULT_OK)
-						finish();
-				});
+				new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
 
 		Intent intent = getIntent();
-
 		String keyID = intent.getStringExtra("key-id");
 
 		if (keyID == null) {
@@ -129,33 +117,23 @@ public class KeyDetailActivity extends BaseActivity
 		this.key = key;
 
 		String name = key.getName();
-		if (name != null) {
-			nameField.setText(name);
-		}
+		if (name != null) nameField.setText(name);
 
 		String password = key.getPassword();
-		if (password != null) {
-			passwordField.setText(password);
-		}
+		if (password != null) passwordField.setText(password);
 
 		String user = key.getUser();
-		if (user != null) {
-			userField.setText(user);
-		}
+		if (user != null) userField.setText(user);
 
 		String url = key.getUrl();
-		if (url != null) {
-			urlField.setText(url);
-		}
+		if (url != null) urlField.setText(url);
 
 		String lastModified = key.getTimestamp();
-		if (lastModified != null) {
+		if (lastModified != null)
 			this.lastModified.setText(String.format(getString(R.string.lastModifiedTemplate), lastModified));
-		}
 	}
 
-	@Override
-	public void onActivityResult(ActivityResult result) {
+	public void onUnlockedResult(ActivityResult result) {
 		if (result.getResultCode() == Activity.RESULT_CANCELED)
 			finish();
 	}
@@ -166,16 +144,15 @@ public class KeyDetailActivity extends BaseActivity
 			new AlertDialog.Builder(KeyDetailActivity.this)
 				.setTitle(R.string.dlog_discard_changes_title)
 				.setMessage(R.string.dlog_discard_changes_msg)
-				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						textChanged = false; // do not store this key again, please
-						finish();
-					}
+				.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+					textChanged = false; // do not store this key again, please
+					finish();
 				})
-				.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						// do nothing
-					}
+				.setNegativeButton(android.R.string.no, (dialog, which) -> {
+					// do nothing
+				})
+				.setNeutralButton(R.string.dialog_save_key_before_close, (dialog, which) -> {
+					saveKey(true);
 				})
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.show();
@@ -186,21 +163,17 @@ public class KeyDetailActivity extends BaseActivity
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.keymenu, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 
-		//noinspection SimplifiableIfStatement
 		if (id == R.id.action_save) {
-			return saveKey();
+			saveKey(false);
+			return true;
 		} else if (id == android.R.id.home) {
 			onBackPressed();
 			return true;
@@ -208,9 +181,7 @@ public class KeyDetailActivity extends BaseActivity
 			return super.onOptionsItemSelected(item);
 	}
 
-	private boolean saveKey() {
-		boolean result = false;
-
+	private void saveKey(boolean finishOnSaved) {
 		String name = nameField.getText().toString();
 
 		if (name.length() == 0) {
@@ -221,49 +192,11 @@ public class KeyDetailActivity extends BaseActivity
 			key.setPassword(passwordField.getText().toString());
 			key.setUrl(urlField.getText().toString());
 
-			try {
-				KeyDb.setKey(key);
-				textChanged = false;
-				Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
-				result = true;
-			} catch (KeyDbException e) {
-				new AlertDialog.Builder(KeyDetailActivity.this)
-					.setTitle(R.string.dlog_save_failed_title)
-					.setMessage(getString(R.string.dlog_save_failed_msg) + e.getMessage())
-					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							finish();
-						}
-					})
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.show();
-			}
+			SaveKeyTask task = new SaveKeyTask(this, key, finishOnSaved);
+			startBackgroundTask(task);
 		}
-
-		return result;
 	}
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-	}
-
-//	@Override
-//	protected void onPause() {
-//
-//		// store the data in case we're about to disappear
-//		if (textChanged) {
-//			String name = nameField.getText().toString();
-//			String user = userField.getText().toString();
-//			String password = passwordField.getText().toString();
-//			String url = urlField.getText().toString();
-//
-//			KeyDb.storeCachedKey(keyID, name, user, password, url);
-//		}
-//
-//		super.onPause();
-//	}
-//
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -274,19 +207,7 @@ public class KeyDetailActivity extends BaseActivity
 		}
 	}
 
-//	@Override
-//	protected void onStart() {
-//		super.onStart();
-////		if (KeyDb.getInstance() == null) {
-////			startActivity(new Intent(this, UnlockActivity.class));
-////			finish();
-////		} else {
-////			KeyDb.reference();
-////		}
-//	}
-
 	public void onClickRenewPassword(View v) {
-
 		// get preferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
 		int length = Integer.parseInt(prefs.getString("password-length", "8"));
@@ -401,4 +322,20 @@ public class KeyDetailActivity extends BaseActivity
 		return result;
 	}
 
+	@Override
+	void onTaskResult(SaveKeyTask.Result result) {
+		if (result.saved) {
+			textChanged = false;
+			Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
+			if (result.finish)
+				finish();
+		} else {
+			new AlertDialog.Builder(KeyDetailActivity.this)
+					.setTitle(R.string.dlog_save_failed_title)
+					.setMessage(getString(R.string.dlog_save_failed_msg) + result.errorMessage)
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.show();
+		}
+	}
 }

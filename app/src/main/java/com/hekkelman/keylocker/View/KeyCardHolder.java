@@ -15,7 +15,6 @@ import com.hekkelman.keylocker.Utilities.Tools;
 import com.hekkelman.keylocker.datamodel.Key;
 
 public class KeyCardHolder extends RecyclerView.ViewHolder {
-    private final Context context;
     protected Key key;
     protected CardView card;
     protected TextView nameView;
@@ -32,10 +31,8 @@ public class KeyCardHolder extends RecyclerView.ViewHolder {
         void onCardDoubleClicked(String keyID);
     }
 
-    public KeyCardHolder(Context context, View itemView, boolean tapToReveal) {
+    public KeyCardHolder(Context context, View itemView) {
         super(itemView);
-
-        this.context = context;
 
         // Style the buttons in the current theme colors
         ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);
@@ -49,50 +46,6 @@ public class KeyCardHolder extends RecyclerView.ViewHolder {
         menuButton.getDrawable().setColorFilter(colorFilter);
         copyButton.getDrawable().setColorFilter(colorFilter);
 
-        setupOnClickListeners(menuButton, copyButton);
-
-//        setTapToReveal(tapToReveal);
-
-//
-//
-//        itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Key key = mKeys.get(getAdapterPosition());
-//
-//                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-//                intent.putExtra("keyId", key.getId());
-//                MainActivity.this.startActivity(intent);
-//            }
-//        });
-    }
-
-    protected void setKey(Key key) {
-        this.key = key;
-
-        nameView.setText(key.getName());
-        userView.setText(key.getUser());
-    }
-
-    private void setTapToReveal(boolean tapToReveal) {
-
-    }
-
-    @FunctionalInterface
-    private interface AdapterPositionSafeCallbackConsumer {
-        /** The specified {@link Callback} is guaranteed to be non-null, and adapterPosition is
-         * guaranteed to be a valid position. */
-        void accept(@NonNull Callback callback, int adapterPosition);
-    }
-
-    private void adapterPositionSafeCallback(AdapterPositionSafeCallbackConsumer safeCallback) {
-        int clickedPosition = getAdapterPosition();
-        if (callback != null && clickedPosition != RecyclerView.NO_POSITION) {
-            safeCallback.accept(callback, clickedPosition);
-        }
-    }
-
-    private void setupOnClickListeners(ImageButton menuButton, ImageButton copyButton) {
         menuButton.setOnClickListener(view ->
                 adapterPositionSafeCallback((callback, adapterPosition) ->
                         callback.onMenuButtonClicked(view, adapterPosition)
@@ -120,6 +73,27 @@ public class KeyCardHolder extends RecyclerView.ViewHolder {
                 );
             }
         });
+    }
+
+    protected void setKey(Key key) {
+        this.key = key;
+
+        nameView.setText(key.getName());
+        userView.setText(key.getUser());
+    }
+
+    @FunctionalInterface
+    private interface AdapterPositionSafeCallbackConsumer {
+        /** The specified {@link Callback} is guaranteed to be non-null, and adapterPosition is
+         * guaranteed to be a valid position. */
+        void accept(@NonNull Callback callback, int adapterPosition);
+    }
+
+    private void adapterPositionSafeCallback(AdapterPositionSafeCallbackConsumer safeCallback) {
+        int clickedPosition = getAdapterPosition();
+        if (callback != null && clickedPosition != RecyclerView.NO_POSITION) {
+            safeCallback.accept(callback, clickedPosition);
+        }
     }
 
     public void setCallback(Callback cb) {

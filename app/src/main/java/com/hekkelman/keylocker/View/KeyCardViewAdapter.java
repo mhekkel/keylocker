@@ -1,12 +1,12 @@
 package com.hekkelman.keylocker.View;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
@@ -18,38 +18,28 @@ import com.hekkelman.keylocker.Utilities.Settings;
 import com.hekkelman.keylocker.Utilities.Tools;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.KeyDbException;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 // New CardView/RecycleView based interface
-public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
+public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder>
+	implements Filterable {
 
 	private final Settings settings;
 	private final Context context;
-	private char[] password;
-	private File keyDbFile;
-	private List<Key> keys;
+	public List<Key> keys;
 	private Callback callback;
+	private Filter searchFilter;
 
-	public void setPassword(char[] password) {
-
-		this.password = password;
-		loadEntries();
-
-		notifyDataSetChanged();
+	public KeyCardViewAdapter(Context context) {
+		this.context = context;
+		this.settings = new Settings(context);
 	}
 
 	public interface Callback {
 		void onEditKey(String keyID);
 		void onRemoveKey(String keyID);
-	}
-
-	public KeyCardViewAdapter(Context context, File keyDbFile) {
-		this.context = context;
-		this.settings = new Settings(context);
-		this.keyDbFile = keyDbFile;
 	}
 
 	public void setCallback(Callback cb) {
@@ -61,7 +51,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 	public KeyCardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_key_item, parent, false);
 
-		KeyCardHolder holder = new KeyCardHolder(context, v, settings.getTapToReveal());
+		KeyCardHolder holder = new KeyCardHolder(context, v);
 		holder.setCallback(new KeyCardHolder.Callback() {
 			@Override
 			public void onMenuButtonClicked(View view, int position) {
@@ -74,66 +64,41 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 			}
 
 			@Override
-			public void onCardSingleClicked(String text) {
-				switch (settings.getTapSingle()) {
-					case NOTHING:
-						break;
-					case REVEAL:
-//						establishPinIfNeeded(position);
-//						cardTapToRevealHandler(position);
-						break;
-					case COPY:
-//						establishPinIfNeeded(position);
-						copyHandler(text, false);
-						break;
-					case COPY_BACKGROUND:
-//						establishPinIfNeeded(position);
-						copyHandler(text, true);
-						break;
-					case SEND_KEYSTROKES:
-//						establishPinIfNeeded(position);
-//						sendKeystrokes(position);
-						break;
-					default:
-						// If tap-to-reveal is disabled a single tab still needs to establish the PIN
-//						if (!settings.getTapToReveal())
-//							establishPinIfNeeded(position);
-						break;
-				}
+			public void onCardSingleClicked(String keyID) {
+				onCardTapped(keyID, settings.getTapSingle());
 			}
 
 			@Override
-			public void onCardDoubleClicked(String text) {
-				switch (settings.getTapDouble()) {
-					case REVEAL:
-//						establishPinIfNeeded(position);
-//						cardTapToRevealHandler(position);
-						break;
-					case COPY:
-						copyHandler(text, false);
-						break;
-					case COPY_BACKGROUND:
-						copyHandler(text, true);
-						break;
-					case SEND_KEYSTROKES:
-//						sendKeystrokes(position);
-						break;
-					default:
-						break;
-				}
+			public void onCardDoubleClicked(String keyID) {
+				onCardTapped(keyID, settings.getTapDouble());
 			}
 		});
 
 		return holder;
 	}
 
+	private void onCardTapped(String keyID, Settings.TapMode tapMode) {
+		Key key = KeyDb.getKey(keyID);
+		switch (tapMode) {
+			case EDIT:
+				break;
+			case COPY:
+				copyHandler(key.getPassword(), false);
+				break;
+			case COPY_BACKGROUND:
+				copyHandler(key.getPassword(), true);
+				break;
+			case SEND_KEYSTROKES:
+//						sendKeystrokes(position);
+				break;
+			default:
+				break;
+		}
+	}
+
 	public void loadEntries() {
 		keys = KeyDb.getKeys();
 		notifyDataSetChanged();
-//			ArrayList<Entry> newEntries = DatabaseHelper.loadDatabase(context, encryptionKey);
-//
-//			entries.updateEntries(newEntries, true);
-//			entriesChanged(RecyclerView.NO_POSITION);
 	}
 
 	private void showPopupMenu(View view, int pos) {
@@ -153,9 +118,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 			} else if (id == R.id.menu_popup_remove) {
 				callback.onRemoveKey(key.getId());
 				return true;
-			} else {
-				return false;
-			}
+			} else return false;
 		});
 		popup.show();
 	}
@@ -163,9 +126,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 	private void copyHandler(final String text, final boolean dropToBackground) {
 		Tools.copyToClipboard(context, text);
 
-		if (dropToBackground) {
-			((MainActivity)context).moveTaskToBack(true);
-		}
+		if (dropToBackground) ((MainActivity) context).moveTaskToBack(true);
 	}
 
 	@Override
@@ -176,5 +137,43 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardHolder> {
 	@Override
 	public int getItemCount() {
 		return keys.size();
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return keys.get(position).getListID();
+	}
+
+	public class KeyFilter extends Filter {
+		@Override
+		protected FilterResults performFiltering(CharSequence constraint) {
+			FilterResults results = new FilterResults();
+			List<Key> filtered;
+
+			if (constraint != null && constraint.length() > 0) {
+				constraint = constraint.toString().toUpperCase();
+
+				filtered = KeyDb.getFilteredKeys(constraint.toString());
+			} else
+				filtered = KeyDb.getKeys();
+
+			results.values = filtered;
+			results.count = filtered.size();
+
+			return results;
+		}
+
+		@Override
+		protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+			keys = (List<Key>) filterResults.values;
+			notifyDataSetChanged();
+		}
+	}
+
+	@Override
+	public Filter getFilter() {
+		if (searchFilter == null)
+			searchFilter = new KeyFilter();
+		return searchFilter;
 	}
 }

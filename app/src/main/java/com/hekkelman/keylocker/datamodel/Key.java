@@ -47,6 +47,8 @@ public class Key {
 	@Element(name="url", required=false)
 	private String url;
 
+	private long listID = 0;
+
 	// constructors
 	public Key(Key key) {
 		this.id = key.id;
@@ -249,5 +251,13 @@ public class Key {
 		return (TextUtils.isEmpty(name) == false && name.toLowerCase(Locale.getDefault()).contains(query)) ||
 				(TextUtils.isEmpty(user) == false && user.toLowerCase(Locale.getDefault()).contains(query)) ||
 				(TextUtils.isEmpty(url) == false && url.toLowerCase(Locale.getDefault()).contains(query));
+	}
+
+	public long getListID() {
+		return listID;
+	}
+
+	public void setListID(long listID) {
+		this.listID = listID;
 	}
 }

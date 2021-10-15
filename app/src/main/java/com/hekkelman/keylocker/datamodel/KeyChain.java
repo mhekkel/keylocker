@@ -4,6 +4,7 @@ package com.hekkelman.keylocker.datamodel;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -21,17 +22,21 @@ public class KeyChain {
 		this.notes = new Vector<Note>();
 	}
 
+	private final AtomicLong currentListID = new AtomicLong();
+
 	public List<Key> getKeys() {
 		return keys;
 	}
 
-	public void setKeys(List<Key> keys) {
-		this.keys = keys;
-	}
-
+//	public void setKeys(List<Key> keys) {
+//		this.keys = keys;
+//	}
+//
 	public void addKey(Key key) {
-		if (! this.keys.contains(key))
+		if (! this.keys.contains(key)) {
 			this.keys.add(key);
+			key.setListID(currentListID.incrementAndGet());
+		}
 	}
 
 	public List<Note> getNotes() {

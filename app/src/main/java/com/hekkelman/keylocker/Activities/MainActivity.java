@@ -20,19 +20,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -107,9 +102,7 @@ public class MainActivity extends BaseActivity
         MenuItem mi = navigationView.getMenu().findItem(R.id.nav_keys);
         if (mi != null) mi.setChecked(true);
 
-		File keyDbFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
-
-		adapter = new KeyCardViewAdapter(this, keyDbFile);
+		adapter = new KeyCardViewAdapter(this);
 		adapter.setCallback(new KeyCardViewAdapter.Callback() {
             @Override
             public void onEditKey(String keyID) {
@@ -124,61 +117,15 @@ public class MainActivity extends BaseActivity
             }
         });
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
+		recyclerView.setItemAnimator(new DefaultItemAnimator());
 		recyclerView.setAdapter(adapter);
-
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-//				hideProgressBar();
-            }
-
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount) {
-                super.onItemRangeChanged(positionStart, itemCount);
-//				hideProgressBar();
-            }
-
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
-                super.onItemRangeChanged(positionStart, itemCount, payload);
-//				hideProgressBar();
-            }
-
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-//				hideProgressBar();
-            }
-
-            @Override
-            public void onItemRangeRemoved(int positionStart, int itemCount) {
-                super.onItemRangeRemoved(positionStart, itemCount);
-//				hideProgressBar();
-            }
-
-            @Override
-            public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-                super.onItemRangeMoved(fromPosition, toPosition, itemCount);
-//				hideProgressBar();
-            }
-        });
-
-//		if (savedInstanceState != null) {
-//			byte[] encKey = savedInstanceState.getByteArray("encKey");
-//			if (encKey != null) {
-////				mAdapter.setEncryptionKey(EncryptionHelper.generateSymmetricKey(encKey));
-//				mRequireAuthentication = false;
-//			}
-//		}
 
         fabView.setOnClickListener(this::onClickFab);
 
         Intent intent = getIntent();
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            searchKeys(query);
+            query = intent.getStringExtra(SearchManager.QUERY);
         }
     }
 
@@ -198,20 +145,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void searchKeys(String query) {
-//		mKeys = mKeyDb.getKeys();
-//
-//		mQuery = query;
-//
-//		if (TextUtils.isEmpty(query) == false) {
-//			Iterator<Key> iter = mKeys.iterator();
-//			while (iter.hasNext()) {
-//				Key key = iter.next();
-//				if (key.match(query) == false)
-//					iter.remove();
-//			}
-//		}
-//
-//		mAdapter.notifyDataSetChanged();
+//        adapter.searchKeys(query);
     }
 
     @Override
@@ -289,10 +223,8 @@ public class MainActivity extends BaseActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            searchKeys(query);
-        }
+        if (Intent.ACTION_SEARCH.equals(intent.getAction()))
+            searchKeys(intent.getStringExtra(SearchManager.QUERY));
     }
 
     @Override
@@ -302,7 +234,7 @@ public class MainActivity extends BaseActivity
         if (! KeyDb.isUnlocked()) {
             authenticate();
         } else {
-            populateAdapter();
+            adapter.loadEntries();
 
             if (setCountDownTimerNow())
                 countDownTimer.start();
@@ -344,28 +276,12 @@ public class MainActivity extends BaseActivity
 //		populateAdapter();
 //	}
 
-    private void populateAdapter() {
-        adapter.loadEntries();
-//		tagsDrawerAdapter.setTags(TagsAdapter.createTagsMap(adapter.getEntries(), settings));
-//		adapter.filterByTags(tagsDrawerAdapter.getActiveTags());
-    }
-
-
-    //	@Override
-//	protected void onStart() {
-//		super.onStart();
-//
-//		mKeyDb = KeyDb.getInstance();
-//
-//		if (mKeyDb == null) {
-//			startActivity(new Intent(this, UnlockActivity.class));
-//			finish();
-//		} else {
-//			searchKeys(mQuery);
-//
-//			KeyDb.reference();
-//		}
-//	}
+   	@Override
+	protected void onStart() {
+		super.onStart();
+//		if (! TextUtils.isEmpty(query))
+//    		adapter.searchKeys(query);
+	}
 
     @Override
     protected void onStop() {
@@ -398,20 +314,20 @@ public class MainActivity extends BaseActivity
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        // Assumes current activity is the searchable activity
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+//        // Assumes current activity is the searchable activity
+//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return true;
+                return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchKeys(newText);
-                return true;
+                adapter.getFilter().filter(newText);
+                return false;
             }
         });
 

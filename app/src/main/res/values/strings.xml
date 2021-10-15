@@ -123,4 +123,20 @@
     <string name="menu_popup_edit">Edit</string>
     <string name="menu_popup_remove">Remove</string>
     <string name="menu_popup_show_password">Show password</string>
+    <string name="save_key_task_cancelled">Saving was cancelled</string>
+    <string name="dialog_save_key_before_close">Save and Close</string>
+    <string name="settings_category_title_ui">User interface</string>
+    <string name="settings_key_cat_ui">perf_cat_ui</string>
+    <string name="settings_title_tap_single">Single tap</string>
+    <string name="settings_title_tap_double">Double tap</string>
+
+    <string-array name="settings_entries_tap">
+        <item>Nothing</item>
+        <item>Reveal/Hide</item>
+        <item>Copy</item>
+        <item>Copy and go to background</item>
+        <item>Share as Keystrokes</item>
+    </string-array>
+
+
 </resources>

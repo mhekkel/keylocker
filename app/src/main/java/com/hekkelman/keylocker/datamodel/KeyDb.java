@@ -1,5 +1,6 @@
 package com.hekkelman.keylocker.datamodel;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -108,6 +110,19 @@ public class KeyDb {
 				return lhs.getName().compareToIgnoreCase(rhs.getName());
 			}
 		});
+
+		return result;
+	}
+
+	public static List<Key> getFilteredKeys(String query) {
+		List<Key> result;
+
+		if (sInstance != null) {
+			result = sInstance.keyChain.getKeys();
+			if (! TextUtils.isEmpty(query))
+				result = result.stream().filter(key -> key.match(query)).collect(Collectors.toList());
+		} else
+			result = new ArrayList<>();
 
 		return result;
 	}

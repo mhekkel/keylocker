@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
 
-import com.hekkelman.keylocker.Activities.MainActivity;
 import com.hekkelman.keylocker.R;
 
 import java.util.Locale;
@@ -15,7 +14,7 @@ public class Settings {
     private final Context context;
     private final SharedPreferences settings;
 
-    public enum TapMode { NOTHING, REVEAL, COPY, COPY_BACKGROUND, SEND_KEYSTROKES, DEFAULT_TAP_SINGLE, DEFAULT_TAP_DOUBLE };
+    public enum TapMode { NOTHING, EDIT, COPY, COPY_BACKGROUND, SEND_KEYSTROKES, DEFAULT_TAP_SINGLE, DEFAULT_TAP_DOUBLE };
 
     public Settings(Context context) {
         this.context = context;
@@ -122,7 +121,7 @@ public class Settings {
     }
 
     public boolean getTapToReveal() {
-        return getTapSingle() == TapMode.REVEAL || getTapDouble() == TapMode.REVEAL;
+        return getTapSingle() == TapMode.EDIT || getTapDouble() == TapMode.EDIT;
     }
 
     public int getAuthInactivityDelay() {

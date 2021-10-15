@@ -11,5 +11,16 @@
     <string name="settings_default_tap_double" translatable="false">default_tap_double</string>
     <string name="settings_key_tap_double" translatable="false">pref_tap_double</string>
     <string name="settings_key_auth_inactivity_delay" translatable="false">pref_auth_inactivity_delay</string>
-    <string name="settings_key_auth_inactivity">pref_auth_inactivity</string>
+    <string name="settings_key_auth_inactivity" translatable="false">pref_auth_inactivity</string>
+
+    <string-array name="settings_values_tap" translatable="false">
+        <item>nothing</item>
+        <item>edit</item>
+        <item>copy</item>
+        <item>copy_background</item>
+        <item>send_keystrokes</item>
+    </string-array>
+
+
+
 </resources>
