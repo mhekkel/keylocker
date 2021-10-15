@@ -1,5 +1,6 @@
 package com.hekkelman.keylocker.Activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
 import android.net.Uri;
@@ -14,31 +15,44 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
+import com.google.android.material.navigation.NavigationView;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
-public class KeyDetailActivity extends AppCompatActivity {
+public class KeyDetailActivity extends BaseActivity
+		implements ActivityResultCallback<ActivityResult> {
 
 	public static long MAX_INACTIVITY_TIME = 10 * 1000;
 
-	private String keyID;
+	private Key key;
 	private boolean textChanged = false;
-	private long pausedAt = 0;
 
 	protected EditText nameField;
 	protected EditText userField;
 	protected EditText passwordField;
 	protected EditText urlField;
 	protected TextView lastModified;
+
+	private ActivityResultLauncher<Intent> unlockResult;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,38 +72,36 @@ public class KeyDetailActivity extends AppCompatActivity {
 		urlField = findViewById(R.id.keyURLField);
 		lastModified = findViewById(R.id.lastModifiedCaption);
 
-        pausedAt = new Date().getTime();
+		unlockResult = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(), result -> {
+					if (result.getResultCode() != RESULT_OK)
+						finish();
+				});
 
-        if (getIntent().getBooleanExtra("restore-key", false)) {
-			Key key = KeyDb.getCachedKey();
-			if (key != null) {
-				setKey(key);
-				textChanged = true;
-			} else
-				finish();   // there was no key!
+		Intent intent = getIntent();
+
+		String keyID = intent.getStringExtra("key-id");
+
+		if (keyID == null) {
+			lastModified.setVisibility(View.INVISIBLE);
+			setKey(new Key());
 		} else {
-			this.keyID = getIntent().getStringExtra("keyId");
-
-			if (this.keyID == null) {
-				lastModified.setVisibility(View.INVISIBLE);
-			} else {
-				Key key = KeyDb.getInstance().getKey(this.keyID);
-				if (key == null) {
-					new AlertDialog.Builder(KeyDetailActivity.this)
-						.setTitle(R.string.dlog_missing_key_title)
-						.setMessage(R.string.dlog_missing_key_msg)
-						.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int which) {
-								finish();
-							}
-						})
-						.setIcon(android.R.drawable.ic_dialog_alert)
-						.show();
-					return;
-				}
-
-				setKey(key);
+			Key key = KeyDb.getKey(keyID);
+			if (key == null) {
+				new AlertDialog.Builder(KeyDetailActivity.this)
+					.setTitle(R.string.dlog_missing_key_title)
+					.setMessage(R.string.dlog_missing_key_msg)
+					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					})
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.show();
+				return;
 			}
+
+			setKey(key);
 		}
 
 		TextWatcher listener = new TextWatcher() {
@@ -114,7 +126,7 @@ public class KeyDetailActivity extends AppCompatActivity {
 	}
 
 	private void setKey(Key key) {
-		this.keyID = key.getId();
+		this.key = key;
 
 		String name = key.getName();
 		if (name != null) {
@@ -143,17 +155,20 @@ public class KeyDetailActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public void onBackPressed() {
-		if (textChanged == false) {
+	public void onActivityResult(ActivityResult result) {
+		if (result.getResultCode() == Activity.RESULT_CANCELED)
 			finish();
-		} else {
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (textChanged) {
 			new AlertDialog.Builder(KeyDetailActivity.this)
 				.setTitle(R.string.dlog_discard_changes_title)
 				.setMessage(R.string.dlog_discard_changes_msg)
 				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						textChanged = false; // do not store this key again, please
-						KeyDb.removeCachedKey(keyID);
 						finish();
 					}
 				})
@@ -164,6 +179,8 @@ public class KeyDetailActivity extends AppCompatActivity {
 				})
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.show();
+		} else {
+			finish();
 		}
 	}
 
@@ -199,20 +216,15 @@ public class KeyDetailActivity extends AppCompatActivity {
 		if (name.length() == 0) {
 			nameField.setError(getString(R.string.keyNameIsRequired));
 		} else {
-			String user = userField.getText().toString();
-			String password = passwordField.getText().toString();
-			String url = urlField.getText().toString();
+			key.setName(name);
+			key.setUser(userField.getText().toString());
+			key.setPassword(passwordField.getText().toString());
+			key.setUrl(urlField.getText().toString());
 
 			try {
-				Key key = KeyDb.getInstance().storeKey(keyID, name, user, password, url);
-
-				keyID = key.getId();
+				KeyDb.setKey(key);
 				textChanged = false;
-
-				KeyDb.removeCachedKey(keyID);
-
 				Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
-
 				result = true;
 			} catch (KeyDbException e) {
 				new AlertDialog.Builder(KeyDetailActivity.this)
@@ -232,50 +244,46 @@ public class KeyDetailActivity extends AppCompatActivity {
 	}
 
 	@Override
-	protected void onPause() {
-
-		// store the data in case we're about to disappear
-		if (textChanged) {
-			String name = nameField.getText().toString();
-			String user = userField.getText().toString();
-			String password = passwordField.getText().toString();
-			String url = urlField.getText().toString();
-
-			KeyDb.storeCachedKey(keyID, name, user, password, url);
-		}
-
-		pausedAt = new Date().getTime();
-
-		super.onPause();
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
 	}
 
+//	@Override
+//	protected void onPause() {
+//
+//		// store the data in case we're about to disappear
+//		if (textChanged) {
+//			String name = nameField.getText().toString();
+//			String user = userField.getText().toString();
+//			String password = passwordField.getText().toString();
+//			String url = urlField.getText().toString();
+//
+//			KeyDb.storeCachedKey(keyID, name, user, password, url);
+//		}
+//
+//		super.onPause();
+//	}
+//
 	@Override
-	protected void onResume() {
+	public void onResume() {
 		super.onResume();
 
-		if (new Date().getTime() > pausedAt + MAX_INACTIVITY_TIME) {
-			startActivity(new Intent(this, UnlockActivity.class));
-			finish();
+		if (! KeyDb.isUnlocked()) {
+			Intent authIntent = new Intent(this, UnlockActivity.class);
+			unlockResult.launch(authIntent);
 		}
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-		if (KeyDb.getInstance() == null) {
-			startActivity(new Intent(this, UnlockActivity.class));
-			finish();
-		} else {
-			KeyDb.reference();
-		}
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-
-		KeyDb.release();
-	}
+//	@Override
+//	protected void onStart() {
+//		super.onStart();
+////		if (KeyDb.getInstance() == null) {
+////			startActivity(new Intent(this, UnlockActivity.class));
+////			finish();
+////		} else {
+////			KeyDb.reference();
+////		}
+//	}
 
 	public void onClickRenewPassword(View v) {
 

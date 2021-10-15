@@ -117,14 +117,14 @@ public class Synchronize {
 
                 File file = new File(dir, KeyDb.KEY_DB_NAME);
 
-                if (password.length > 0)
-                    KeyDb.getInstance().synchronize(file, password[0].toCharArray());
-                else
-                    KeyDb.getInstance().synchronize(file);
+//                if (password.length > 0)
+//                    KeyDb.getInstance().synchronize(file, password[0].toCharArray());
+//                else
+//                    KeyDb.getInstance().synchronize(file);
 
                 return SyncResult.SUCCESS;
-            } catch (InvalidPasswordException e) {
-                return SyncResult.NEED_PASSWORD;
+//            } catch (InvalidPasswordException e) {
+//                return SyncResult.NEED_PASSWORD;
             } catch (Exception e) {
                 this.error = e.getMessage();
                 return SyncResult.FAILED;

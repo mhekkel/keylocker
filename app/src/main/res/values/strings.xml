@@ -118,4 +118,9 @@
     <string name="settings_key_block_autofill" translatable="false">pref_block_autofill</string>
     <string name="title_activity_init">Create new KeyLocker</string>
     <string name="fab_create_new">Create new</string>
+    <string name="label_clipboard_content">KeyLocker password</string>
+    <string name="toast_copied_to_clipboard">Copied to clipboard</string>
+    <string name="menu_popup_edit">Edit</string>
+    <string name="menu_popup_remove">Remove</string>
+    <string name="menu_popup_show_password">Show password</string>
 </resources>

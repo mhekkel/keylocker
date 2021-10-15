@@ -213,12 +213,12 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 		return false;
 	}
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-		KeyDb.release();
-	}
-
+//	@Override
+//	protected void onStop() {
+//		super.onStop();
+//		KeyDb.release();
+//	}
+//
 	@Override
 	void onTaskResult(Result result) {
 		if (result.encryptionKey != null)

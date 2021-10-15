@@ -22,7 +22,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,7 +41,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.Utilities.Synchronize;
 import com.hekkelman.keylocker.View.KeyCardViewAdapter;
-import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
@@ -50,18 +48,8 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener,
-        ActivityResultCallback<ActivityResult> {
+        implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private class ProcessLifecycleObserver implements DefaultLifecycleObserver {
-        @Override
-        public void onStop(@NonNull LifecycleOwner owner) {
-            if (MainActivity.this.settings.getRelockOnBackground())
-                MainActivity.this.requireAuthentication = true;
-        }
-    }
-
-    private boolean requireAuthentication = false;
     private KeyCardViewAdapter adapter;
     private String query;
     private RecyclerView recyclerView;
@@ -72,6 +60,8 @@ public class MainActivity extends BaseActivity
     private ActivityResultLauncher<Intent> unlockResult;
     private ActivityResultLauncher<Intent> initResult;
     private ActivityResultLauncher<Intent> newKeyResult;
+    private ActivityResultLauncher<Intent> editKeyResult;
+
     private AsyncTask<List<String>, Void, Void> deleteTask;
 
     @Override
@@ -93,24 +83,19 @@ public class MainActivity extends BaseActivity
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
         settings.registerPreferenceChangeListener(this);
 
+        KeyDb.init(settings);
+
         unlockResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this);
+                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
+
         initResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this);
+                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
 
         newKeyResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                this::onNewKeyResult);
+                new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
-        if (savedInstanceState == null)
-            requireAuthentication = true;
-
-        setBroadcastCallback(() -> {
-            if (settings.getRelockOnScreenOff())
-                requireAuthentication = true;
-        });
-
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(new ProcessLifecycleObserver());
+        editKeyResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -125,6 +110,19 @@ public class MainActivity extends BaseActivity
 		File keyDbFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
 
 		adapter = new KeyCardViewAdapter(this, keyDbFile);
+		adapter.setCallback(new KeyCardViewAdapter.Callback() {
+            @Override
+            public void onEditKey(String keyID) {
+                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+                intent.putExtra("key-id", keyID);
+                editKeyResult.launch(intent);
+            }
+
+            @Override
+            public void onRemoveKey(String keyID) {
+
+            }
+        });
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		recyclerView.setAdapter(adapter);
 
@@ -176,79 +174,21 @@ public class MainActivity extends BaseActivity
 
         fabView.setOnClickListener(this::onClickFab);
 
-
-
-//		mRecyclerView.addOnItemTouchListener(
-//			new SwipeOutTouchListener(mRecyclerView,
-//				new SwipeOutTouchListener.SwipeOutListener() {
-//					@Override
-//					public boolean canSwipe(int position) {
-//						return mDeleteTask == null;     // only one at a time
-//					}
-//
-//					@Override
-//					public void onSwipeOutLeft(RecyclerView recyclerView, int[] reverseSortedPositions) {
-//						for (int position : reverseSortedPositions) {
-//							mAdapter.notifyItemRemoved(position);
-//						}
-//						mAdapter.notifyDataSetChanged();
-//
-//						removeKeys(reverseSortedPositions);
-//					}
-//
-//					@Override
-//					public void onSwipeOutRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
-//						for (int position : reverseSortedPositions) {
-//							mAdapter.notifyItemRemoved(position);
-//						}
-//						mAdapter.notifyDataSetChanged();
-//
-//						removeKeys(reverseSortedPositions);
-//					}
-//				}));
-
         Intent intent = getIntent();
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchKeys(query);
-        } else if (intent.getBooleanExtra("unlocked", false)) {
-            // we've just been unlocked. Check to see if there's a key left in the temp storage
-
-            Key key = KeyDb.getCachedKey();
-            if (key != null) {
-                intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-                intent.putExtra("restore-key", true);
-                startActivity(intent);
-            }
         }
     }
 
-    private void onNewKeyResult(ActivityResult result) {
-        if (result.getResultCode() == Activity.RESULT_OK) {
-            Intent intent = result.getData();
-            if (intent != null)
-            {
-//                char[] password = intent.getCharArrayExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY);
-//
-//                adapter.setPassword(password);
-//                requireAuthentication = false;
-            }
-        }
+    private void onEditKeyResult(ActivityResult result) {
+//        this.requireAuthentication = false;
     }
 
-    @Override
-	public void onActivityResult(ActivityResult result) {
-		if (result.getResultCode() == Activity.RESULT_OK) {
-			Intent intent = result.getData();
-			if (intent != null)
-			{
-				char[] password = intent.getCharArrayExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY);
-
-				adapter.setPassword(password);
-				requireAuthentication = false;
-			}
-		}
+    public void onUnlockedResult(ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_CANCELED)
+            finish();
 	}
 
     //	@OnClick(R.id.fab)
@@ -359,13 +299,10 @@ public class MainActivity extends BaseActivity
     public void onResume() {
         super.onResume();
 
-        if (requireAuthentication) {
+        if (! KeyDb.isUnlocked()) {
             authenticate();
         } else {
             populateAdapter();
-//				}
-//				checkIntent();
-////			}
 
             if (setCountDownTimerNow())
                 countDownTimer.start();
@@ -437,7 +374,6 @@ public class MainActivity extends BaseActivity
         if (deleteTask != null) {
             try {
                 deleteTask.wait();
-                KeyDb.release();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

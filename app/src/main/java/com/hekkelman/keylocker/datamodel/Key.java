@@ -3,6 +3,7 @@ package com.hekkelman.keylocker.datamodel;
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,7 +26,7 @@ public class Key {
 	private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Attribute(name="id")
-	private final String id;
+	private String id;
 
 	@Attribute(name="timestamp")
 	private String timestamp;
@@ -203,6 +204,10 @@ public class Key {
 
 	public String getId() {
 		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getTimestamp() {

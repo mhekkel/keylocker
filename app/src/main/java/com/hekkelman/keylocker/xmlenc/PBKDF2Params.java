@@ -23,7 +23,8 @@ import org.simpleframework.xml.core.Validate;
 public class PBKDF2Params {
 	private static final int HASH_BYTE_SIZE = 16;
 	private static final int KEY_BYTE_SIZE = 16;
-	private static final int ITERATION_COUNT = 1000;
+ 	private static final int ITERATION_COUNT = 50000;
+ 	private static final int BACKUP_ITERATION_COUNT = 150000;
 	
 	@Path("x11:Salt")
 	@Namespace(prefix="x11", reference="http://www.w3.org/2009/xmlenc11#")
@@ -59,14 +60,13 @@ public class PBKDF2Params {
 	public void validate() throws Exception {
 		this._salt = Base64.decode(this.salt, Base64.DEFAULT);
 
-		if (_salt.length != HASH_BYTE_SIZE ||
-				iterationCount < ITERATION_COUNT ||
-				keyLength != KEY_BYTE_SIZE)
+		if (_salt.length != HASH_BYTE_SIZE || keyLength != KEY_BYTE_SIZE)
 			throw new Exception("Invalid PBKDF2 Parameters");
 	}
 	
-	public Key getKey(char[] password) {
+	public Key getKey(char[] password, boolean isBackup) {
 		try {
+			int iterationCount = isBackup ? BACKUP_ITERATION_COUNT : this.iterationCount;
 			KeySpec ks = new PBEKeySpec(password, this._salt, iterationCount, 16 * 8);
 			SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			return f.generateSecret(ks);

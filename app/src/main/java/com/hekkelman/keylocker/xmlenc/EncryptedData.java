@@ -2,15 +2,12 @@ package com.hekkelman.keylocker.xmlenc;
 
 import android.util.Base64;
 
-import com.hekkelman.keylocker.datamodel.InvalidFileException;
-import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyDbRuntimeException;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
@@ -66,7 +63,7 @@ public class EncryptedData
 			Serializer serializer = new Persister();
 			EncryptedData encData = serializer.read(EncryptedData.class, is);
 
-			Key key = encData.keyInfo.getKey(password);
+			Key key = encData.keyInfo.getKey(password, false);
 
 			data = Base64.decode(encData.value, Base64.DEFAULT);
 			byte[] iv = new byte[KEY_BYTE_SIZE];
@@ -84,7 +81,7 @@ public class EncryptedData
 		return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
 	}
 	
-	static public void encrypt(char[] password, InputStream data, OutputStream os) throws KeyDbException {
+	static public void encrypt(char[] password, InputStream data, OutputStream os, boolean isBackup) throws KeyDbException {
 		try {
 			EncryptedData encData = new EncryptedData();
 
@@ -96,7 +93,7 @@ public class EncryptedData
 			ByteArrayOutputStream bs = new ByteArrayOutputStream();
 			bs.write(iv);
 
-			Key key = encData.keyInfo.getKey(password);
+			Key key = encData.keyInfo.getKey(password, isBackup);
 
 			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			cipher.init(Cipher.ENCRYPT_MODE,

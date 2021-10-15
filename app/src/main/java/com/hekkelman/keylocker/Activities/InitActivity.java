@@ -45,12 +45,6 @@ public class InitActivity extends BaseActivity
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        KeyDb.release();
-    }
-
-    @Override
     public void onClick(View view) {
         String password_1 = mPassword1.getText().toString();
         String password_2 = mPassword2.getText().toString();
@@ -62,16 +56,8 @@ public class InitActivity extends BaseActivity
         else {
             try {
                 char[] password = password_1.toCharArray();
-
-                KeyDb keyDb = new KeyDb(password, new File(getFilesDir(), KeyDb.KEY_DB_NAME));
-
-                // write the empty keylocker file
-                keyDb.write();
-
-                KeyDb.setInstance(keyDb);
-
+                KeyDb.initialize(password, getFilesDir());
                 settings.setUsePin(mPINSwitch.isChecked());
-
                 finishWithResult(true, password);
             } catch (Exception e) {
                 new AlertDialog.Builder(InitActivity.this)
@@ -100,6 +86,11 @@ public class InitActivity extends BaseActivity
             mPassword1.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
             mPassword2.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        finishWithResult(true, null);
     }
 
     private void finishWithResult(boolean success, char[] encryptionKey) {

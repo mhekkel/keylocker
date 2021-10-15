@@ -12,30 +12,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.Utilities.Tools;
+import com.hekkelman.keylocker.datamodel.Key;
 
 public class KeyCardHolder extends RecyclerView.ViewHolder {
     private final Context context;
+    protected Key key;
     protected CardView card;
     protected TextView nameView;
     protected TextView userView;
     protected ImageButton copyButton;
     protected ImageButton menuButton;
-    protected TextView passwordView;
 
     private Callback callback;
 
     public interface Callback {
-        void onMoveEventStart();
-        void onMoveEventStop();
-
-        void onMenuButtonClicked(View parentView, int position);
-        void onCopyButtonClicked(String text, int position);
-
-        void onCardSingleClicked(int position, String text);
-        void onCardDoubleClicked(int position, String text);
-//
-//        void onCounterClicked(int position);
-//        void onCounterLongPressed(int position);
+        void onMenuButtonClicked(View view, int position);
+        void onCopyButtonClicked(String password);
+        void onCardSingleClicked(String keyID);
+        void onCardDoubleClicked(String keyID);
     }
 
     public KeyCardHolder(Context context, View itemView, boolean tapToReveal) {
@@ -45,6 +39,12 @@ public class KeyCardHolder extends RecyclerView.ViewHolder {
 
         // Style the buttons in the current theme colors
         ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);
+
+        card = (CardView) itemView;
+        nameView = itemView.findViewById(R.id.itemCaption);
+        userView = itemView.findViewById(R.id.itemUser);
+        menuButton = itemView.findViewById(R.id.menuButton);
+        copyButton = itemView.findViewById(R.id.copyButton);
 
         menuButton.getDrawable().setColorFilter(colorFilter);
         copyButton.getDrawable().setColorFilter(colorFilter);
@@ -65,6 +65,13 @@ public class KeyCardHolder extends RecyclerView.ViewHolder {
 //                MainActivity.this.startActivity(intent);
 //            }
 //        });
+    }
+
+    protected void setKey(Key key) {
+        this.key = key;
+
+        nameView.setText(key.getName());
+        userView.setText(key.getUser());
     }
 
     private void setTapToReveal(boolean tapToReveal) {
@@ -94,31 +101,22 @@ public class KeyCardHolder extends RecyclerView.ViewHolder {
 
         copyButton.setOnClickListener(view ->
                 adapterPositionSafeCallback((callback, adapterPosition) ->
-                        callback.onCopyButtonClicked(passwordView.getTag().toString(), adapterPosition)
+                        callback.onCopyButtonClicked(key.getPassword())
                 )
         );
-
-//        counterLayout.setOnClickListener(view ->
-//                adapterPositionSafeCallback(Callback::onCounterClicked)
-//        );
-//
-//        counterLayout.setOnLongClickListener(view -> {
-//            adapterPositionSafeCallback(Callback::onCounterLongPressed);
-//            return false;
-//        });
 
         card.setOnClickListener(new SimpleDoubleClickListener() {
             @Override
             public void onSingleClick(View v) {
                 adapterPositionSafeCallback((callback, adapterPosition) ->
-                        callback.onCardSingleClicked(adapterPosition, passwordView.getTag().toString())
+                        callback.onCardSingleClicked(key.getId())
                 );
             }
 
             @Override
             public void onDoubleClick(View v) {
                 adapterPositionSafeCallback((callback, adapterPosition) ->
-                        callback.onCardDoubleClicked(adapterPosition, passwordView.getTag().toString())
+                        callback.onCardDoubleClicked(key.getId())
                 );
             }
         });

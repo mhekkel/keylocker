@@ -15,7 +15,7 @@ public class Settings {
     private final Context context;
     private final SharedPreferences settings;
 
-    public enum TapMode { NOTHING, REVEAL, COPY, COPY_BACKGROUND, SEND_KEYSTROKES };
+    public enum TapMode { NOTHING, REVEAL, COPY, COPY_BACKGROUND, SEND_KEYSTROKES, DEFAULT_TAP_SINGLE, DEFAULT_TAP_DOUBLE };
 
     public Settings(Context context) {
         this.context = context;
@@ -104,7 +104,7 @@ public class Settings {
     }
 
     public boolean getRelockOnBackground() {
-        return getBoolean(R.string.settings_key_relock_background, false);
+        return getBoolean(R.string.settings_key_relock_background, true);
     }
 
     public boolean isMinimizeAppOnCopyEnabled() {

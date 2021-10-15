@@ -86,17 +86,17 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
         getDelegate().onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        KeyDb.reference();
-    }
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        KeyDb.reference();
+//    }
 
     @Override
     protected void onStop() {
         super.onStop();
         getDelegate().onStop();
-        KeyDb.release();
+//        KeyDb.release();
     }
 
     @Override

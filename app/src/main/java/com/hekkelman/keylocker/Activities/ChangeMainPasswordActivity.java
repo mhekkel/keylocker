@@ -62,8 +62,7 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
                             pw2.setError("Passwords do not match");
                         else {
                             try {
-                                KeyDb keyDb = KeyDb.getInstance();
-                                keyDb.changePassword(password_1.toCharArray());
+                                KeyDb.changePassword(password_1.toCharArray());
                                 finish();
                             } catch (Exception e) {
                                 new AlertDialog.Builder(ChangeMainPasswordActivity.this)
@@ -78,15 +77,15 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
         );
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        KeyDb.reference();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        KeyDb.release();
-    }
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        KeyDb.reference();
+//    }
+//
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        KeyDb.release();
+//    }
 }

@@ -119,17 +119,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("password-length"));
         }
 
-        @Override
-        public void onStart() {
-            super.onStart();
-            KeyDb.reference();
-        }
-
-        @Override
-        public void onStop() {
-            super.onStop();
-            KeyDb.release();
-        }
+//        @Override
+//        public void onStart() {
+//            super.onStart();
+//            KeyDb.reference();
+//        }
+//
+//        @Override
+//        public void onStop() {
+//            super.onStop();
+//            KeyDb.release();
+//        }
 
         //        @Override
 //        public boolean onOptionsItemSelected(MenuItem item) {

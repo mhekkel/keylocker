@@ -43,6 +43,7 @@ import android.os.LocaleList;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.hekkelman.keylocker.Utilities.Settings;
+import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.util.Locale;
 
@@ -56,24 +57,13 @@ public class BaseActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                if (broadcastReceivedCallback != null) {
-                    broadcastReceivedCallback.onReceivedScreenOff();
-                }
-                if (shouldDestroyOnScreenOff()) {
-                    finish();
-                }
-            }
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+                KeyDb.onReceivedScreenOff();
         }
-    }
-
-    interface BroadcastReceivedCallback {
-        void onReceivedScreenOff();
     }
 
     public Settings settings;
     private ScreenOffReceiver screenOffReceiver;
-    private BroadcastReceivedCallback broadcastReceivedCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,19 +87,13 @@ public class BaseActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    public void setBroadcastCallback(BroadcastReceivedCallback cb) {
-        this.broadcastReceivedCallback = cb;
-    }
-
     protected boolean shouldDestroyOnScreenOff() {
         return true;
     }
 
-
     @Override
     public void onResume() {
         setLocale();
-
         super.onResume();
     }
 

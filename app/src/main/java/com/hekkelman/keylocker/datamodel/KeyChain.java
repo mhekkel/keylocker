@@ -29,6 +29,11 @@ public class KeyChain {
 		this.keys = keys;
 	}
 
+	public void addKey(Key key) {
+		if (! this.keys.contains(key))
+			this.keys.add(key);
+	}
+
 	public List<Note> getNotes() {
 		return notes;
 	}
