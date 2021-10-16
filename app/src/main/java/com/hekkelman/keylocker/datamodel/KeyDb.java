@@ -35,7 +35,7 @@ public class KeyDb {
 	public static final String KEY_DB_NAME = "keylockerfile.txt";
 
 	private static KeyDb sInstance;
-//	private static Settings settings;
+	private static final Object keyDbLock = new Object();
 
 	private final File file;
 	private final boolean backup;
@@ -45,8 +45,7 @@ public class KeyDb {
 	private KeyChain keyChain;
 
 	public static void init(Settings settings) {
-//		if (KeyDb.settings == null) {
-//			KeyDb.settings = settings;
+		synchronized (keyDbLock) {
 			ProcessLifecycleOwner.get().getLifecycle().addObserver(new DefaultLifecycleObserver() {
 				@Override
 				public void onStop(@NonNull LifecycleOwner owner) {
@@ -54,12 +53,13 @@ public class KeyDb {
 						KeyDb.sInstance = null;
 				}
 			});
-//		}
+		}
 	}
 
 	public static void onReceivedScreenOff() {
-//		if (settings.getRelockOnScreenOff())
+		synchronized (keyDbLock) {
 			KeyDb.sInstance = null;
+		}
 	}
 
 	// Public interface
@@ -68,48 +68,56 @@ public class KeyDb {
 	}
 
 	public static void initialize(char[] password, File dir) throws KeyDbException {
-		File file = new File(dir, KEY_DB_NAME);
-		if (file.exists())
-			file.delete();
+		synchronized (keyDbLock) {
+			File file = new File(dir, KEY_DB_NAME);
+			if (file.exists())
+				file.delete();
 
-		sInstance = new KeyDb(password, file);
-		sInstance.write();
+			sInstance = new KeyDb(password, file);
+			sInstance.write();
+		}
 	}
 
 	public static boolean isValidPassword(char[] plainPassword, File keyDbFile) {
 		boolean result = false;
 
-		try {
-			sInstance = new KeyDb(plainPassword, keyDbFile);
-			sInstance.read();
-			result = true;
-		} catch (KeyDbException e) {
-			sInstance = null;
+		synchronized (keyDbLock) {
+			try {
+				sInstance = new KeyDb(plainPassword, keyDbFile);
+				sInstance.read();
+				result = true;
+			} catch (KeyDbException e) {
+				sInstance = null;
+			}
 		}
 
 		return result;
 	}
 
 	public static void changePassword(char[] password) throws KeyDbException {
-		sInstance.password = password;
-		sInstance.write();
+		synchronized (keyDbLock) {
+			sInstance.password = password;
+			sInstance.write();
+		}
 	}
 
 	public static List<Key> getKeys() {
 		List<Key> result = new ArrayList<>();
 
-		for (Key k: sInstance.keyChain.getKeys()) {
-			if (k.isDeleted())
-				continue;
-			result.add(k);
-		}
-
-		Collections.sort(result, new Comparator<Key>() {
-			@Override
-			public int compare(Key lhs, Key rhs) {
-				return lhs.getName().compareToIgnoreCase(rhs.getName());
+		synchronized (keyDbLock) {
+			for (Key k : sInstance.keyChain.getKeys()) {
+				if (k.isDeleted())
+					continue;
+				result.add(k);
 			}
-		});
+
+			Collections.sort(result, new Comparator<Key>() {
+				@Override
+				public int compare(Key lhs, Key rhs) {
+					return lhs.getName().compareToIgnoreCase(rhs.getName());
+				}
+			});
+		}
 
 		return result;
 	}
@@ -117,32 +125,36 @@ public class KeyDb {
 	public static List<Key> getFilteredKeys(String query) {
 		List<Key> result;
 
-		if (sInstance != null) {
-			result = sInstance.keyChain.getKeys();
-			if (! TextUtils.isEmpty(query))
-				result = result.stream().filter(key -> key.match(query)).collect(Collectors.toList());
-		} else
-			result = new ArrayList<>();
+		synchronized (keyDbLock) {
+			if (sInstance != null) {
+				result = sInstance.keyChain.getKeys();
+				if (!TextUtils.isEmpty(query))
+					result = result.stream().filter(key -> key.match(query)).collect(Collectors.toList());
+			} else
+				result = new ArrayList<>();
+		}
 
 		return result;
 	}
 
 	public static Key getKey(String keyId) {
-		return sInstance.keyChain.getKeyByID(keyId);
+		synchronized (keyDbLock) {
+			return sInstance.keyChain.getKeyByID(keyId);
+		}
 	}
 
 	public static void setKey(Key key) throws KeyDbException {
-		sInstance.keyChain.addKey(key);
-		sInstance.write();
+		synchronized (keyDbLock) {
+			sInstance.keyChain.addKey(key);
+			sInstance.write();
+		}
 	}
 
-	public static void deleteKey(String keyID) throws KeyDbException {
-		Key key = sInstance.keyChain.getKeyByID(keyID);
-
-		if (key != null)
+	public static void deleteKey(Key key) throws KeyDbException {
+		synchronized (keyDbLock) {
 			key.setDeleted(true);
-
-		sInstance.write();
+			sInstance.write();
+		}
 	}
 
 	// Private interface

@@ -7,11 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,8 +39,6 @@ import com.hekkelman.keylocker.View.KeyCardViewAdapter;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.List;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -56,8 +54,6 @@ public class MainActivity extends BaseActivity
     private ActivityResultLauncher<Intent> initResult;
     private ActivityResultLauncher<Intent> newKeyResult;
     private ActivityResultLauncher<Intent> editKeyResult;
-
-    private AsyncTask<List<String>, Void, Void> deleteTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,11 +106,6 @@ public class MainActivity extends BaseActivity
                 intent.putExtra("key-id", keyID);
                 editKeyResult.launch(intent);
             }
-
-            @Override
-            public void onRemoveKey(String keyID) {
-
-            }
         });
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -140,10 +131,6 @@ public class MainActivity extends BaseActivity
     public void onClickFab(View view) {
         Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
         newKeyResult.launch(intent);
-    }
-
-    private void searchKeys(String query) {
-//        adapter.searchKeys(query);
     }
 
     @Override
@@ -172,57 +159,12 @@ public class MainActivity extends BaseActivity
 //		}
     }
 
-    private static class DeleteKeysTask extends AsyncTask<List<String>, Void, Void> {
-
-        private final WeakReference<MainActivity> mainActivityWeakReference;
-
-        private DeleteKeysTask(MainActivity mainActivity) {
-            this.mainActivityWeakReference = new WeakReference<>(mainActivity);
-        }
-
-        @SafeVarargs
-        @Override
-        protected final Void doInBackground(List<String>... params) {
-//			try {
-//				MainActivity mainActivity = mainActivityWeakReference.get();
-//				if (mainActivity != null)
-//				{
-//					KeyDb keyDb = mainActivity.mKeyDb;
-//					for (String keyId : params[0])
-//						keyDb.deleteKey(keyId);
-//				}
-//			} catch (KeyDbException ignored) {
-//			}
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            MainActivity mainActivity = mainActivityWeakReference.get();
-            if (mainActivity != null)
-                mainActivity.deleteTask = null;
-        }
-    }
-
-    private void removeKeys(int[] position) {
-//		List<String> ids = new ArrayList<String>();
-//
-//		for (int pos : position) {
-//			Key key = mKeys.remove(pos);
-//			ids.add(key.getId());
-//		}
-//
-//		mDeleteTask = new DeleteKeysTask(this);
-//		mDeleteTask.execute(ids);
-    }
-
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction()))
-            searchKeys(intent.getStringExtra(SearchManager.QUERY));
+            adapter.getFilter().filter(intent.getStringExtra(SearchManager.QUERY));
     }
 
     @Override
@@ -250,9 +192,6 @@ public class MainActivity extends BaseActivity
         }
     }
 
-    private void checkIntent() {
-    }
-
 //	private void updateEncryption(byte[] newKey) {
 //		SecretKey encryptionKey = null;
 //
@@ -277,22 +216,9 @@ public class MainActivity extends BaseActivity
    	@Override
 	protected void onStart() {
 		super.onStart();
-//		if (! TextUtils.isEmpty(query))
-//    		adapter.searchKeys(query);
+		if (! TextUtils.isEmpty(query))
+            adapter.getFilter().filter(query);
 	}
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (deleteTask != null) {
-            try {
-                deleteTask.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     @Override
     public void onBackPressed() {

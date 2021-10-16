@@ -10,6 +10,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
@@ -22,6 +23,7 @@ import com.hekkelman.keylocker.Utilities.Settings;
 import com.hekkelman.keylocker.Utilities.Tools;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 
 	private final Settings settings;
 	private final Context context;
-	public List<Key> keys, filteredKeys;
+	public List<Key> keys;
 	private KeyCardViewCallback keyCardViewCallback;
 	private Filter searchFilter;
 
@@ -42,7 +44,6 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 
 	public interface KeyCardViewCallback {
 		void onEditKey(String keyID);
-		void onRemoveKey(String keyID);
 	}
 
 	public void setCallback(KeyCardViewCallback cb) {
@@ -101,8 +102,18 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 
 	public void loadEntries() {
 		keys = KeyDb.getKeys();
-		filteredKeys = keys;
 		notifyDataSetChanged();
+	}
+
+	private void removeKey(int position) {
+		try {
+			Key key = keys.get(position);
+			KeyDb.deleteKey(key);
+			keys.remove(position);
+			notifyItemRemoved(position);
+		} catch (KeyDbException exception) {
+//			Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void showPopupMenu(View view, int pos) {
@@ -111,16 +122,14 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 		MenuInflater inflate = popup.getMenuInflater();
 		inflate.inflate(R.menu.menu_popup, popup.getMenu());
 
-		Key key = filteredKeys.get(pos);
-
 		popup.setOnMenuItemClickListener(item -> {
 			int id = item.getItemId();
-
 			if (id == R.id.menu_popup_edit) {
+				Key key = keys.get(pos);
 				keyCardViewCallback.onEditKey(key.getId());
 				return true;
 			} else if (id == R.id.menu_popup_remove) {
-				keyCardViewCallback.onRemoveKey(key.getId());
+				removeKey(pos);
 				return true;
 			} else return false;
 		});
@@ -135,17 +144,17 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 
 	@Override
 	public void onBindViewHolder(KeyCardHolder holder, int position) {
-		holder.setKey(filteredKeys.get(position));
+		holder.setKey(keys.get(position));
 	}
 
 	@Override
 	public int getItemCount() {
-		return filteredKeys.size();
+		return keys.size();
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return filteredKeys.get(position).getListID();
+		return keys.get(position).getListID();
 	}
 
 
@@ -236,7 +245,6 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 		}
 	}
 
-
 	public class KeyFilter extends Filter {
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
@@ -255,7 +263,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 
 		@Override
 		protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-			filteredKeys = (List<Key>) filterResults.values;
+			keys = (List<Key>) filterResults.values;
 			notifyDataSetChanged();
 		}
 	}

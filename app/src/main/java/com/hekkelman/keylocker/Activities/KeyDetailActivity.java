@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -103,7 +104,7 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
 
 			@Override
 			public void afterTextChanged(Editable s) {
-				KeyDetailActivity.this.textChanged = true;
+				checkForChangedText();
 			}
 		};
 
@@ -337,5 +338,16 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
 					.setIcon(android.R.drawable.ic_dialog_alert)
 					.show();
 		}
+	}
+
+	private void checkForChangedText() {
+		boolean same = true;
+
+		same = same && (TextUtils.isEmpty(nameField.getText()) && TextUtils.isEmpty(key.getName())) || TextUtils.equals(nameField.getText(), key.getName());
+		same = same && (TextUtils.isEmpty(userField.getText()) && TextUtils.isEmpty(key.getUser())) || TextUtils.equals(userField.getText(), key.getUser());
+		same = same && (TextUtils.isEmpty(passwordField.getText()) && TextUtils.isEmpty(key.getPassword())) || TextUtils.equals(passwordField.getText(), key.getPassword());
+		same = same && (TextUtils.isEmpty(urlField.getText()) && TextUtils.isEmpty(key.getUrl())) || TextUtils.equals(urlField.getText(), key.getUrl());
+
+		this.textChanged = ! same;
 	}
 }

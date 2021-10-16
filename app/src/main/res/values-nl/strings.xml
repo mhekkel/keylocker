@@ -93,11 +93,12 @@
     <string name="toast_copied_to_clipboard">Copied to clipboard</string>
     <string name="menu_popup_edit">Edit</string>
     <string name="menu_popup_remove">Remove</string>
-    <string name="save_key_task_cancelled">Saving was cancelled</string>
+    <string name="save_key_task_cancelled">Bewaren is niet gelukt</string>
     <string name="dialog_save_key_before_close">Save</string>
     <string name="fab_create_new">Maak nieuwe</string>
     <string name="menu_popup_show_password">Toon wachtwoord</string>
     <string name="settings_category_title_ui">User interface</string>
     <string name="settings_title_tap_single">Single tap</string>
     <string name="settings_title_tap_double">Double tap</string>
+    <string name="delete_key_task_cancelled">Verwijderen is niet gelukt</string>
 </resources>
