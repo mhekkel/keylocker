@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.hekkelman.keylocker.BaseApplication;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.Utilities.Synchronize;
 import com.hekkelman.keylocker.View.KeyCardViewAdapter;
@@ -236,7 +237,7 @@ public class MainActivity extends BaseActivity
         getMenuInflater().inflate(R.menu.mainmenu, menu);
 
         // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
 //        // Assumes current activity is the searchable activity
 //        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -257,42 +258,42 @@ public class MainActivity extends BaseActivity
 
         return true;
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        boolean result = true;
-
-        switch (item.getItemId()) {
-//            case android.R.id.home:
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//
+//        boolean result = true;
+//
+//        switch (item.getItemId()) {
+////            case android.R.id.home:
+////                result = false;
+////                break;
+////            case R.id.action_settings:
+////                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+////                startActivity(intent);
+////                result = true;
+////                break;
+////            case R.id.action_synchronize:
+////                syncWithSDCard(false);
+////                break;
+//            case R.id.action_undelete:
+////				try {
+////					mKeys = mKeyDb.undeleteAll().getKeys();
+////					mAdapter.notifyDataSetChanged();
+////				} catch (KeyDbException e) {
+//////                    e.printStackTrace();
+////				}
+//                break;
+//            default:
 //                result = false;
 //                break;
-//            case R.id.action_settings:
-//                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-//                startActivity(intent);
-//                result = true;
-//                break;
-//            case R.id.action_synchronize:
-//                syncWithSDCard(false);
-//                break;
-            case R.id.action_undelete:
-//				try {
-//					mKeys = mKeyDb.undeleteAll().getKeys();
-//					mAdapter.notifyDataSetChanged();
-//				} catch (KeyDbException e) {
-////                    e.printStackTrace();
-//				}
-                break;
-            default:
-                result = false;
-                break;
-        }
-
-        return result || super.onOptionsItemSelected(item);
-    }
+//        }
+//
+//        return result || super.onOptionsItemSelected(item);
+//    }
 
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable() {
@@ -414,10 +415,10 @@ public class MainActivity extends BaseActivity
     }
 
     private void syncWithSDCard() {
-//		final BaseApplication app = (BaseApplication) getApplication();
-//		if (isExternalStorageWritable()) {
-//			Synchronize.syncWithSDCard(mSyncHandler, app);
-//		}
+		final BaseApplication app = (BaseApplication) getApplication();
+		if (isExternalStorageWritable()) {
+			Synchronize.syncWithSDCard(mSyncHandler, app);
+		}
     }
 
 //    protected void onPostExecute(final SyncResult result) {

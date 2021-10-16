@@ -34,320 +34,278 @@ import java.util.Random;
 
 public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result> {
 
-	public static long MAX_INACTIVITY_TIME = 10 * 1000;
+    private Key key;
 
-	private Key key;
-	private boolean textChanged = false;
+    protected EditText nameField;
+    protected EditText userField;
+    protected EditText passwordField;
+    protected EditText urlField;
+    protected TextView lastModified;
 
-	protected EditText nameField;
-	protected EditText userField;
-	protected EditText passwordField;
-	protected EditText urlField;
-	protected TextView lastModified;
+    private ActivityResultLauncher<Intent> unlockResult;
 
-	private ActivityResultLauncher<Intent> unlockResult;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_key_detail);
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_key_detail);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		Toolbar toolbar = findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE);
 
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-			WindowManager.LayoutParams.FLAG_SECURE);
+        nameField = findViewById(R.id.keyNameField);
+        userField = findViewById(R.id.keyUserField);
+        passwordField = findViewById(R.id.keyPasswordField);
+        urlField = findViewById(R.id.keyURLField);
+        lastModified = findViewById(R.id.lastModifiedCaption);
 
-		nameField = findViewById(R.id.keyNameField);
-		userField = findViewById(R.id.keyUserField);
-		passwordField = findViewById(R.id.keyPasswordField);
-		urlField = findViewById(R.id.keyURLField);
-		lastModified = findViewById(R.id.lastModifiedCaption);
+        unlockResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
 
-		unlockResult = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
+        Intent intent = getIntent();
+        String keyID = intent.getStringExtra("key-id");
 
-		Intent intent = getIntent();
-		String keyID = intent.getStringExtra("key-id");
+        if (keyID == null) {
+            lastModified.setVisibility(View.INVISIBLE);
+            setKey(new Key());
+        } else {
+            Key key = KeyDb.getKey(keyID);
+            if (key == null) {
+                new AlertDialog.Builder(KeyDetailActivity.this)
+                        .setTitle(R.string.dlog_missing_key_title)
+                        .setMessage(R.string.dlog_missing_key_msg)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                return;
+            }
 
-		if (keyID == null) {
-			lastModified.setVisibility(View.INVISIBLE);
-			setKey(new Key());
-		} else {
-			Key key = KeyDb.getKey(keyID);
-			if (key == null) {
-				new AlertDialog.Builder(KeyDetailActivity.this)
-					.setTitle(R.string.dlog_missing_key_title)
-					.setMessage(R.string.dlog_missing_key_msg)
-					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							finish();
-						}
-					})
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.show();
-				return;
-			}
+            setKey(key);
+        }
+    }
 
-			setKey(key);
-		}
+    private void setKey(Key key) {
+        this.key = key;
 
-		TextWatcher listener = new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-			}
+        String name = key.getName();
+        if (name != null) nameField.setText(name);
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-			}
+        String password = key.getPassword();
+        if (password != null) passwordField.setText(password);
 
-			@Override
-			public void afterTextChanged(Editable s) {
-				checkForChangedText();
-			}
-		};
+        String user = key.getUser();
+        if (user != null) userField.setText(user);
 
-		nameField.addTextChangedListener(listener);
-		passwordField.addTextChangedListener(listener);
-		userField.addTextChangedListener(listener);
-		urlField.addTextChangedListener(listener);
-	}
+        String url = key.getUrl();
+        if (url != null) urlField.setText(url);
 
-	private void setKey(Key key) {
-		this.key = key;
+        String lastModified = key.getTimestamp();
+        if (lastModified != null)
+            this.lastModified.setText(String.format(getString(R.string.lastModifiedTemplate), lastModified));
+    }
 
-		String name = key.getName();
-		if (name != null) nameField.setText(name);
+    public void onUnlockedResult(ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_CANCELED)
+            finish();
+    }
 
-		String password = key.getPassword();
-		if (password != null) passwordField.setText(password);
+    @Override
+    public void onBackPressed() {
+        if (keyChanged()) {
+            new AlertDialog.Builder(KeyDetailActivity.this)
+                    .setTitle(R.string.dlog_discard_changes_title)
+                    .setMessage(R.string.dlog_discard_changes_msg)
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> finish())
+                    .setNegativeButton(android.R.string.no, (dialog, which) -> {})
+                    .setNeutralButton(R.string.dialog_save_key_before_close, (dialog, which) -> saveKey(true))
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        } else finish();
+    }
 
-		String user = key.getUser();
-		if (user != null) userField.setText(user);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.keymenu, menu);
+        return true;
+    }
 
-		String url = key.getUrl();
-		if (url != null) urlField.setText(url);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
 
-		String lastModified = key.getTimestamp();
-		if (lastModified != null)
-			this.lastModified.setText(String.format(getString(R.string.lastModifiedTemplate), lastModified));
-	}
+        if (id == R.id.action_save) {
+            saveKey(false);
+            return true;
+        } else if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else
+            return super.onOptionsItemSelected(item);
+    }
 
-	public void onUnlockedResult(ActivityResult result) {
-		if (result.getResultCode() == Activity.RESULT_CANCELED)
-			finish();
-	}
+    private void saveKey(boolean finishOnSaved) {
+        String name = nameField.getText().toString();
 
-	@Override
-	public void onBackPressed() {
-		if (textChanged) {
-			new AlertDialog.Builder(KeyDetailActivity.this)
-				.setTitle(R.string.dlog_discard_changes_title)
-				.setMessage(R.string.dlog_discard_changes_msg)
-				.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-					textChanged = false; // do not store this key again, please
-					finish();
-				})
-				.setNegativeButton(android.R.string.no, (dialog, which) -> {
-					// do nothing
-				})
-				.setNeutralButton(R.string.dialog_save_key_before_close, (dialog, which) -> {
-					saveKey(true);
-				})
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.show();
-		} else {
-			finish();
-		}
-	}
+        if (name.length() == 0) {
+            nameField.setError(getString(R.string.keyNameIsRequired));
+        } else {
+            key.setName(name);
+            key.setUser(userField.getText().toString());
+            key.setPassword(passwordField.getText().toString());
+            key.setUrl(urlField.getText().toString());
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.keymenu, menu);
-		return true;
-	}
+            SaveKeyTask task = new SaveKeyTask(this, key, finishOnSaved);
+            startBackgroundTask(task);
+        }
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
+    @Override
+    public void onResume() {
+        super.onResume();
 
-		if (id == R.id.action_save) {
-			saveKey(false);
-			return true;
-		} else if (id == android.R.id.home) {
-			onBackPressed();
-			return true;
-		} else
-			return super.onOptionsItemSelected(item);
-	}
+        if (!KeyDb.isUnlocked()) {
+            Intent authIntent = new Intent(this, UnlockActivity.class);
+            unlockResult.launch(authIntent);
+        }
+    }
 
-	private void saveKey(boolean finishOnSaved) {
-		String name = nameField.getText().toString();
+    public void onClickRenewPassword(View v) {
+        // get preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
+        int length = Integer.parseInt(prefs.getString("password-length", "8"));
+        boolean noAmbiguous = prefs.getBoolean("password-no-ambiguous", true);
+        boolean includeCapitals = prefs.getBoolean("password-include-capitals", true);
+        boolean includeDigits = prefs.getBoolean("password-include-digits", true);
+        boolean includeSymbols = prefs.getBoolean("password-include-symbols", true);
 
-		if (name.length() == 0) {
-			nameField.setError(getString(R.string.keyNameIsRequired));
-		} else {
-			key.setName(name);
-			key.setUser(userField.getText().toString());
-			key.setPassword(passwordField.getText().toString());
-			key.setUrl(urlField.getText().toString());
+        String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
 
-			SaveKeyTask task = new SaveKeyTask(this, key, finishOnSaved);
-			startBackgroundTask(task);
-		}
-	}
+        passwordField.setText(pw);
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
+    public void onClickVisitURL(View v) {
+        String url = urlField.getText().toString();
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+            url = "http://" + url;
 
-		if (! KeyDb.isUnlocked()) {
-			Intent authIntent = new Intent(this, UnlockActivity.class);
-			unlockResult.launch(authIntent);
-		}
-	}
+        try {
+            Uri uri = Uri.parse(url);
 
-	public void onClickRenewPassword(View v) {
-		// get preferences
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
-		int length = Integer.parseInt(prefs.getString("password-length", "8"));
-		boolean noAmbiguous = prefs.getBoolean("password-no-ambiguous", true);
-		boolean includeCapitals = prefs.getBoolean("password-include-capitals", true);
-		boolean includeDigits = prefs.getBoolean("password-include-digits", true);
-		boolean includeSymbols = prefs.getBoolean("password-include-symbols", true);
+            onCopyPassword(null);
 
-		String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(KeyDetailActivity.this, R.string.visitFailed, Toast.LENGTH_SHORT).show();
+        }
+    }
 
-		passwordField.setText(pw);
-	}
+    //	@OnClick(R.id.fab)
+    public void onCopyPassword(View view) {
+        ClipboardManager clipboard = (ClipboardManager)
+                getSystemService(Context.CLIPBOARD_SERVICE);
 
-	public void onClickVisitURL(View v) {
-		String url = urlField.getText().toString();
-		if (url.startsWith("http://") == false && url.startsWith("https://") == false)
-			url = "http://" + url;
+        ClipData clip = ClipData.newPlainText("password", passwordField.getText().toString());
+        clipboard.setPrimaryClip(clip);
+    }
 
-		try {
-			Uri uri = Uri.parse(url);
+    private String generatePassword(int length, boolean noAmbiguous, boolean includeCapitals, boolean includeDigits, boolean includeSymbols) {
+        final String kAmbiguous = "B8G6I1l0OQDS5Z2";
 
-			onCopyPassword(null);
+        String[] vowels = getString(R.string.vowels).split(";");
+        String[] consonants = getString(R.string.consonants).split(";");
+        StringBuilder result = new StringBuilder();
 
-			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setData(uri);
-			startActivity(intent);
-		} catch (Exception e) {
-			Toast.makeText(KeyDetailActivity.this, R.string.visitFailed, Toast.LENGTH_SHORT).show();
-		}
-	}
+        Random rng = new Random();
 
-//	@OnClick(R.id.fab)
-	public void onCopyPassword(View view) {
-		ClipboardManager clipboard = (ClipboardManager)
-			getSystemService(Context.CLIPBOARD_SERVICE);
+        boolean vowel = rng.nextBoolean();
+        boolean wasVowel = false, hasDigits = false, hasSymbols = false, hasCapitals = false;
 
-		ClipData clip = ClipData.newPlainText("password", passwordField.getText().toString());
-		clipboard.setPrimaryClip(clip);
-	}
+        for (; ; ) {
+            if (result.length() >= length) {
+                if (result.length() > length ||
+                        includeDigits != hasDigits ||
+                        includeSymbols != hasSymbols ||
+                        includeCapitals != hasCapitals) {
+                    result = new StringBuilder();
+                    hasDigits = hasSymbols = hasCapitals = false;
+                    continue;
+                }
 
-	private String generatePassword(int length, boolean noAmbiguous, boolean includeCapitals, boolean includeDigits, boolean includeSymbols) {
-		final String kAmbiguous = "B8G6I1l0OQDS5Z2";
+                break;
+            }
 
-		String[] vowels = getString(R.string.vowels).split(";");
-		String[] consonants = getString(R.string.consonants).split(";");
-		String result = "";
+            String s;
+            if (vowel) s = vowels[rng.nextInt(vowels.length)];
+            else s = consonants[rng.nextInt(consonants.length)];
 
-		Random rng = new Random();
+            if (s.length() + result.length() > length)
+                continue;
 
-		boolean vowel = rng.nextBoolean();
-		boolean wasVowel = false, hasDigits = false, hasSymbols = false, hasCapitals = false;
+            if (noAmbiguous && kAmbiguous.contains(s))
+                continue;
 
-		for (; ; ) {
-			if (result.length() >= length) {
-				if (result.length() > length ||
-					includeDigits != hasDigits ||
-					includeSymbols != hasSymbols ||
-					includeCapitals != hasCapitals) {
-					result = "";
-					hasDigits = hasSymbols = hasCapitals = false;
-					continue;
-				}
+            if (includeCapitals && (result.length() == s.length() || !vowel) && rng.nextInt(10) < 2) {
+                result.append(s.toUpperCase(Locale.ROOT));
+                hasCapitals = true;
+            } else
+                result.append(s);
 
-				break;
-			}
+            vowel = !vowel || (s.length() <= 1 && rng.nextInt(10) <= 3);
 
-			String s;
-			if (vowel) {
-				do
-					s = vowels[rng.nextInt(vowels.length)];
-				while (wasVowel && s.length() > 1);
-			} else
-				s = consonants[rng.nextInt(consonants.length)];
+            if (!hasDigits && includeDigits && rng.nextInt(10) < 3) {
+                String ch;
+                do ch = Character.valueOf((char) (rng.nextInt(10) + '0')).toString();
+                while (noAmbiguous && kAmbiguous.contains(ch));
 
-			if (s.length() + result.length() > length)
-				continue;
+                result.append(ch);
+                hasDigits = true;
+            } else if (!hasSymbols && includeSymbols && rng.nextInt(10) < 2) {
+                char[] kSymbols =
+                        {
+                                '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+',
+                                ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@',
+                                '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~',
+                        };
 
-			if (noAmbiguous && kAmbiguous.contains(s))
-				continue;
+                result.append(kSymbols[rng.nextInt(kSymbols.length)]);
+                hasSymbols = true;
+            }
+        }
 
-			if (includeCapitals && (result.length() == s.length() || vowel == false) && rng.nextInt(10) < 2) {
-				result += s.toUpperCase(Locale.ROOT);
-				hasCapitals = true;
-			} else
-				result += s;
+        return result.toString();
+    }
 
-			if (vowel && (wasVowel || s.length() > 1 || rng.nextInt(10) > 3))
-				vowel = false;
-			else
-				vowel = true;
+    @Override
+    void onTaskResult(SaveKeyTask.Result result) {
+        if (result.saved) {
+            Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
+            if (result.finish)
+                finish();
+        } else {
+            new AlertDialog.Builder(KeyDetailActivity.this)
+                    .setTitle(R.string.dlog_save_failed_title)
+                    .setMessage(getString(R.string.dlog_save_failed_msg) + result.errorMessage)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
+    }
 
-			if (hasDigits == false && includeDigits && rng.nextInt(10) < 3) {
-				String ch;
-				do ch = Character.valueOf((char) (rng.nextInt(10) + '0')).toString();
-				while (noAmbiguous && kAmbiguous.contains(ch));
+    private boolean keyChanged() {
+        boolean same = (TextUtils.isEmpty(nameField.getText()) && TextUtils.isEmpty(key.getName())) || TextUtils.equals(nameField.getText(), key.getName())
+                && (TextUtils.isEmpty(userField.getText()) && TextUtils.isEmpty(key.getUser())) || TextUtils.equals(userField.getText(), key.getUser())
+                && (TextUtils.isEmpty(passwordField.getText()) && TextUtils.isEmpty(key.getPassword())) || TextUtils.equals(passwordField.getText(), key.getPassword())
+                && (TextUtils.isEmpty(urlField.getText()) && TextUtils.isEmpty(key.getUrl())) || TextUtils.equals(urlField.getText(), key.getUrl());
 
-				result += ch;
-				hasDigits = true;
-			} else if (hasSymbols == false && includeSymbols && rng.nextInt(10) < 2) {
-				char[] kSymbols =
-					{
-						'!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+',
-						',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@',
-						'[', '\\', ']', '^', '_', '`', '{', '|', '}', '~',
-					};
-
-				result += kSymbols[rng.nextInt(kSymbols.length)];
-				hasSymbols = true;
-			}
-		}
-
-		return result;
-	}
-
-	@Override
-	void onTaskResult(SaveKeyTask.Result result) {
-		if (result.saved) {
-			textChanged = false;
-			Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
-			if (result.finish)
-				finish();
-		} else {
-			new AlertDialog.Builder(KeyDetailActivity.this)
-					.setTitle(R.string.dlog_save_failed_title)
-					.setMessage(getString(R.string.dlog_save_failed_msg) + result.errorMessage)
-					.setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.show();
-		}
-	}
-
-	private void checkForChangedText() {
-		boolean same = true;
-
-		same = same && (TextUtils.isEmpty(nameField.getText()) && TextUtils.isEmpty(key.getName())) || TextUtils.equals(nameField.getText(), key.getName());
-		same = same && (TextUtils.isEmpty(userField.getText()) && TextUtils.isEmpty(key.getUser())) || TextUtils.equals(userField.getText(), key.getUser());
-		same = same && (TextUtils.isEmpty(passwordField.getText()) && TextUtils.isEmpty(key.getPassword())) || TextUtils.equals(passwordField.getText(), key.getPassword());
-		same = same && (TextUtils.isEmpty(urlField.getText()) && TextUtils.isEmpty(key.getUrl())) || TextUtils.equals(urlField.getText(), key.getUrl());
-
-		this.textChanged = ! same;
-	}
+        return !same;
+    }
 }
