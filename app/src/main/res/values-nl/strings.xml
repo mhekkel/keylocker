@@ -83,4 +83,6 @@
     <string name="keylocker_logo">KeyLocker logo</string>
     <string name="item">Item</string>
     <string name="username">username</string>
+    <string name="renew_password">Vernieuw wachtwoord</string>
+    <string name="visit">Bezoek</string>
 </resources>

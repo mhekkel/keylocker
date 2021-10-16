@@ -81,7 +81,7 @@
                 android:src="@drawable/ic_autorenew_black_24dp"
                 android:background="@drawable/btn_background_circle"
                 android:elevation="4dp"
-                />
+                android:contentDescription="@string/renew_password" />
 
         </RelativeLayout>
 
@@ -116,7 +116,8 @@
                 android:onClick="onClickVisitURL"
                 android:src="@drawable/ic_arrow_forward_black_24dp"
                 android:background="@drawable/btn_background_circle"
-                android:elevation="4dp" />
+                android:elevation="4dp"
+                android:contentDescription="@string/visit" />
 
         </RelativeLayout>
 

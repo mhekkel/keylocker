@@ -34,7 +34,7 @@
         a lost locker password.
     </string>
     <string name="init_caption">New Locker</string>
-    <string name="init_numeric_cb">Numeric password</string>
+    <string name="init_numeric_cb">Numeric password (PIN)</string>
     <string name="init_create_btn">Create</string>
     <string name="init_hint_1_nr">Pin Code or Password</string>
     <string name="init_hint_2_nr">Pin Code or Password (validation)</string>
@@ -107,4 +107,8 @@
     <string name="keylocker_logo">KeyLocker logo</string>
     <string name="item">Item</string>
     <string name="username">username</string>
+    <string name="renew_password">Renew Password</string>
+    <string name="visit">Visit</string>
+    <string name="button_keycard_copy">Copy password</string>
+    <string name="button_keycard_options">Edit password</string>
 </resources>

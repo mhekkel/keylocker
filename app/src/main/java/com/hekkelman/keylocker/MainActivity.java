@@ -6,14 +6,18 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.text.TextUtils;
 import android.view.*;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -366,6 +370,27 @@ public class MainActivity extends AppCompatActivity
 			Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
 	}
 
+	public final static int PICK_KEYLOCKER_DIRECTORY = 10345;
+
+	public void openDirectory(Uri uriToLoad) {
+		// Choose a directory using the system's file picker.
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
+		// Optionally, specify a URI for the directory that should be opened in
+		// the system file picker when it loads.
+		intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uriToLoad);
+
+		startActivityForResult(intent, PICK_KEYLOCKER_DIRECTORY);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+		if (requestCode == PICK_KEYLOCKER_DIRECTORY)
+			;
+		else
+			super.onActivityResult(requestCode, resultCode, data);
+	}
+
 	@SuppressWarnings("StatementWithEmptyBody")
 	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
@@ -375,7 +400,7 @@ public class MainActivity extends AppCompatActivity
 		if (id == R.id.nav_keys) {
 
 		} else if (id == R.id.nav_notes) {
-
+			openDirectory(Uri.parse("file:///Documents/KeyLocker"));
 		} else if (id == R.id.nav_sync_sdcard) {
 			syncWithSDCard();
 		} else if (id == R.id.nav_sync_onedrive) {

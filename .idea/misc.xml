@@ -3,10 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-ldrtl-hdpi/ic_content_copy_gray.xml" value="0.2625" />
+        <entry key="app/src/main/res/drawable-ldrtl-hdpi/ic_more_vert_gray.xml" value="0.2625" />
         <entry key="app/src/main/res/drawable/btn_background_circle.xml" value="0.2921875" />
         <entry key="app/src/main/res/layout/activity_change_main_password.xml" value="0.2760416666666667" />
         <entry key="app/src/main/res/layout/activity_key_detail.xml" value="0.34375" />
         <entry key="app/src/main/res/layout/cardview_key_item.xml" value="0.34375" />
+        <entry key="app/src/main/res/layout/content_change_main_password.xml" value="0.24635416666666668" />
         <entry key="app/src/main/res/layout/content_key_detail.xml" value="0.34375" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.34375" />
         <entry key="app/src/main/res/xml/prefs.xml" value="0.33" />
