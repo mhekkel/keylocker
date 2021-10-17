@@ -31,14 +31,14 @@ import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import com.onedrive.sdk.authentication.MSAAuthenticator;
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
-import com.onedrive.sdk.core.DefaultClientConfig;
-import com.onedrive.sdk.core.IClientConfig;
-import com.onedrive.sdk.extensions.IOneDriveClient;
-import com.onedrive.sdk.extensions.OneDriveClient;
-import com.onedrive.sdk.logger.LoggerLevel;
+//import com.onedrive.sdk.authentication.MSAAuthenticator;
+//import com.onedrive.sdk.concurrency.ICallback;
+//import com.onedrive.sdk.core.ClientException;
+//import com.onedrive.sdk.core.DefaultClientConfig;
+//import com.onedrive.sdk.core.IClientConfig;
+//import com.onedrive.sdk.extensions.IOneDriveClient;
+//import com.onedrive.sdk.extensions.OneDriveClient;
+//import com.onedrive.sdk.logger.LoggerLevel;
 
 import java.util.concurrent.atomic.AtomicReference;
 

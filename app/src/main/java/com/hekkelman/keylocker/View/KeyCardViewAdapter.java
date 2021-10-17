@@ -85,6 +85,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 		Key key = KeyDb.getKey(keyID);
 		switch (tapMode) {
 			case EDIT:
+				keyCardViewCallback.onEditKey(key.getId());
 				break;
 			case COPY:
 				copyHandler(key.getPassword(), false);

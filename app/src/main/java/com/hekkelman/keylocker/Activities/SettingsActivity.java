@@ -1,144 +1,110 @@
 package com.hekkelman.keylocker.Activities;
 
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.view.MenuItem;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.Utilities.Settings;
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p/>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
-public class SettingsActivity extends AppCompatPreferenceActivity {
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            preference.setSummary(value.toString());
-            return true;
-        }
-    };
+import java.io.File;
 
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
-    }
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupActionBar();
 
-        // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new KeyLockerPreferenceFragment())
-                .commit();
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    private void setupActionBar() {
+        setContentView(R.layout.activity_settings);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.settings, new SettingsFragment())
+                    .commit();
+        }
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//        if (id == android.R.id.home) {
+//            finish();
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
-    /**
-     * This method stops fragment injection in malicious applications.
-     * Make sure to deny any unknown fragments here.
-     */
-    protected boolean isValidFragment(String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName)
-                || KeyLockerPreferenceFragment.class.getName().equals(fragmentName);
-    }
-
-
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class KeyLockerPreferenceFragment extends PreferenceFragment {
+    public static class SettingsFragment extends PreferenceFragmentCompat {
+        private Settings settings;
+        private ActivityResultLauncher<Intent> selectBackupDirResult;
 
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.prefs);
-            setHasOptionsMenu(true);
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.prefs, rootKey);
 
-            // Bind the preferences to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("password-length"));
+            this.settings = new Settings(getActivity());
+
+            selectBackupDirResult = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(), this::onSelectBackupDirResult);
+
+            // Backup location
+            Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
+
+            if (! settings.getLocalBackupDir().isEmpty()) {
+                backupLocation.setSummary(R.string.settings_desc_backup_location_set);
+            } else {
+                backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
+            }
+
+            backupLocation.setOnPreferenceClickListener(preference -> {
+                requestBackupAccess();
+                return true;
+            });
+
         }
 
-//        @Override
-//        public void onStart() {
-//            super.onStart();
-//            KeyDb.reference();
-//        }
-//
-//        @Override
-//        public void onStop() {
-//            super.onStop();
-//            KeyDb.release();
-//        }
+        public void requestBackupAccess() {
+            String uri = settings.getLocalBackupDir();
+            if (uri.isEmpty())
+                uri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "KeyLocker").toURI().toString();
 
-        //        @Override
-//        public boolean onOptionsItemSelected(MenuItem item) {
-//            int id = item.getItemId();
-//            if (id == android.R.id.home) {
-//                startActivity(new Intent(getActivity(), SettingsActivity.class));
-//                return true;
-//            }
-//            return super.onOptionsItemSelected(item);
-//        }
+            // Choose a directory using the system's file picker.
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+
+            // Optionally, specify a URI for the directory that should be opened in
+            // the system file picker when it loads.
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(uri));
+
+            selectBackupDirResult.launch(intent);
+        }
+
+        protected void onSelectBackupDirResult(ActivityResult result) {
+            Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
+            backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
+
+            if (result.getResultCode() == RESULT_OK) {
+                Intent data = result.getData();
+                Uri treeUri = data.getData();
+                if (treeUri != null) {
+                    settings.setLocalBackupDir(treeUri.toString());
+                    backupLocation.setSummary(R.string.settings_desc_backup_location_set);
+                }
+            }
+        }
+
     }
 }

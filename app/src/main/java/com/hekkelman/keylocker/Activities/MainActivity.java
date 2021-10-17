@@ -415,10 +415,10 @@ public class MainActivity extends BaseActivity
     }
 
     private void syncWithSDCard() {
-		final BaseApplication app = (BaseApplication) getApplication();
-		if (isExternalStorageWritable()) {
-			Synchronize.syncWithSDCard(mSyncHandler, app);
-		}
+//		final BaseApplication app = (BaseApplication) getApplication();
+//		if (isExternalStorageWritable()) {
+//			Synchronize.syncWithSDCard(mSyncHandler, app);
+//		}
     }
 
 //    protected void onPostExecute(final SyncResult result) {

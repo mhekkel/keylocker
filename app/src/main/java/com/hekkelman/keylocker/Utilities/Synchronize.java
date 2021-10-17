@@ -4,18 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Environment;
-
-//import android.support.v4.content.ContextCompat;
 
 import androidx.core.content.ContextCompat;
 
 import com.hekkelman.keylocker.Activities.BaseActivity;
-import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
+import com.hekkelman.keylocker.Tasks.UiBasedBackgroundTask;
 import com.hekkelman.keylocker.datamodel.KeyDb;
-//import com.onedrive.sdk.extensions.IOneDriveClient;
-//import com.onedrive.sdk.extensions.Item;
 
 import java.io.File;
 
@@ -36,8 +31,8 @@ public class Synchronize {
 
     static void syncWithSDCard(OnSyncTaskResult handler, BaseActivity app, String... password) {
         if (sSyncTask == null) {
-            sSyncTask = new SDSyncTask(handler, app);
-            sSyncTask.execute(password);
+//            sSyncTask = new SDSyncTask(handler, app);
+//            sSyncTask.execute(password);
         }
     }
 
@@ -53,84 +48,87 @@ public class Synchronize {
         Activity getActivity();
     }
 
-    public static abstract class SyncTask extends AsyncTask<String, Void, SyncResult> {
+    public static abstract class SyncTask extends UiBasedBackgroundTask<SyncResult> {
         protected String error;
         protected OnSyncTaskResult handler;
 
         public SyncTask(OnSyncTaskResult handler) {
+            super(SyncResult.FAILED);
             this.handler = handler;
         }
 
-        @Override
-        protected void onPostExecute(final SyncResult result) {
-            sSyncTask = null;
 
-            try {
-                handler.syncResult(result, error, this);
-            }
-            catch (Exception ignored) {
-            }
-        }
 
-        @Override
-        protected void onCancelled() {
-            sSyncTask = null;
-            handler.syncResult(SyncResult.CANCELLED, null, this);
-        }
+//        @Override
+//        protected void onPostExecute(final SyncResult result) {
+//            sSyncTask = null;
+//
+//            try {
+//                handler.syncResult(result, error, this);
+//            }
+//            catch (Exception ignored) {
+//            }
+//        }
+//
+//        @Override
+//        protected void onCancelled() {
+//            sSyncTask = null;
+//            handler.syncResult(SyncResult.CANCELLED, null, this);
+//        }
 
         public abstract void retryWithPassword(String password);
     }
 
-    private static class SDSyncTask extends SyncTask {
-
-        private final BaseActivity app;
-
-        public SDSyncTask(OnSyncTaskResult handler, BaseActivity app) {
-            super(handler);
-            this.app = app;
-        }
-
-        @Override
-        public void retryWithPassword(String password) {
-            Synchronize.syncWithSDCard(handler, this.app, password);
-        }
-
-        @Override
-        protected SyncResult doInBackground(String... password) {
-            try {
-                Context context = app.getApplicationContext();
-
-                final boolean extStoragePermission = ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_GRANTED;
-
-                if (extStoragePermission == false)
-                    return SyncResult.PERMISSION_DENIED;
-
-                if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) == false)
-                    return SyncResult.MEDIA_NOT_MOUNTED;
-
-                File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "KeyLocker");
-
-                if (dir.isDirectory() == false && dir.mkdirs() == false)
-                    return SyncResult.MKDIR_FAILED;
-
-                File file = new File(dir, KeyDb.KEY_DB_NAME);
-
-//                if (password.length > 0)
-//                    KeyDb.getInstance().synchronize(file, password[0].toCharArray());
-//                else
-//                    KeyDb.getInstance().synchronize(file);
-
-                return SyncResult.SUCCESS;
-//            } catch (InvalidPasswordException e) {
-//                return SyncResult.NEED_PASSWORD;
-            } catch (Exception e) {
-                this.error = e.getMessage();
-                return SyncResult.FAILED;
-            }
-        }
-    }
+//    private static class SDSyncTask extends SyncTask {
+//
+//        private final BaseActivity app;
+//
+//        public SDSyncTask(OnSyncTaskResult handler, BaseActivity app) {
+//            super(handler);
+//            this.app = app;
+//        }
+//
+//        @Override
+//        public void retryWithPassword(String password) {
+//            Synchronize.syncWithSDCard(handler, this.app, password);
+//        }
+//
+//        @Override
+//        protected SyncResult doInBackground(String... password) {
+//            try {
+//                Context context = app.getApplicationContext();
+//
+//                final boolean extStoragePermission = ContextCompat.checkSelfPermission(
+//                        context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                        == PackageManager.PERMISSION_GRANTED;
+//
+//                if (extStoragePermission == false)
+//                    return SyncResult.PERMISSION_DENIED;
+//
+//                if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) == false)
+//                    return SyncResult.MEDIA_NOT_MOUNTED;
+//
+//                File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "KeyLocker");
+//
+//                if (dir.isDirectory() == false && dir.mkdirs() == false)
+//                    return SyncResult.MKDIR_FAILED;
+//
+//                File file = new File(dir, KeyDb.KEY_DB_NAME);
+//
+////                if (password.length > 0)
+////                    KeyDb.getInstance().synchronize(file, password[0].toCharArray());
+////                else
+////                    KeyDb.getInstance().synchronize(file);
+//
+//                return SyncResult.SUCCESS;
+////            } catch (InvalidPasswordException e) {
+////                return SyncResult.NEED_PASSWORD;
+//            } catch (Exception e) {
+//                this.error = e.getMessage();
+//                return SyncResult.FAILED;
+//            }
+//        }
+//    }
 
 //    private static class OneDriveSyncTask extends SyncTask {
 //

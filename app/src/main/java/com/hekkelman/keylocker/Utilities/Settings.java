@@ -73,7 +73,6 @@ public class Settings {
                 .apply();
     }
 
-
     public Locale getLocale() {
         String lang = getString(R.string.settings_key_lang, R.string.settings_default_lang);
 
@@ -145,6 +144,14 @@ public class Settings {
 
     public boolean getBlockAutofill() {
         return getBoolean(R.string.settings_key_block_autofill, false);
+    }
+
+    public String getLocalBackupDir() {
+        return getString(R.string.settings_key_backup_dir, R.string.empty_string);
+    }
+
+    public void setLocalBackupDir(String localBackupDir) {
+        setString(R.string.settings_key_backup_dir, localBackupDir);
     }
 
 

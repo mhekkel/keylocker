@@ -130,10 +130,16 @@
     <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
     <string name="settings_title_tap_single">Single tap</string>
     <string name="settings_title_tap_double">Double tap</string>
+    <string name="settings_key_backup_dir">pref_backup_dir</string>
+    <string name="empty_string" />
+    <string name="prefs_backup_options_title">Backup options</string>
+    <string name="settings_desc_backup_location_set">Backup dir set</string>
+    <string name="settings_desc_backup_location_not_set">Backup location not set yet</string>
+    <string name="settings_title_backup_location">Local backup location</string>
 
     <string-array name="settings_entries_tap">
         <item>Nothing</item>
-        <item>Reveal/Hide</item>
+        <item>Edit</item>
         <item>Copy</item>
         <item>Copy and go to background</item>
         <item>Share as Keystrokes</item>

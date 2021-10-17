@@ -1,61 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference android:title="@string/pref_title_locker_password">
-        <intent android:action="com.hekkelman.keylocker.ChangeMainPasswordActivity" />
-    </Preference>
+<!--    <Preference app:title="@string/pref_title_locker_password">-->
+<!--        <intent app:action="com.hekkelman.keylocker.ChangeMainPasswordActivity" />-->
+<!--    </Preference>-->
 
-    <PreferenceCategory android:title="@string/settings_category_title_ui" android:key="@string/settings_key_cat_ui">
+    <PreferenceCategory app:title="@string/settings_category_title_ui" app:key="@string/settings_key_cat_ui">
         <ListPreference
-            android:key="@string/settings_key_tap_single"
-            android:title="@string/settings_title_tap_single"
-            android:summary="%s"
-            android:entries="@array/settings_entries_tap"
-            android:entryValues="@array/settings_values_tap"
-            android:defaultValue="@string/settings_default_tap_single" />
+            app:key="@string/settings_key_tap_single"
+            app:title="@string/settings_title_tap_single"
+            app:summary="%s"
+            app:entries="@array/settings_entries_tap"
+            app:entryValues="@array/settings_values_tap"
+            app:defaultValue="@string/settings_default_tap_single" />
 
         <ListPreference
-            android:key="@string/settings_key_tap_double"
-            android:title="@string/settings_title_tap_double"
-            android:summary="%s"
-            android:entries="@array/settings_entries_tap"
-            android:entryValues="@array/settings_values_tap"
-            android:defaultValue="@string/settings_default_tap_double" />
+            app:key="@string/settings_key_tap_double"
+            app:title="@string/settings_title_tap_double"
+            app:summary="%s"
+            app:entries="@array/settings_entries_tap"
+            app:entryValues="@array/settings_values_tap"
+            app:defaultValue="@string/settings_default_tap_double" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pref_password_generator">
+        app:title="@string/prefs_backup_options_title">
+
+        <Preference
+            app:key="@string/settings_key_backup_dir"
+            app:title="@string/settings_title_backup_location"
+            app:summary="@string/settings_desc_backup_location_not_set" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/pref_password_generator"
+        app:initialExpandedChildrenCount="1">
 
         <EditTextPreference
-            android:defaultValue="8"
-            android:inputType="number"
-            android:key="password-length"
-            android:maxLines="1"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/pref_title_password_length" />
+            app:defaultValue="8"
+            app:key="password-length"
+            app:maxLines="1"
+            app:singleLine="true"
+            app:useSimpleSummaryProvider="true"
+            app:title="@string/pref_title_password_length" />
 
         <SwitchPreference
-            android:defaultValue="true"
-            android:key="password-no-ambiguous"
-            android:summary="@string/pref_description_ambiguous"
-            android:title="@string/pref_title_no_ambiguous" />
+            app:defaultValue="true"
+            app:key="password-no-ambiguous"
+            app:summary="@string/pref_description_ambiguous"
+            app:title="@string/pref_title_no_ambiguous" />
 
         <SwitchPreference
-            android:defaultValue="true"
-            android:key="password-include-capitals"
-            android:title="@string/pref_title_include_capitals" />
+            app:defaultValue="true"
+            app:key="password-include-capitals"
+            app:title="@string/pref_title_include_capitals" />
 
         <SwitchPreference
-            android:defaultValue="true"
-            android:key="password-include-digits"
-            android:title="@string/pref_title_include_digits" />
+            app:defaultValue="true"
+            app:key="password-include-digits"
+            app:title="@string/pref_title_include_digits" />
 
         <SwitchPreference
-            android:defaultValue="true"
-            android:key="password-include-symbols"
-            android:title="@string/pref_title_include_symbols" />
+            app:defaultValue="true"
+            app:key="password-include-symbols"
+            app:title="@string/pref_title_include_symbols" />
 
 
     </PreferenceCategory>
