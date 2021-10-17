@@ -1,5 +1,6 @@
 package com.hekkelman.keylocker.View;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.ColorFilter;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
@@ -101,6 +101,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 		}
 	}
 
+	@SuppressLint("NotifyDataSetChanged")
 	public void loadEntries() {
 		keys = KeyDb.getKeys();
 		notifyDataSetChanged();
@@ -262,6 +263,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 			return results;
 		}
 
+		@SuppressLint("NotifyDataSetChanged")
 		@Override
 		protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
 			keys = (List<Key>) filterResults.values;

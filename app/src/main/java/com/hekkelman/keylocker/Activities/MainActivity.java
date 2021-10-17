@@ -415,6 +415,11 @@ public class MainActivity extends BaseActivity
     }
 
     private void syncWithSDCard() {
+        if (settings.getLocalBackupDir().isEmpty()) {
+            Toast.makeText(this, R.string.backup_toast_no_location, Toast.LENGTH_LONG).show();
+            return;
+        }
+
 //		final BaseApplication app = (BaseApplication) getApplication();
 //		if (isExternalStorageWritable()) {
 //			Synchronize.syncWithSDCard(mSyncHandler, app);
