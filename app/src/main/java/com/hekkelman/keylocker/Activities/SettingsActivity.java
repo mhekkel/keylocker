@@ -1,6 +1,7 @@
 package com.hekkelman.keylocker.Activities;
 
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -79,8 +80,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         public void requestBackupAccess() {
             String uri = settings.getLocalBackupDir();
-            if (uri.isEmpty())
-                uri = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "KeyLocker").toURI().toString();
 
             // Choose a directory using the system's file picker.
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -92,6 +91,7 @@ public class SettingsActivity extends AppCompatActivity {
             selectBackupDirResult.launch(intent);
         }
 
+        @SuppressLint("WrongConstant")
         protected void onSelectBackupDirResult(ActivityResult result) {
             Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
             backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
@@ -100,6 +100,13 @@ public class SettingsActivity extends AppCompatActivity {
                 Intent data = result.getData();
                 Uri treeUri = data.getData();
                 if (treeUri != null) {
+                    final int takeFlags = data.getFlags()
+                            & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                    // Check for the freshest data.
+                    getActivity().getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
+
                     settings.setLocalBackupDir(treeUri.toString());
                     backupLocation.setSummary(R.string.settings_desc_backup_location_set);
                 }

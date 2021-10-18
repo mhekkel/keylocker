@@ -1,9 +1,13 @@
 package com.hekkelman.keylocker.datamodel;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
@@ -15,12 +19,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.simpleframework.xml.Serializer;
@@ -157,6 +163,44 @@ public class KeyDb {
 		}
 	}
 
+	public static void synchronize(Context context, Uri backupDir, String password) throws KeyDbException {
+		synchronized (keyDbLock) {
+			if (TextUtils.isEmpty(password))
+				password = sInstance.password.toString();
+
+			DocumentFile dir = DocumentFile.fromTreeUri(context, backupDir);
+			if (dir == null)
+				throw new MissingFileException();
+
+			KeyDb backup = new KeyDb(password.toCharArray());
+
+			DocumentFile file = dir.findFile(KEY_DB_NAME);
+			if (file != null) {
+				try (InputStream is = context.getContentResolver().openInputStream(file.getUri())) {
+					backup.read(is);
+				} catch (IOException e) {
+					throw new KeyDbRuntimeException(e);
+				}
+			}
+
+			boolean changed = sInstance.synchronize(backup);
+			sInstance.write();
+
+			if (changed) {
+				if (file == null)
+					file = dir.createFile("application/x-keylocker", KEY_DB_NAME);
+				if (file == null)
+					throw new MissingFileException();
+
+				try (OutputStream os = context.getContentResolver().openOutputStream(file.getUri())) {
+					backup.write(os);
+				} catch (IOException e) {
+					throw new KeyDbRuntimeException(e);
+				}
+			}
+		}
+	}
+
 	// Private interface
 
 	// constructor, regular key db file
@@ -173,7 +217,7 @@ public class KeyDb {
 	}
 
 	// constructor backup key db file
-	private KeyDb(char[] password) throws KeyDbException
+	public KeyDb(char[] password) throws KeyDbException
 	{
 		this.password = password;
 		this.file = null;
@@ -191,7 +235,7 @@ public class KeyDb {
 		}
 	}
 
-	private void read(InputStream input) throws KeyDbException {
+	public void read(InputStream input) throws KeyDbException {
 		InputStream is = EncryptedData.decrypt(this.password, input);
 
 		try {
@@ -238,16 +282,16 @@ public class KeyDb {
 			db.write();
 	}
 
-	private void synchronize(InputStream file) throws KeyDbException {
+	private boolean synchronize(InputStream file) throws KeyDbException {
 		KeyDb db = new KeyDb(this.password, null);
 		db.read(file);
-		synchronize(db);
+		return synchronize(db);
 	}
 
-	private void synchronize(InputStream file, char[] password) throws KeyDbException {
+	private boolean synchronize(InputStream file, char[] password) throws KeyDbException {
 		KeyDb db = new KeyDb(password, null);
 		db.read(file);
-		synchronize(db);
+		return synchronize(db);
 	}
 
 	private boolean synchronize(KeyDb db) throws KeyDbException {

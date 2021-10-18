@@ -137,6 +137,7 @@
     <string name="settings_desc_backup_location_not_set">Backup location not set yet</string>
     <string name="settings_title_backup_location">Local backup location</string>
     <string name="backup_toast_no_location">Please select a backup location first in settings</string>
+    <string name="sync_task_cancelled">Synchronisation was cancelled</string>
 
     <string-array name="settings_entries_tap">
         <item>Nothing</item>

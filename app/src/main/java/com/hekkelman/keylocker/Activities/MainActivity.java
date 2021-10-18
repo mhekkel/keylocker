@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -35,13 +36,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.hekkelman.keylocker.BaseApplication;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.Tasks.SaveKeyTask;
+import com.hekkelman.keylocker.Tasks.SyncSDTask;
 import com.hekkelman.keylocker.Utilities.Synchronize;
 import com.hekkelman.keylocker.View.KeyCardViewAdapter;
+import com.hekkelman.keylocker.View.SimpleDoubleClickListener;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
 import java.io.File;
 
-public class MainActivity extends BaseActivity
+public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private KeyCardViewAdapter adapter;
@@ -100,13 +104,10 @@ public class MainActivity extends BaseActivity
         if (mi != null) mi.setChecked(true);
 
 		adapter = new KeyCardViewAdapter(this);
-		adapter.setCallback(new KeyCardViewAdapter.KeyCardViewCallback() {
-            @Override
-            public void onEditKey(String keyID) {
-                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-                intent.putExtra("key-id", keyID);
-                editKeyResult.launch(intent);
-            }
+		adapter.setCallback(keyID -> {
+            Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+            intent.putExtra("key-id", keyID);
+            editKeyResult.launch(intent);
         });
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -295,19 +296,6 @@ public class MainActivity extends BaseActivity
 //        return result || super.onOptionsItemSelected(item);
 //    }
 
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -415,16 +403,52 @@ public class MainActivity extends BaseActivity
     }
 
     private void syncWithSDCard() {
-        if (settings.getLocalBackupDir().isEmpty()) {
-            Toast.makeText(this, R.string.backup_toast_no_location, Toast.LENGTH_LONG).show();
-            return;
-        }
+        String backupDir = settings.getLocalBackupDir();
+        Uri backupDirUri = Uri.parse(backupDir);
+
+        SyncSDTask syncSDTask = new SyncSDTask(this, backupDirUri, "geheim");
+        startBackgroundTask(syncSDTask);
+
 
 //		final BaseApplication app = (BaseApplication) getApplication();
 //		if (isExternalStorageWritable()) {
 //			Synchronize.syncWithSDCard(mSyncHandler, app);
 //		}
     }
+
+    @Override
+    void onTaskResult(SyncSDTask.Result result) {
+        if (result.synced) {
+            Toast.makeText(this, R.string.sync_successful, Toast.LENGTH_SHORT).show();
+            adapter.loadEntries();
+        } else if (result.needPassword) {
+            final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
+            new AlertDialog.Builder(MainActivity.this)
+                    .setView(view)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        EditText pw = view.findViewById(R.id.dlog_password);
+
+                        String backupDir = settings.getLocalBackupDir();
+                        Uri backupDirUri = Uri.parse(backupDir);
+
+                        SyncSDTask syncSDTask = new SyncSDTask(MainActivity.this, backupDirUri, pw.getText().toString());
+                        startBackgroundTask(syncSDTask);
+                    })
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+
+                    })
+                    .show();
+        } else {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(R.string.dlog_save_failed_title)
+                    .setMessage(getString(R.string.dlog_save_failed_msg) + result.errorMessage)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
+    }
+
+
 
 //    protected void onPostExecute(final SyncResult result) {
 //
