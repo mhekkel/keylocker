@@ -14,14 +14,13 @@ public class SyncSDTask extends UiBasedBackgroundTask<SyncSDTask.Result> {
 
     private final Context context;
     private final Uri backupDir;
-    private final String backupPassword;
+    private final char[] backupPassword;
 
     public SyncSDTask(Context context, Uri backupDir, String backupPassword) {
         super(Result.failure(context.getString(R.string.sync_task_cancelled)));
 
         this.context = context;
-        this.backupPassword = backupPassword;
-//        this.backupFile = backupDir.buildUpon().appendPath(KeyDb.KEY_DB_NAME).build();
+        this.backupPassword = backupPassword != null ? backupPassword.toCharArray() : null;
         this.backupDir = backupDir;
     }
 

@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
 import com.hekkelman.keylocker.R;
@@ -28,7 +29,7 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
         final EditText pw1 = (EditText)findViewById(R.id.password_1);
         final EditText pw2 = (EditText)findViewById(R.id.password_2);
 
-        final Switch sw = (Switch) findViewById(R.id.numeric_cb);
+        final SwitchCompat sw = findViewById(R.id.numeric_cb);
 
         sw.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
@@ -57,17 +58,17 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
                         String password_2 = pw2.getText().toString();
 
                         if (password_1.length() < 5)
-                            pw1.setError("Password is too short");
+                            pw1.setError(getString(R.string.password_too_short));
                         else if (password_1.equals(password_2) == false)
-                            pw2.setError("Passwords do not match");
+                            pw2.setError(getString(R.string.passwords_do_not_match));
                         else {
                             try {
                                 KeyDb.changePassword(password_1.toCharArray());
                                 finish();
                             } catch (Exception e) {
                                 new AlertDialog.Builder(ChangeMainPasswordActivity.this)
-                                        .setTitle("Creating a Locker Failed")
-                                        .setMessage("Somehow, KeyLocker failed to create a new Locker file, the error is: " + e.getMessage())
+                                        .setTitle(R.string.change_password_failed_title)
+                                        .setMessage(getString(R.string.change_password_failed_message) + e.getMessage())
                                         .setIcon(android.R.drawable.ic_dialog_alert)
                                         .show();
                             }

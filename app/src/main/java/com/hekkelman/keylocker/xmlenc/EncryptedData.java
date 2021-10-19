@@ -27,83 +27,80 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
-@Root(name="EncryptedData")
-@Namespace(reference="http://www.w3.org/2001/04/xmlenc#", prefix="x")
-public class EncryptedData
-{
-	private static final int KEY_BYTE_SIZE = 16;
-	
-	@Attribute(name="Type")
-	private static final String type = "http://www.w3.org/2001/04/xmlenc#Element";
+@Root(name = "EncryptedData")
+@Namespace(reference = "http://www.w3.org/2001/04/xmlenc#", prefix = "x")
+public class EncryptedData {
+    private static final int KEY_BYTE_SIZE = 16;
 
-	@Path("x:EncryptionMethod")
-	@Attribute(name="Algorithm")
-	private static final String algorithm = "http://www.w3.org/2009/xmlenc11#aes256-cbc";
+    @Attribute(name = "Type")
+    private static final String type = "http://www.w3.org/2001/04/xmlenc#Element";
 
-	@Element(name="KeyInfo")
-	private KeyInfo keyInfo;
-	
-	@Path("x:CipherData")
-	@Element(name="CipherValue")
-	@Namespace(reference="http://www.w3.org/2001/04/xmlenc#", prefix="x")
-	private String value;
-	
-	// constructor
-	private EncryptedData()
-	{
-		this.keyInfo = new KeyInfo();
-		this.value = null;
-	}
+    @Path("x:EncryptionMethod")
+    @Attribute(name = "Algorithm")
+    private static final String algorithm = "http://www.w3.org/2009/xmlenc11#aes256-cbc";
 
-	static public InputStream decrypt(char[] password, InputStream is) throws KeyDbException {
-		byte[] data = new byte[0];
-		Cipher cipher = null;
+    @Element(name = "KeyInfo")
+    private KeyInfo keyInfo;
 
-		try {
-			Serializer serializer = new Persister();
-			EncryptedData encData = serializer.read(EncryptedData.class, is);
+    @Path("x:CipherData")
+    @Element(name = "CipherValue")
+    @Namespace(reference = "http://www.w3.org/2001/04/xmlenc#", prefix = "x")
+    private String value;
 
-			Key key = encData.keyInfo.getKey(password, false);
+    // constructor
+    private EncryptedData() {
+        this.keyInfo = new KeyInfo();
+        this.value = null;
+    }
 
-			data = Base64.decode(encData.value, Base64.DEFAULT);
-			byte[] iv = new byte[KEY_BYTE_SIZE];
-			System.arraycopy(data, 0, iv, 0, KEY_BYTE_SIZE);
+    static public InputStream decrypt(char[] password, InputStream is) throws KeyDbException {
+        byte[] data;
+        Cipher cipher;
 
-			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        try {
+            Serializer serializer = new Persister();
+            EncryptedData encData = serializer.read(EncryptedData.class, is);
 
-			cipher.init(Cipher.DECRYPT_MODE,
+            Key key = encData.keyInfo.getKey(password, false);
+
+            data = Base64.decode(encData.value, Base64.DEFAULT);
+            byte[] iv = new byte[KEY_BYTE_SIZE];
+            System.arraycopy(data, 0, iv, 0, KEY_BYTE_SIZE);
+
+            cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+            cipher.init(Cipher.DECRYPT_MODE,
                     new SecretKeySpec(key.getEncoded(), "AES"),
                     new IvParameterSpec(iv));
-		} catch (Exception e) {
-			throw new KeyDbRuntimeException(e);
-		}
+        } catch (Exception e) {
+            throw new KeyDbRuntimeException(e);
+        }
 
-		return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
-	}
-	
-	static public void encrypt(char[] password, InputStream data, OutputStream os, boolean isBackup) throws KeyDbException {
-		try {
-			EncryptedData encData = new EncryptedData();
+        return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
+    }
 
-			byte[] iv = new byte[KEY_BYTE_SIZE];
+    static public void encrypt(char[] password, InputStream data, OutputStream os, boolean isBackup) throws KeyDbException {
+        try {
+            EncryptedData encData = new EncryptedData();
 
-			SecureRandom random = new SecureRandom();
-			random.nextBytes(iv);
+            byte[] iv = new byte[KEY_BYTE_SIZE];
 
-			ByteArrayOutputStream bs = new ByteArrayOutputStream();
-			bs.write(iv);
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(iv);
 
-			Key key = encData.keyInfo.getKey(password, isBackup);
+            ByteArrayOutputStream bs = new ByteArrayOutputStream();
+            bs.write(iv);
 
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE,
+            Key key = encData.keyInfo.getKey(password, isBackup);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE,
                     new SecretKeySpec(key.getEncoded(), "AES"),
                     new IvParameterSpec(iv));
 
-			OutputStream cs = new CipherOutputStream(bs, cipher);
+            OutputStream cs = new CipherOutputStream(bs, cipher);
 
-			for (;;)
-            {
+            for (; ; ) {
                 byte[] b = new byte[16];
 
                 int l = data.read(b);
@@ -113,14 +110,14 @@ public class EncryptedData
                 if (l < 16)
                     break;
             }
-			cs.close();
+            cs.close();
 
-			encData.value = Base64.encodeToString(bs.toByteArray(), Base64.DEFAULT);
+            encData.value = Base64.encodeToString(bs.toByteArray(), Base64.DEFAULT);
 
-			Serializer serializer = new Persister();
-			serializer.write(encData, os);
-		} catch (Exception e) {
-			throw new KeyDbRuntimeException(e);
-		}
-	}
+            Serializer serializer = new Persister();
+            serializer.write(encData, os);
+        } catch (Exception e) {
+            throw new KeyDbRuntimeException(e);
+        }
+    }
 }

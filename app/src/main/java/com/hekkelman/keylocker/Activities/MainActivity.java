@@ -406,9 +406,8 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         String backupDir = settings.getLocalBackupDir();
         Uri backupDirUri = Uri.parse(backupDir);
 
-        SyncSDTask syncSDTask = new SyncSDTask(this, backupDirUri, "geheim");
+        SyncSDTask syncSDTask = new SyncSDTask(this, backupDirUri, null);
         startBackgroundTask(syncSDTask);
-
 
 //		final BaseApplication app = (BaseApplication) getApplication();
 //		if (isExternalStorageWritable()) {

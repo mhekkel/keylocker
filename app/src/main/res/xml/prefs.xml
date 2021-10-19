@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<!--    <Preference app:title="@string/pref_title_locker_password">-->
-<!--        <intent app:action="com.hekkelman.keylocker.ChangeMainPasswordActivity" />-->
-<!--    </Preference>-->
+    <PreferenceCategory
+        app:title="Main keylocker password">
+
+        <Preference
+            app:title="@string/pref_title_locker_password"
+            app:key="@string/settings_key_main_password" />
+    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/settings_category_title_ui" app:key="@string/settings_key_cat_ui">
         <ListPreference
@@ -25,6 +29,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:key="@string/settings_key_backup_cat"
         app:title="@string/prefs_backup_options_title">
 
         <Preference
@@ -35,6 +40,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:key="@string/settings_key_password_cat"
         app:title="@string/pref_password_generator"
         app:initialExpandedChildrenCount="1">
 

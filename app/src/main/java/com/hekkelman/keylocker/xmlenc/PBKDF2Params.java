@@ -66,8 +66,9 @@ public class PBKDF2Params {
 	
 	public Key getKey(char[] password, boolean isBackup) {
 		try {
-			int iterationCount = isBackup ? BACKUP_ITERATION_COUNT : this.iterationCount;
-			KeySpec ks = new PBEKeySpec(password, this._salt, iterationCount, 16 * 8);
+			if (isBackup)
+					this.iterationCount = BACKUP_ITERATION_COUNT;
+			KeySpec ks = new PBEKeySpec(password, this._salt, this.iterationCount, 16 * 8);
 			SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			return f.generateSecret(ks);
 		}

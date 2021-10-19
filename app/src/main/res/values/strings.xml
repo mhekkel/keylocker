@@ -138,6 +138,14 @@
     <string name="settings_title_backup_location">Local backup location</string>
     <string name="backup_toast_no_location">Please select a backup location first in settings</string>
     <string name="sync_task_cancelled">Synchronisation was cancelled</string>
+    <string name="settings_key_backup_cat">pref_backup_cat</string>
+    <string name="settings_key_password_cat">pref_password_cat</string>
+    <string name="settings_key_main_password">pref_main_password</string>
+    <string name="change_password_failed">Changing the main password failed</string>
+    <string name="change_password_failed_message">\"Somehow, KeyLocker failed to change the password, the error is: \"</string>
+    <string name="change_password_failed_title">Creating a Locker Failed</string>
+    <string name="password_too_short">This password is too short</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
 
     <string-array name="settings_entries_tap">
         <item>Nothing</item>

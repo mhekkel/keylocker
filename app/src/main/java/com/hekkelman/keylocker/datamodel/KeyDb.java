@@ -163,16 +163,16 @@ public class KeyDb {
 		}
 	}
 
-	public static void synchronize(Context context, Uri backupDir, String password) throws KeyDbException {
+	public static void synchronize(Context context, Uri backupDir, char[] password) throws KeyDbException {
 		synchronized (keyDbLock) {
-			if (TextUtils.isEmpty(password))
-				password = sInstance.password.toString();
+			if (password == null)
+				password = sInstance.password;
 
 			DocumentFile dir = DocumentFile.fromTreeUri(context, backupDir);
 			if (dir == null)
 				throw new MissingFileException();
 
-			KeyDb backup = new KeyDb(password.toCharArray());
+			KeyDb backup = new KeyDb(password);
 
 			DocumentFile file = dir.findFile(KEY_DB_NAME);
 			if (file != null) {
@@ -236,9 +236,7 @@ public class KeyDb {
 	}
 
 	public void read(InputStream input) throws KeyDbException {
-		InputStream is = EncryptedData.decrypt(this.password, input);
-
-		try {
+		try (InputStream is = EncryptedData.decrypt(this.password, input)) {
 			Serializer serializer = new Persister();
 			keyChain = serializer.read(KeyChain.class, is);
 		} catch (Exception e) {

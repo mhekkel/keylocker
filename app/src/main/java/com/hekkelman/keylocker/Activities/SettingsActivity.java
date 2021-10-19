@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,6 +19,8 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.Utilities.Settings;
+import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.io.File;
 
@@ -52,6 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
     public static class SettingsFragment extends PreferenceFragmentCompat {
         private Settings settings;
         private ActivityResultLauncher<Intent> selectBackupDirResult;
+        private ActivityResultLauncher<Intent> changeMainPasswordResult;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -59,8 +63,18 @@ public class SettingsActivity extends AppCompatActivity {
 
             this.settings = new Settings(getActivity());
 
+            changeMainPasswordResult = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(), this::onChangeMainPasswordResult);
+
             selectBackupDirResult = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(), this::onSelectBackupDirResult);
+
+            // Main password
+            Preference mainPassword = findPreference(getString(R.string.settings_key_main_password));
+            mainPassword.setOnPreferenceClickListener(preference -> {
+                requestNewMainPassword();
+                return true;
+            });
 
             // Backup location
             Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
@@ -76,6 +90,26 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
             });
 
+        }
+
+        private void requestNewMainPassword() {
+            Intent intent = new Intent(getActivity(), ChangeMainPasswordActivity.class);
+            changeMainPasswordResult.launch(intent);
+        }
+
+        private void onChangeMainPasswordResult(ActivityResult result) {
+            ;
+//            if (result.getResultCode() == RESULT_OK) {
+//                Intent data = result.getData();
+//                char[] password = data.getCharArrayExtra("new-password");
+//                if (password != null) {
+//                    try {
+//                        KeyDb.changePassword(password);
+//                    } catch (KeyDbException exception) {
+//                        Toast.makeText(getActivity(), R.string.change_password_failed, Toast.LENGTH_LONG).show();
+//                    }
+//                }
+//            }
         }
 
         public void requestBackupAccess() {

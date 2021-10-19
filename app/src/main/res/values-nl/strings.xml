@@ -103,4 +103,8 @@
     <string name="delete_key_task_cancelled">Verwijderen is niet gelukt</string>
     <string name="settings_desc_backup_location_set">Backup dir set</string>
     <string name="settings_title_backup_location">Local backup location</string>
+    <string name="change_password_failed">Changing the main password failed</string>
+    <string name="change_password_failed_title">Creating a Locker Failed</string>
+    <string name="password_too_short">This password is too short</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
 </resources>

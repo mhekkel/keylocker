@@ -1,6 +1,6 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
-- Key twee keer opgeslagen
+- Key opslaan thread safe maken
 
 - deleten van items afronden (Toast met link?)
 
@@ -8,8 +8,7 @@ Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 - Weergave en wijzigen notities
 - Foutafhandeling helemaal nalopen
 
-Eventueel:
+- Samenvoegen layout Init en ChangePassword
 
-- refactor KeyDb, van singleton naar Application member
-- Groepsgewijs in lijst plaatsen
-- Backup ondersteuning?
+- Backup ondersteuning
+
