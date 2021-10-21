@@ -308,8 +308,6 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
         } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard();
-        } else if (id == R.id.nav_sync_onedrive) {
-            syncWithOneDrive();
         } else if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
@@ -386,33 +384,23 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         }
     };
 
-    private void syncWithOneDrive() {
-//		final BaseApplication app = (BaseApplication) getApplication();
-//		final ICallback<Void> serviceCreated = new DefaultCallback<Void>(this) {
-//			@Override
-//			public void success(final Void result) {
-//				final BaseApplication app = (BaseApplication) getApplication();
-//				Synchronize.syncWithOneDrive(mSyncHandler, app);
-//			}
-//		};
-//		try {
-//			app.getOneDriveClient();
-//		} catch (final UnsupportedOperationException ignored) {
-//			app.createOneDriveClient(this, serviceCreated);
-//		}
-    }
-
     private void syncWithSDCard() {
         String backupDir = settings.getLocalBackupDir();
-        Uri backupDirUri = Uri.parse(backupDir);
 
-        SyncSDTask syncSDTask = new SyncSDTask(this, backupDirUri, null);
-        startBackgroundTask(syncSDTask);
+        if (TextUtils.isEmpty(backupDir)) {
+            Toast.makeText(this, R.string.backup_toast_no_location, Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-//		final BaseApplication app = (BaseApplication) getApplication();
-//		if (isExternalStorageWritable()) {
-//			Synchronize.syncWithSDCard(mSyncHandler, app);
-//		}
+        try {
+            Uri backupDirUri = Uri.parse(backupDir);
+
+            SyncSDTask syncSDTask = new SyncSDTask(this, backupDirUri, null);
+            startBackgroundTask(syncSDTask);
+        }
+        catch (Exception e) {
+            syncFailed(e.getMessage());
+        }
     }
 
     @Override
@@ -433,18 +421,20 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
                         SyncSDTask syncSDTask = new SyncSDTask(MainActivity.this, backupDirUri, pw.getText().toString());
                         startBackgroundTask(syncSDTask);
                     })
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-
-                    })
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
                     .show();
         } else {
-            new AlertDialog.Builder(MainActivity.this)
-                    .setTitle(R.string.dlog_save_failed_title)
-                    .setMessage(getString(R.string.dlog_save_failed_msg) + result.errorMessage)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+            syncFailed(result.errorMessage);
         }
+    }
+
+    void syncFailed(String errorMessage) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.sync_failed)
+                .setMessage(getString(R.string.sync_failed_msg) + errorMessage)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
 

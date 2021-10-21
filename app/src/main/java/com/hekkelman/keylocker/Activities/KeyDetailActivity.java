@@ -2,13 +2,16 @@ package com.hekkelman.keylocker.Activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.*;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,10 +27,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.Tasks.SaveKeyTask;
-import com.hekkelman.keylocker.Tasks.UnlockTask;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.util.Locale;
 import java.util.Random;
@@ -153,7 +154,7 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
     private void saveKey(boolean finishOnSaved) {
         String name = nameField.getText().toString();
 
-        if (name.length() == 0) {
+        if (TextUtils.isEmpty(name)) {
             nameField.setError(getString(R.string.keyNameIsRequired));
         } else {
             key.setName(name);
@@ -227,7 +228,7 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
         Random rng = new Random();
 
         boolean vowel = rng.nextBoolean();
-        boolean wasVowel = false, hasDigits = false, hasSymbols = false, hasCapitals = false;
+        boolean hasDigits = false, hasSymbols = false, hasCapitals = false;
 
         for (; ; ) {
             if (result.length() >= length) {

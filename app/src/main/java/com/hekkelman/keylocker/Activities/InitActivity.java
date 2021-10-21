@@ -18,8 +18,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 
-import java.io.File;
-
 public class InitActivity extends BaseActivity
         implements EditText.OnEditorActionListener, View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
@@ -51,14 +49,14 @@ public class InitActivity extends BaseActivity
 
         if (password_1.length() < 5)
             mPassword1.setError("Password is too short");
-        else if (password_1.equals(password_2) == false)
+        else if (!password_1.equals(password_2))
             mPassword2.setError("Passwords do not match");
         else {
             try {
                 char[] password = password_1.toCharArray();
                 KeyDb.initialize(password, getFilesDir());
                 settings.setUsePin(mPINSwitch.isChecked());
-                finishWithResult(true, password);
+                finishWithResult(password);
             } catch (Exception e) {
                 new AlertDialog.Builder(InitActivity.this)
                         .setTitle("Creating a Locker Failed")
@@ -90,15 +88,14 @@ public class InitActivity extends BaseActivity
 
     @Override
     public void onBackPressed() {
-        finishWithResult(true, null);
+        finishWithResult(null);
     }
 
-    private void finishWithResult(boolean success, char[] encryptionKey) {
+    private void finishWithResult(char[] encryptionKey) {
         Intent data = new Intent();
         if (encryptionKey != null)
             data.putExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
-        if (success)
-            setResult(RESULT_OK, data);
+        setResult(RESULT_OK, data);
         finish();
     }
 }

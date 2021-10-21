@@ -5,9 +5,9 @@
         android:id="@+id/menu_popup_edit"
         android:title="@string/menu_popup_edit" />
 
-    <item
-        android:id="@+id/menu_popup_show_password"
-        android:title="@string/menu_popup_show_password" />
+<!--    <item-->
+<!--        android:id="@+id/menu_popup_show_password"-->
+<!--        android:title="@string/menu_popup_show_password" />-->
 
     <item
         android:id="@+id/menu_popup_remove"
