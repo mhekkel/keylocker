@@ -1,0 +1,38 @@
+<svg viewBox="0 0 400 400" height="400" width="400" xmlns="http://www.w3.org/2000/svg">
+
+	<ellipse fill="#19a2de" cx="200" cy="200" rx="200" ry="200" />
+
+	<path stroke="white" fill="none" stroke-width="45" d="
+		M 110,180
+		v 0,-40
+		a 90 85 180 1 1 180 0
+		v 0,40" />
+
+	<path stroke="none" fill="white" d="
+		M 65,231
+		v 0,-26
+		a 15 15 90 0 1 15 -15
+		h 240,0
+		a 15 15 90 0 1 15 15
+		v 0,26
+		z" />
+
+	<path stroke="none" fill="white" d="
+		M 65,239
+		v 0,42
+		h 270,0
+		v 0,-42
+		z" />
+
+	<path stroke="none" fill="white" d="
+		M 65,289
+		v 0,26
+		a 15 15 90 0 0 15 15
+		h 240,0
+		a 15 15 90 0 0 15 -15
+		v 0,-26
+		z" />
+
+
+</svg>
+  

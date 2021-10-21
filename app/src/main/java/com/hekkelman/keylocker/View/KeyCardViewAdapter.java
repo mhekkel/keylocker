@@ -25,6 +25,7 @@ import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
+import java.util.Collections;
 import java.util.List;
 
 // New CardView/RecycleView based interface
@@ -266,7 +267,7 @@ public class KeyCardViewAdapter extends RecyclerView.Adapter<KeyCardViewAdapter.
 		@SuppressLint("NotifyDataSetChanged")
 		@Override
 		protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-			keys = (List<Key>) filterResults.values;
+			keys = Collections.unmodifiableList((List<Key>) filterResults.values);
 			notifyDataSetChanged();
 		}
 	}

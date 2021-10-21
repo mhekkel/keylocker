@@ -39,10 +39,10 @@ android {
         fdroid {
             dimension = 'market'
         }
-        play {
-            dimension = 'market'
-            versionNameSuffix = "-play"
-        }
+//        play {
+//            dimension = 'market'
+//            versionNameSuffix = "-play"
+//        }
     }
 
     compileOptions {

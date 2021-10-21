@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,7 +78,7 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
                 new AlertDialog.Builder(KeyDetailActivity.this)
                         .setTitle(R.string.dlog_missing_key_title)
                         .setMessage(R.string.dlog_missing_key_msg)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 finish();
                             }
@@ -123,8 +123,8 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
             new AlertDialog.Builder(KeyDetailActivity.this)
                     .setTitle(R.string.dlog_discard_changes_title)
                     .setMessage(R.string.dlog_discard_changes_msg)
-                    .setPositiveButton(android.R.string.yes, (dialog, which) -> finish())
-                    .setNegativeButton(android.R.string.no, (dialog, which) -> {})
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
                     .setNeutralButton(R.string.dialog_save_key_before_close, (dialog, which) -> saveKey(true))
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();

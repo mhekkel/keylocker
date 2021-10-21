@@ -145,15 +145,9 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 			new AlertDialog.Builder(UnlockActivity.this)
 					.setTitle(R.string.dlog_delete_locker_title)
 					.setMessage(R.string.dlog_delete_locker_msg)
-					.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							resetLocker();
-						}
-					})
-					.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							// do nothing
-						}
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> resetLocker())
+					.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+						// do nothing
 					})
 					.setIcon(android.R.drawable.ic_dialog_alert)
 					.show();
