@@ -6,7 +6,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Namespace;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.core.Validate;
 
 @Root
 public class KeyDerivationMethod {

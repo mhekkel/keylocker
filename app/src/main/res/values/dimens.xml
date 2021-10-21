@@ -11,6 +11,5 @@
     <dimen name="margin_key_input_field_with_button">60dp</dimen>
 
     <dimen name="dlog_horizontal_margin">8dp</dimen>
-    <dimen name="dlog_vertical_margin">8dp</dimen>
 
 </resources>

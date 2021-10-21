@@ -1,10 +1,8 @@
 package com.hekkelman.keylocker.datamodel;
 
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -18,18 +16,14 @@ public class KeyChain {
 	private List<Note> notes;
 	
 	public KeyChain() {
-		this.keys = new Vector<Key>();
-		this.notes = new Vector<Note>();
+		this.keys = new Vector<>();
+		this.notes = new Vector<>();
 	}
 
 	public List<Key> getKeys() {
 		return keys;
 	}
 
-//	public void setKeys(List<Key> keys) {
-//		this.keys = keys;
-//	}
-//
 	public void addKey(Key key) {
 		if (! this.keys.contains(key)) this.keys.add(key);
 	}

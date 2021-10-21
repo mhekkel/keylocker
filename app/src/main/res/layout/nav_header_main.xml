@@ -10,7 +10,6 @@
 			  android:gravity="bottom">
 
 	<ImageView
-		android:id="@+id/imageView"
 		android:layout_width="75dp"
 		android:layout_height="75dp"
 		android:contentDescription="@string/keylocker_logo"
@@ -23,7 +22,7 @@
 			  android:textStyle="bold"/>
 
 	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-			  android:text="@string/drawer_addr" android:id="@+id/textView"
-			  style="@style/DrawerTheme"/>
+			  android:text="@string/drawer_addr"
+		style="@style/DrawerTheme"/>
 
 </LinearLayout>

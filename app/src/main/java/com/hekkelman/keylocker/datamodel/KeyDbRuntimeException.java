@@ -1,7 +1,5 @@
 package com.hekkelman.keylocker.datamodel;
 
-import android.os.Build;
-
 import androidx.annotation.Nullable;
 
 /**

@@ -12,7 +12,6 @@
     <string name="action_unlock_short">Unlock</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
     <string name="title_activity_key_detail">Key</string>
 
     <string name="lastModifiedTemplate">Last modified: %s</string>
@@ -52,7 +51,6 @@
 
     <string name="title_activity_settings">Settings</string>
 
-    <string name="pref_title_display_name">Display name</string>
     <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ie;o;oh;oo;u</string>
     <string name="consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
     <string name="pref_title_password_length">Password Length</string>
@@ -62,7 +60,6 @@
     <string name="pref_title_include_symbols">Include Symbols</string>
     <string name="pref_title_include_digits">Include Digits</string>
     <string name="pref_password_generator">Password generator</string>
-    <string name="prefs_change_pw">Change Main Password</string>
     <string name="pref_title_locker_password">Change Main Password</string>
     <string name="title_activity_change_main_password">Main Password</string>
     <string name="pref_change_password_text">You can change the main password for KeyLocker here. You can choose between
@@ -71,37 +68,22 @@
     <string name="change_pw_hint_1">New password</string>
     <string name="change_pw_hint_2">New password (validate)</string>
     <string name="change_pw_btn">Change</string>
-    <string name="init_caption_2" translatable="false"></string>
     <string name="dlog_missing_key_title">Missing Key</string>
     <string name="dlog_missing_key_msg">The key could not be found.</string>
-    <string name="toast_corrupt_file">Key Locker file seems to be corrupt</string>
     <string name="sync_successful">Sync successful</string>
     <string name="sync_mkdir_exception">could not create directory on SDCard</string>
     <string name="sync_failed">Sync failed</string>
     <string name="sync_failed_msg">Saving the new data failed with message:</string>
     <string name="sync_cancelled">Sync cancelled</string>
     <string name="save_successful">Stored</string>
-    <string name="required_msg">A %s is required</string>
     <string name="dlog_save_failed_title">Save Failed</string>
     <string name="dlog_save_failed_msg">Saving the new data failed with message:</string>
     <string name="dlog_discard_changes_msg">You are about to discard the changes. Continue?</string>
     <string name="dlog_discard_changes_title">Not saved yet</string>
     <string name="action_synchronize">Synchronize</string>
-    <string name="action_undelete">Undo delete</string>
     <string name="search_hint">Search Keys</string>
     <string name="action_search">Search</string>
     <string name="action_help">Help and Feedback</string>
-    <string name="dlog_caption">Please enter the password for the synchronized keylocker file.</string>
-    <string name="wifi_unavailable_error_message">Unable to access the internet, please visit connection settings
-    </string>
-    <string name="error_title">Error!</string>
-    <string name="close">Close</string>
-    <string name="oneDriveSyncProgressTitle">Synchronizing with OneDrive</string>
-    <string name="oneDriveSyncProgressMessageInit">Initializing</string>
-    <string name="oneDriveSyncProgressMessage2">Locating keys file</string>
-    <string name="oneDriveSyncProgressMessage3">Downloading old keys file</string>
-    <string name="oneDriveSyncProgressMessage4">Synchronizing files</string>
-    <string name="oneDriveSyncProgressMessage5">Saving keys file</string>
     <string name="sync_permission_denied">Permission denied in settings</string>
     <string name="sync_media_not_mounted">Media not mounted</string>
     <string name="visitFailed">Is that a valid URL?</string>
@@ -110,7 +92,6 @@
     <string name="username">username</string>
     <string name="button_keycard_copy">Copy password</string>
     <string name="button_keycard_options">Edit password</string>
-    <string name="auth_msg_confirm_encryption">Please confirm authentication to generate your encryption key!</string>
     <string name="activity_unlock_title">Unlock KeyLocker</string>
     <string name="settings_key_use_pin" translatable="false">pref_use_pin</string>
     <string name="settings_key_block_accessibility" translatable="false">pref_block_accessibility</string>
@@ -123,9 +104,7 @@
     <string name="toast_copied_to_clipboard">Copied to clipboard</string>
     <string name="menu_popup_edit">Edit</string>
     <string name="menu_popup_remove">Remove</string>
-    <string name="menu_popup_show_password">Show password</string>
     <string name="save_key_task_cancelled">Saving was cancelled</string>
-    <string name="delete_key_task_cancelled">Deleting was cancelled</string>
     <string name="dialog_save_key_before_close">Save and Close</string>
     <string name="settings_category_title_ui">User interface</string>
     <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
@@ -142,7 +121,6 @@
     <string name="settings_key_backup_cat">pref_backup_cat</string>
     <string name="settings_key_password_cat">pref_password_cat</string>
     <string name="settings_key_main_password">pref_main_password</string>
-    <string name="change_password_failed">Changing the main password failed</string>
     <string name="change_password_failed_message">\"Somehow, KeyLocker failed to change the password, the error is: \"</string>
     <string name="change_password_failed_title">Creating a Locker Failed</string>
     <string name="password_too_short">This password is too short</string>

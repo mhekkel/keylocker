@@ -9,7 +9,7 @@
 		android:paddingLeft="@dimen/activity_horizontal_margin"
 		android:paddingRight="@dimen/activity_horizontal_margin"
 		android:paddingTop="@dimen/activity_vertical_margin"
-		tools:context="com.hekkelman.keylocker.Activities.InitActivity"
+		tools:context="com.hekkelman.keylocker.activities.InitActivity"
 		android:orientation="vertical"
 		android:weightSum="1">
 
@@ -17,15 +17,13 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceLarge"
-			android:text="@string/init_caption"
-			android:id="@+id/caption_1"/>
+			android:text="@string/init_caption" />
 
 	<TextView
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
 			android:text="@string/init_text"
-			android:id="@+id/explanation"
-			android:layout_weight="0.20"/>
+        android:layout_weight="0.20"/>
 
 	<androidx.appcompat.widget.SwitchCompat
 			android:layout_width="match_parent"

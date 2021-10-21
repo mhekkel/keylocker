@@ -6,7 +6,6 @@ import java.security.Key;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 
-import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 

@@ -6,7 +6,7 @@
 
     <application
         android:allowBackup="true"
-        android:backupAgent=".Utilities.BackupAgent"
+        android:backupAgent=".utilities.BackupAgent"
         android:fullBackupOnly="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -14,10 +14,11 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".Activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -32,40 +33,41 @@
         </activity>
 
         <activity
-            android:name=".Activities.UnlockActivity"
-            android:parentActivityName=".Activities.MainActivity"
+            android:name=".activities.UnlockActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:label="@string/title_activity_unlock"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".Activities.InitActivity"
+        <activity android:name=".activities.InitActivity"
             android:label="@string/title_activity_init"
-            android:parentActivityName=".Activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
-            android:name=".Activities.KeyDetailActivity"
+            android:name=".activities.KeyDetailActivity"
             android:label="@string/title_activity_key_detail"
-            android:parentActivityName=".Activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.hekkelman.keylocker.Activities.MainActivity" />
+                android:value="com.hekkelman.keylocker.activities.MainActivity" />
         </activity>
         <activity
-            android:name=".Activities.SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.hekkelman.keylocker.Activities.MainActivity" />
+                android:value="com.hekkelman.keylocker.activities.MainActivity" />
         </activity>
         <activity
-            android:name=".Activities.ChangeMainPasswordActivity"
+            android:name=".activities.ChangeMainPasswordActivity"
             android:label="@string/title_activity_change_main_password"
-            android:parentActivityName=".Activities.SettingsActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".activities.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.hekkelman.keylocker.Activities.SettingsActivity" />
+                android:value="com.hekkelman.keylocker.activities.SettingsActivity" />
 
             <intent-filter>
                 <action android:name="com.hekkelman.keylocker.ChangeMainPasswordActivity" />

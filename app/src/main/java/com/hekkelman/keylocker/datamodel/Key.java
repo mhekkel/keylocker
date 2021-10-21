@@ -3,8 +3,6 @@ package com.hekkelman.keylocker.datamodel;
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
-import java.io.Serializable;
-import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,9 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.PersistenceException;
-import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.core.Validate;
 
 @Root

@@ -1,10 +1,8 @@
 package com.hekkelman.keylocker.datamodel;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -12,7 +10,6 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,15 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
-import com.hekkelman.keylocker.Activities.KeyDetailActivity;
-import com.hekkelman.keylocker.Activities.MainActivity;
-import com.hekkelman.keylocker.Utilities.Settings;
+import com.hekkelman.keylocker.utilities.Settings;
 import com.hekkelman.keylocker.xmlenc.EncryptedData;
 
 public class KeyDb {
@@ -300,65 +294,6 @@ public class KeyDb {
 
 	// accessors
 
-//	public static void storeCachedKey(String keyID, String name, String user, String password, String url) {
-//		try {
-//			if (sInstance == null)	// cannot continue if there's no instance at all
-//				return;
-//
-//			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-//			if (cacheFile.exists())
-//				cacheFile.delete();
-//
-//			KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
-//			tempDb.storeKey(keyID, name, user, password, url);
-//		} catch (KeyDbException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//
-//	public static void removeCachedKey(String keyID) {
-//		if (sInstance == null)	// cannot continue if there's no instance at all
-//			return;
-//
-//		File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-//		if (cacheFile.exists()) {
-//			KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
-//			Key key = tempDb.getKey(keyID);
-//
-//			if (key != null)
-//				Log.d("debug", "Key is not stored in temp file");
-//
-//			cacheFile.delete();
-//		}
-//	}
-//
-//	public static Key getCachedKey() {
-//		Key key = null;
-//
-//		if (sInstance != null) {    // cannot continue if there's no instance at all
-//			File cacheFile = new File(sInstance.file.getParent(), KEY_DB_TEMP_NAME);
-//			if (cacheFile.exists()) {
-//				KeyDb tempDb = new KeyDb(sInstance.password, cacheFile);
-//
-//				List<Key> keys = tempDb.getKeys();
-//				if (keys.isEmpty() == false)
-//					key = keys.get(0);
-//			}
-//		}
-//
-//		return key;
-//	}
-//
-//	public static void release() {
-//		if (--sRefCount == 0)
-//			sInstance = null;
-//	}
-//
-//	public static void reference() {
-//		assert(sInstance != null);
-//		++sRefCount;
-//	}
-//
 //	public KeyDb undeleteAll() throws KeyDbException {
 //		for (Key k : keyChain.getKeys()) {
 //			if (k.isDeleted()) {
