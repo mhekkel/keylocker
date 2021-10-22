@@ -1,14 +1,13 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
-- Key opslaan thread safe maken
-
 - deleten van items afronden (Toast met link?)
 
-- Synchroniseren over netwerk
 - Weergave en wijzigen notities
 - Foutafhandeling helemaal nalopen
-
 - Samenvoegen layout Init en ChangePassword
-
 - Backup ondersteuning
+
+Volgende versie
+
+- Synchroniseren over netwerk
 

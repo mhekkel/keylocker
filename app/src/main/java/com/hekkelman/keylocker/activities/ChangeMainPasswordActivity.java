@@ -6,13 +6,13 @@ import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.datamodel.KeyDb;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
-
-import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
 
 public class ChangeMainPasswordActivity extends AppCompatActivity {
 

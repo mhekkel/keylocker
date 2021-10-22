@@ -37,7 +37,6 @@ public class SyncSDTask extends UiBasedBackgroundTask<SyncSDTask.Result> {
     }
 
     public static class Result {
-        @Nullable
         public final boolean synced;
         public final boolean needPassword;
         public final String errorMessage;

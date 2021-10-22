@@ -157,12 +157,11 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
         if (TextUtils.isEmpty(name)) {
             nameField.setError(getString(R.string.keyNameIsRequired));
         } else {
-            key.setName(name);
-            key.setUser(userField.getText().toString());
-            key.setPassword(passwordField.getText().toString());
-            key.setUrl(urlField.getText().toString());
-
-            SaveKeyTask task = new SaveKeyTask(this, key, finishOnSaved);
+            SaveKeyTask task = new SaveKeyTask(this, key, name,
+                    userField.getText().toString(),
+                    passwordField.getText().toString(),
+                    urlField.getText().toString(),
+                    finishOnSaved);
             startBackgroundTask(task);
         }
     }
@@ -302,10 +301,10 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
     }
 
     private boolean keyChanged() {
-        boolean same = (TextUtils.isEmpty(nameField.getText()) && TextUtils.isEmpty(key.getName())) || TextUtils.equals(nameField.getText(), key.getName())
-                && (TextUtils.isEmpty(userField.getText()) && TextUtils.isEmpty(key.getUser())) || TextUtils.equals(userField.getText(), key.getUser())
-                && (TextUtils.isEmpty(passwordField.getText()) && TextUtils.isEmpty(key.getPassword())) || TextUtils.equals(passwordField.getText(), key.getPassword())
-                && (TextUtils.isEmpty(urlField.getText()) && TextUtils.isEmpty(key.getUrl())) || TextUtils.equals(urlField.getText(), key.getUrl());
+        boolean same = (TextUtils.isEmpty(nameField.getText()) ? TextUtils.isEmpty(key.getName()) : TextUtils.equals(nameField.getText(), key.getName()))
+                && (TextUtils.isEmpty(userField.getText()) ? TextUtils.isEmpty(key.getUser()) : TextUtils.equals(userField.getText(), key.getUser()))
+                && (TextUtils.isEmpty(passwordField.getText()) ? TextUtils.isEmpty(key.getPassword()) : TextUtils.equals(passwordField.getText(), key.getPassword()))
+                && (TextUtils.isEmpty(urlField.getText()) ? TextUtils.isEmpty(key.getUrl()) : TextUtils.equals(urlField.getText(), key.getUrl()));
 
         return !same;
     }

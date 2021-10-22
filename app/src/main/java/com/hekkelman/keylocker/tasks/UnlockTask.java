@@ -1,12 +1,12 @@
 package com.hekkelman.keylocker.tasks;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.hekkelman.keylocker.tasks.UnlockTask.Result;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.tasks.UnlockTask.Result;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class UnlockTask extends UiBasedBackgroundTask<Result> {
 

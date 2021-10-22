@@ -2,9 +2,6 @@ package com.hekkelman.keylocker.activities;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-
-import androidx.appcompat.widget.SwitchCompat;
-
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.KeyEvent;
@@ -17,6 +14,8 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+
+import androidx.appcompat.widget.SwitchCompat;
 
 public class InitActivity extends BaseActivity
         implements EditText.OnEditorActionListener, View.OnClickListener,

@@ -1,15 +1,15 @@
 package com.hekkelman.keylocker.activities;
 
-import androidx.fragment.app.Fragment;
 import android.os.Bundle;
+
+import com.hekkelman.keylocker.tasks.UiBasedBackgroundTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
-
-import com.hekkelman.keylocker.tasks.UiBasedBackgroundTask;
 
 public abstract class BackgroundTaskActivity<Result> extends BaseActivity {
     final protected String TAG_TASK_FRAGMENT = this.getClass().getSimpleName() + ".TaskFragment";

@@ -2,22 +2,30 @@ package com.hekkelman.keylocker.tasks;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
+import androidx.annotation.NonNull;
+
 public class SaveKeyTask extends UiBasedBackgroundTask<SaveKeyTask.Result> {
 
     private final Key key;
+    private final String name;
+    private final String user;
+    private final String password;
+    private final String url;
     private final boolean finishOnSaved;
 
-    public SaveKeyTask(Context context, Key key, boolean finishOnSaved) {
+    public SaveKeyTask(Context context, Key key, String name, String user, String password, String url, boolean finishOnSaved) {
         super(Result.failure(context.getString(R.string.save_key_task_cancelled)));
 
         this.key = key;
+        this.name = name;
+        this.user = user;
+        this.password = password;
+        this.url = url;
         this.finishOnSaved = finishOnSaved;
     }
 
@@ -30,7 +38,7 @@ public class SaveKeyTask extends UiBasedBackgroundTask<SaveKeyTask.Result> {
     @NonNull
     private Result saveKey() {
         try {
-            KeyDb.setKey(this.key);
+            KeyDb.setKey(key, this.name, this.user, this.password, this.url);
             return Result.success(this.finishOnSaved);
         } catch (KeyDbException exception) {
             return Result.failure(exception.getMessage());

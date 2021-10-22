@@ -4,16 +4,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-/** Encapsulates a background task that needs to communicate back to the UI (on the main thread) to
- * provide a result. */
+/**
+ * Encapsulates a background task that needs to communicate back to the UI (on the main thread) to
+ * provide a result.
+ */
 public abstract class UiBasedBackgroundTask<Result> {
 
     private final Result mFailedResult;
@@ -28,15 +30,19 @@ public abstract class UiBasedBackgroundTask<Result> {
 
     private volatile boolean mIsCanceled = false;
 
-    /** @param failedResult The result to return if the task fails (throws an exception or returns null). */
+    /**
+     * @param failedResult The result to return if the task fails (throws an exception or returns null).
+     */
     public UiBasedBackgroundTask(@NonNull Result failedResult) {
         this.mFailedResult = failedResult;
         this.mExecutor = Executors.newSingleThreadExecutor();
         this.mMainThreadHandler = new Handler(Looper.getMainLooper());
     }
 
-    /** @param callback If null, any results which may arrive from a currently executing task will
-     *                   be stored until a new callback is set. */
+    /**
+     * @param callback If null, any results which may arrive from a currently executing task will
+     *                 be stored until a new callback is set.
+     */
     public void setCallback(@Nullable UiCallback<Result> callback) {
         synchronized (mCallbackLock) {
             // Don't bother doing anything if the task was canceled.
@@ -57,7 +63,9 @@ public abstract class UiBasedBackgroundTask<Result> {
         this.mAwaitedResult = null;
     }
 
-    /** Executed the task on a background thread. Safe to call from the main thread. */
+    /**
+     * Executed the task on a background thread. Safe to call from the main thread.
+     */
     @AnyThread
     public void execute() {
         mExecutor.execute(this::runTask);
@@ -84,10 +92,13 @@ public abstract class UiBasedBackgroundTask<Result> {
         }
     }
 
-    /** Work to be done in a background thread.
+    /**
+     * Work to be done in a background thread.
+     *
      * @return Return the result from this task's execution.
      * @throws Exception If an Exception is thrown from this task's execution, it will be logged
-     *         and the provided default Result will be returned. */
+     *                   and the provided default Result will be returned.
+     */
     @NonNull
     protected abstract Result doInBackground() throws Exception;
 
