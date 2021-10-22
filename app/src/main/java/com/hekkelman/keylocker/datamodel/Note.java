@@ -17,7 +17,7 @@ public class Note {
     private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Attribute(name = "id")
-    private final String id;
+    private String id;
 
     @Attribute(name = "timestamp")
     private String timestamp;
