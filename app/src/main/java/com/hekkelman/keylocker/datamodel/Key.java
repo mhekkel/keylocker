@@ -3,6 +3,9 @@ package com.hekkelman.keylocker.datamodel;
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
+import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyNote;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -18,20 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Root
-public class Key {
-    @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final AtomicLong currentListID = new AtomicLong();
-    private final long listID = currentListID.incrementAndGet();
-    @Attribute(name = "id")
-    private String id;
-    @Attribute(name = "timestamp")
-    private String timestamp;
-    private Date _timestamp;        // converted
-    @Attribute(name = "deleted", required = false)
-    private String deleted;
-    @Element(name = "name", required = false)
-    private String name;
+public class Key extends KeyNote {
     @Element(name = "user", required = false)
     private String user;
     @Element(name = "pass", required = false)
@@ -41,56 +31,29 @@ public class Key {
 
     // constructors
     public Key(Key key) {
-        this.id = key.id;
-        this.timestamp = key.timestamp;
-        this._timestamp = key._timestamp;
-        this.deleted = key.deleted;
-        this.name = key.name;
+        super(key);
         this.user = key.user;
         this.password = key.password;
         this.url = key.url;
     }
 
     public Key() {
-        FMT.setTimeZone(TimeZone.getTimeZone("UTC"));
-        this._timestamp = new Date();
-        this.timestamp = FMT.format(_timestamp);
-
-        this.id = UUID.randomUUID().toString();
-        this.deleted = "false";
+        super();
     }
 
     public Key(String keyID, String name, String user, String password, String url) {
-        FMT.setTimeZone(TimeZone.getTimeZone("UTC"));
-        this._timestamp = new Date();
-        this.timestamp = FMT.format(_timestamp);
+        super(keyID, name);
 
-        this.id = keyID;
-        this.deleted = "false";
-        this.name = name;
         this.user = user;
         this.password = password;
         this.url = url;
     }
 
-    @Validate
-    void validate() throws PersistenceException {
-        try {
-            _timestamp = FMT.parse(timestamp);
-        } catch (ParseException e) {
-            throw new PersistenceException("Invalid timestamp in key");
-        }
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + ((deleted == null) ? 0 : deleted.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        int result = super.hashCode();
         result = prime * result + ((password == null) ? 0 : password.hashCode());
-        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
         result = prime * result + ((url == null) ? 0 : url.hashCode());
         result = prime * result + ((user == null) ? 0 : user.hashCode());
         return result;
@@ -141,29 +104,6 @@ public class Key {
         } else if (!user.equals(other.user))
             return false;
         return true;
-    }
-
-    private void updateTimeStamp() {
-        this._timestamp = new Date();
-        this.timestamp = FMT.format(_timestamp);
-    }
-
-    public boolean isDeleted() {
-        return deleted.equals("true");
-    }
-
-    protected void setDeleted(boolean deleted) {
-        this.deleted = deleted ? "true" : "false";
-        updateTimeStamp();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name, KeyDb.SafetyToken safetyToken) {
-        this.name = name;
-        updateTimeStamp();
     }
 
     public String getUser() {
@@ -237,10 +177,6 @@ public class Key {
         return (!TextUtils.isEmpty(name) && name.toLowerCase(Locale.getDefault()).contains(query)) ||
                 (!TextUtils.isEmpty(user) && user.toLowerCase(Locale.getDefault()).contains(query)) ||
                 (!TextUtils.isEmpty(url) && url.toLowerCase(Locale.getDefault()).contains(query));
-    }
-
-    public long getListID() {
-        return listID;
     }
 
 //	protected void setListID(long listID) {

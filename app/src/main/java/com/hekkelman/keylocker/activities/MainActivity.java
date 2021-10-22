@@ -42,7 +42,7 @@ import java.io.File;
 public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private KeyCardViewAdapter adapter;
+    private KeyCardViewAdapter mKeyCardAdapter;
     private String query;
     private CountDownTimer countDownTimer;
 
@@ -94,15 +94,15 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         MenuItem mi = navigationView.getMenu().findItem(R.id.nav_keys);
         if (mi != null) mi.setChecked(true);
 
-		adapter = new KeyCardViewAdapter(this);
-		adapter.setCallback(keyID -> {
+		mKeyCardAdapter = new KeyCardViewAdapter(this);
+		mKeyCardAdapter.setCallback(keyID -> {
             Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
             intent.putExtra("key-id", keyID);
             editKeyResult.launch(intent);
         });
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		recyclerView.setItemAnimator(new DefaultItemAnimator());
-		recyclerView.setAdapter(adapter);
+		recyclerView.setAdapter(mKeyCardAdapter);
 
         fabView.setOnClickListener(this::onClickFab);
 
@@ -157,7 +157,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         super.onNewIntent(intent);
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction()))
-            adapter.getFilter().filter(intent.getStringExtra(SearchManager.QUERY));
+            mKeyCardAdapter.getFilter().filter(intent.getStringExtra(SearchManager.QUERY));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         if (! KeyDb.isUnlocked()) {
             authenticate();
         } else {
-            adapter.loadEntries();
+            mKeyCardAdapter.loadEntries();
 
             if (setCountDownTimerNow())
                 countDownTimer.start();
@@ -189,7 +189,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 	protected void onStart() {
 		super.onStart();
 		if (! TextUtils.isEmpty(query))
-            adapter.getFilter().filter(query);
+            mKeyCardAdapter.getFilter().filter(query);
 	}
 
     @Override
@@ -222,7 +222,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                adapter.getFilter().filter(newText);
+                mKeyCardAdapter.getFilter().filter(newText);
                 return false;
             }
         });
@@ -275,7 +275,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
     void onTaskResult(SyncSDTask.Result result) {
         if (result.synced) {
             Toast.makeText(this, R.string.sync_successful, Toast.LENGTH_SHORT).show();
-            adapter.loadEntries();
+            mKeyCardAdapter.loadEntries();
         } else if (result.needPassword) {
             final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
             new AlertDialog.Builder(MainActivity.this)

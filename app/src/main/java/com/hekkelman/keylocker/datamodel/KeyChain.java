@@ -32,8 +32,8 @@ public class KeyChain {
         return notes;
     }
 
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
+    public void addNote(Note note) {
+        if (!this.notes.contains(note)) this.notes.add(note);
     }
 
     // more accessors

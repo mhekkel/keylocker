@@ -1,6 +1,7 @@
 package com.hekkelman.keylocker.datamodel;
 
 import android.annotation.SuppressLint;
+import android.text.TextUtils;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -8,58 +9,30 @@ import org.simpleframework.xml.Root;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
 @Root
-public class Note {
-    @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    @Attribute(name = "id")
-    private String id;
-
-    @Attribute(name = "timestamp")
-    private String timestamp;
-    private Date _timestamp;
-
-    @Attribute(name = "deleted")
-    private String deleted;
-
-    @Element(name = "name", required = false)
-    private String name;
-
+public class Note extends KeyNote {
     @Element(name = "text", required = false)
     private String text;
 
     // constructor
     public Note() {
-        FMT.setTimeZone(TimeZone.getTimeZone("UTC"));
-        this._timestamp = new Date();
-        this.timestamp = FMT.format(_timestamp);
-
-        this.id = UUID.randomUUID().toString();
-        this.deleted = "false";
+        super();
     }
 
     public Note(Note note) {
-        this.id = note.id;
-        this.timestamp = note.timestamp;
-        this._timestamp = note._timestamp;
-        this.deleted = note.deleted;
-        this.name = note.name;
+        super(note);
         this.text = note.text;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + ((deleted == null) ? 0 : deleted.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        int result = super.hashCode();
         result = prime * result + ((text == null) ? 0 : text.hashCode());
-        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
         return result;
     }
 
@@ -100,32 +73,27 @@ public class Note {
         return true;
     }
 
-    public String getId() {
-        return this.id;
-    }
-
-    public boolean isDeleted() {
-        return deleted.equals("true");
-    }
-
     public int synchronize(Note note) {
-        int result = _timestamp.compareTo(note._timestamp);
+        int result = super.synchronize(note);
 
-        if (result < 0) {
-            this.timestamp = note.timestamp;
-            this._timestamp = note._timestamp;
-            this.deleted = note.deleted;
-            this.name = note.name;
-            this.text = note.text;
-        } else if (result > 0) {
-            note.timestamp = this.timestamp;
-            note._timestamp = this._timestamp;
-            note.deleted = this.deleted;
-            note.name = this.name;
-            note.text = this.text;
-        }
+        if (result < 0) this.text = note.text;
+        else if (result > 0) note.text = this.text;
 
         return result;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text, KeyDb.SafetyToken safetyToken) {
+        this.text = text;
+    }
+
+    public boolean match(String query) {
+        query = query.toLowerCase(Locale.getDefault());
+        return (!TextUtils.isEmpty(name) && name.toLowerCase(Locale.getDefault()).contains(query)) ||
+                (!TextUtils.isEmpty(text) && text.toLowerCase(Locale.getDefault()).contains(query));
     }
 
 }

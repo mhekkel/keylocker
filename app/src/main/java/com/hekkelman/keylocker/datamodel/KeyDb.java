@@ -196,6 +196,70 @@ public class KeyDb {
         }
     }
 
+    public static List<Note> getNotes() {
+        List<Note> result = new ArrayList<>();
+
+        synchronized (keyDbLock) {
+            for (Note k : sInstance.keyChain.getNotes()) {
+                if (k.isDeleted())
+                    continue;
+                result.add(k);
+            }
+
+            Collections.sort(result, (lhs, rhs) -> lhs.getName().compareToIgnoreCase(rhs.getName()));
+        }
+
+        return result;
+    }
+
+    public static List<Note> getFilteredNotes(String query) {
+        List<Note> result;
+
+        synchronized (keyDbLock) {
+            if (sInstance != null) {
+                result = sInstance.keyChain.getNotes();
+                if (!TextUtils.isEmpty(query))
+                    result = result.stream().filter(note -> note.match(query)).collect(Collectors.toList());
+            } else
+                result = new ArrayList<>();
+        }
+
+        return result;
+    }
+
+    public static Note getNote(String noteId) {
+        synchronized (keyDbLock) {
+            return sInstance.keyChain.getNoteByID(noteId);
+        }
+    }
+
+    public static void setNote(Note note, String name, String text) throws KeyDbException {
+        synchronized (keyDbLock) {
+            Note savedCopy = new Note(note);
+
+            try {
+                note.setName(name, safetyToken);
+                note.setText(text, safetyToken);
+
+                sInstance.keyChain.addNote(note);
+                sInstance.write();
+            } catch (KeyDbException exception) {
+                // restore the note...
+                note.setName(savedCopy.getName(), safetyToken);
+                note.setText(savedCopy.getText(), safetyToken);
+
+                throw exception;
+            }
+        }
+    }
+
+    public static void deleteNote(Note note) throws KeyDbException {
+        synchronized (keyDbLock) {
+            note.setDeleted(true);
+            sInstance.write();
+        }
+    }
+
     // Private interface
 
     public static void synchronize(Context context, Uri backupDir, char[] password) throws KeyDbException {
