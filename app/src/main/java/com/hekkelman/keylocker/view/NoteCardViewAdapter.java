@@ -22,14 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class NoteCardViewAdapter extends KeyNoteCardViewAdapter<Note> {
 
-	private NoteCardViewCallback noteCardViewCallback;
-
 	public NoteCardViewAdapter(Context context) {
 		super(context);
-	}
-
-	public void setCallback(NoteCardViewCallback cb) {
-		this.noteCardViewCallback = cb;
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -38,15 +32,8 @@ public class NoteCardViewAdapter extends KeyNoteCardViewAdapter<Note> {
 		notifyDataSetChanged();
 	}
 
-	protected void removeKey(int position) {
-		try {
-			Note note = items.get(position);
-			KeyDb.deleteNote(note);
-			items.remove(position);
-			notifyItemRemoved(position);
-		} catch (KeyDbException exception) {
-//			Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
-		}
+	protected void removeKeyOrNote(KeyNote note) throws KeyDbException {
+		KeyDb.deleteNote((Note)note);
 	}
 
 	protected void onCardTapped(String noteID, Settings.TapMode tapMode) {
@@ -67,15 +54,6 @@ public class NoteCardViewAdapter extends KeyNoteCardViewAdapter<Note> {
 			default:
 				break;
 		}
-	}
-
-	@Override
-	void editHandler(String id) {
-		noteCardViewCallback.onEditNote(id);
-	}
-
-	public interface NoteCardViewCallback {
-		void onEditNote(String noteID);
 	}
 
 	@Override

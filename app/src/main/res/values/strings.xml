@@ -132,6 +132,8 @@
     <string name="noteTextCaptionHint">note text</string>
     <string name="noteNameCaptionHint">note name</string>
     <string name="title_activity_note_detail">Note</string>
+    <string name="key_was_removed">Key removed</string>
+    <string name="undo_remove">Undo</string>
 
     <string-array name="settings_entries_tap">
         <item>Nothing</item>

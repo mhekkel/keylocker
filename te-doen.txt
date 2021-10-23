@@ -1,8 +1,9 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
-- deleten van items afronden (Toast met link?)
+- deleten van items afronden: purge
 
-- Weergave en wijzigen notities
+- voorkeur instellingen nalopen, toevoegen
+
 - Foutafhandeling helemaal nalopen
 - Samenvoegen layout Init en ChangePassword
 - Backup ondersteuning

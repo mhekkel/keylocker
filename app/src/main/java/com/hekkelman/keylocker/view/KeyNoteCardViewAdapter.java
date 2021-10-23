@@ -13,8 +13,7 @@ import android.widget.TextView;
 
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.activities.MainActivity;
-import com.hekkelman.keylocker.datamodel.Key;
-import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.utilities.Settings;
 import com.hekkelman.keylocker.utilities.Tools;
@@ -34,6 +33,8 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
     protected final Settings settings;
     protected List<KeyOrNote> items;
     protected Filter searchFilter;
+    protected KeyNoteEditCallback keyNoteEditCallback;
+    protected KeyNoteRemovedCallback keyNoteRemovedCallback;
 
     public KeyNoteCardViewAdapter(Context context) {
         this.context = context;
@@ -73,9 +74,31 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
 
     protected abstract void onCardTapped(String keyID, Settings.TapMode tapMode);
 
+    public void setEditCallback(KeyNoteEditCallback cb) {
+        this.keyNoteEditCallback = cb;
+    }
+
+    public void setKeyNoteRemovedCallback(KeyNoteRemovedCallback cb) {
+        this.keyNoteRemovedCallback = cb;
+    }
+
     abstract public void loadEntries();
 
-    protected abstract void removeKey(int position);
+    protected void removeHandler(int position) {
+        try {
+            KeyOrNote item = items.get(position);
+            removeKeyOrNote(item);
+            items.remove(position);
+            notifyItemRemoved(position);
+
+            if (keyNoteRemovedCallback != null)
+                keyNoteRemovedCallback.onRemoved(item.getId());
+        } catch (KeyDbException exception) {
+//			Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    protected abstract void removeKeyOrNote(KeyNote keyOrNote) throws KeyDbException;
 
     protected void showPopupMenu(View view, int pos) {
         View menuItemView = view.findViewById(R.id.menuButton);
@@ -90,18 +113,19 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
                 editHandler(keyNote.getId());
                 return true;
             } else if (id == R.id.menu_popup_remove) {
-                removeKey(pos);
+                removeHandler(pos);
                 return true;
             } else return false;
         });
         popup.show();
     }
 
-    abstract void editHandler(final String id);
+    void editHandler(final String id) {
+        this.keyNoteEditCallback.onEdit(id);
+    }
 
     protected void copyHandler(final String text, final boolean dropToBackground) {
         Tools.copyToClipboard(context, text);
-
         if (dropToBackground) ((MainActivity) context).moveTaskToBack(true);
     }
 
@@ -118,6 +142,14 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
     @Override
     public long getItemId(int position) {
         return items.get(position).getListID();
+    }
+
+    public interface KeyNoteEditCallback {
+        void onEdit(String keyID);
+    }
+
+    public interface KeyNoteRemovedCallback {
+        void onRemoved(String keyID);
     }
 
     static class KeyNoteCardHolder extends RecyclerView.ViewHolder {

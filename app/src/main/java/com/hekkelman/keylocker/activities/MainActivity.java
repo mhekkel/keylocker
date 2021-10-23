@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.tasks.SyncSDTask;
@@ -231,17 +233,33 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         mType = type;
         if (mType == SHOW_KEYNOTE.KEY) {
             mAdapter = new KeyCardViewAdapter(this);
-            ((KeyCardViewAdapter) mAdapter).setCallback(keyID -> {
+            ((KeyCardViewAdapter) mAdapter).setEditCallback(keyID -> {
                 Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
                 intent.putExtra("key-id", keyID);
                 editKeyResult.launch(intent);
             });
+            mAdapter.setKeyNoteRemovedCallback(keyID -> {
+                 Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
+                         .setAction(R.string.undo_remove, view -> {
+                             KeyDb.undoDeleteKey(keyID);
+                             mAdapter.loadEntries();
+                         })
+                         .show();
+            });
         } else {
             mAdapter = new NoteCardViewAdapter(this);
-            ((NoteCardViewAdapter) mAdapter).setCallback(noteID -> {
+            ((NoteCardViewAdapter) mAdapter).setEditCallback(noteID -> {
                 Intent intent = new Intent(MainActivity.this, NoteDetailActivity.class);
                 intent.putExtra("note-id", noteID);
                 editKeyResult.launch(intent);
+            });
+            mAdapter.setKeyNoteRemovedCallback(noteID -> {
+                Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
+                        .setAction(R.string.undo_remove, view -> {
+                            KeyDb.undoDeleteNote(noteID);
+                            mAdapter.loadEntries();
+                        })
+                        .show();
             });
         }
 

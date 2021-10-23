@@ -195,6 +195,14 @@ public class KeyDb {
         }
     }
 
+    public static void undoDeleteKey(String keyID) {
+        synchronized (keyDbLock) {
+            Key key = sInstance.keyChain.getKeyByID(keyID);
+            if (key != null)
+                key.setDeleted(false);
+        }
+    }
+
     public static List<Note> getNotes() {
         List<Note> result = new ArrayList<>();
 
@@ -256,6 +264,14 @@ public class KeyDb {
         synchronized (keyDbLock) {
             note.setDeleted(true);
             sInstance.write();
+        }
+    }
+
+    public static void undoDeleteNote(String noteID) {
+        synchronized (keyDbLock) {
+            Note note = sInstance.keyChain.getNoteByID(noteID);
+            if (note != null)
+                note.setDeleted(false);
         }
     }
 

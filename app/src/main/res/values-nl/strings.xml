@@ -91,4 +91,6 @@
     <string name="save_note_task_cancelled">Saving the note failed</string>
     <string name="noteNameCaptionHint">note name</string>
     <string name="title_activity_note_detail">KeyLocker Note</string>
+    <string name="key_was_removed">Key removed</string>
+    <string name="undo_remove">Undo</string>
 </resources>

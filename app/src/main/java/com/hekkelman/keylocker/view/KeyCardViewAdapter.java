@@ -4,23 +4,22 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.Filter;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
+import com.hekkelman.keylocker.datamodel.KeyNote;
+import com.hekkelman.keylocker.datamodel.Note;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import java.util.List;
 
 public class KeyCardViewAdapter extends KeyNoteCardViewAdapter<Key> {
 
-    private KeyCardViewCallback keyCardViewCallback;
-
     public KeyCardViewAdapter(Context context) {
         super(context);
-    }
-
-    public void setCallback(KeyCardViewCallback cb) {
-        this.keyCardViewCallback = cb;
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -29,15 +28,8 @@ public class KeyCardViewAdapter extends KeyNoteCardViewAdapter<Key> {
         notifyDataSetChanged();
     }
 
-    protected void removeKey(int position) {
-        try {
-            Key key = items.get(position);
-            KeyDb.deleteKey(key);
-            items.remove(position);
-            notifyItemRemoved(position);
-        } catch (KeyDbException exception) {
-//			Toast.makeText(MainActivity.this, R.string.sync_successful, Toast.LENGTH_LONG).show();
-        }
+    protected void removeKeyOrNote(KeyNote key) throws KeyDbException {
+        KeyDb.deleteKey((Key)key);
     }
 
     protected void onCardTapped(String keyID, Settings.TapMode tapMode) {
@@ -61,19 +53,10 @@ public class KeyCardViewAdapter extends KeyNoteCardViewAdapter<Key> {
     }
 
     @Override
-    void editHandler(String id) {
-        keyCardViewCallback.onEditKey(id);
-    }
-
-    @Override
     public Filter getFilter() {
         if (searchFilter == null)
             searchFilter = new KeyFilter();
         return searchFilter;
-    }
-
-    public interface KeyCardViewCallback {
-        void onEditKey(String keyID);
     }
 
     public class KeyFilter extends Filter {
