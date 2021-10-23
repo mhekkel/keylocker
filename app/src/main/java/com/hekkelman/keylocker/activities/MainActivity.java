@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-
-import androidx.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +15,17 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.tasks.SyncSDTask;
+import com.hekkelman.keylocker.view.KeyCardViewAdapter;
+import com.hekkelman.keylocker.view.KeyNoteCardViewAdapter;
+import com.hekkelman.keylocker.view.NoteCardViewAdapter;
+
+import java.io.File;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,37 +35,30 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.tasks.SyncSDTask;
-import com.hekkelman.keylocker.view.KeyCardViewAdapter;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-
-import java.io.File;
-
 public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private KeyCardViewAdapter mKeyCardAdapter;
+    private KeyNoteCardViewAdapter mAdapter;
+    private RecyclerView mRecyclerView;
     private String query;
     private CountDownTimer countDownTimer;
-
     private ActivityResultLauncher<Intent> unlockResult;
     private ActivityResultLauncher<Intent> initResult;
     private ActivityResultLauncher<Intent> newKeyResult;
     private ActivityResultLauncher<Intent> editKeyResult;
+    private SHOW_KEYNOTE mType = SHOW_KEYNOTE.KEY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.recycler_view);
         NavigationView navigationView = findViewById(R.id.nav_view);
         FloatingActionButton fabView = findViewById(R.id.fab);
 
@@ -94,15 +96,25 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         MenuItem mi = navigationView.getMenu().findItem(R.id.nav_keys);
         if (mi != null) mi.setChecked(true);
 
-		mKeyCardAdapter = new KeyCardViewAdapter(this);
-		mKeyCardAdapter.setCallback(keyID -> {
-            Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-            intent.putExtra("key-id", keyID);
-            editKeyResult.launch(intent);
-        });
-		recyclerView.setLayoutManager(new LinearLayoutManager(this));
-		recyclerView.setItemAnimator(new DefaultItemAnimator());
-		recyclerView.setAdapter(mKeyCardAdapter);
+        if (mType == SHOW_KEYNOTE.KEY) {
+            mAdapter = new KeyCardViewAdapter(this);
+            ((KeyCardViewAdapter) mAdapter).setCallback(keyID -> {
+                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+                intent.putExtra("key-id", keyID);
+                editKeyResult.launch(intent);
+            });
+        } else {
+            mAdapter = new NoteCardViewAdapter(this);
+            ((NoteCardViewAdapter) mAdapter).setCallback(keyID -> {
+//            Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+//            intent.putExtra("key-id", keyID);
+//            editKeyResult.launch(intent);
+            });
+        }
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mAdapter);
 
         fabView.setOnClickListener(this::onClickFab);
 
@@ -119,7 +131,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
     public void onUnlockedResult(ActivityResult result) {
         if (result.getResultCode() == Activity.RESULT_CANCELED)
             finish();
-	}
+    }
 
     public void onClickFab(View view) {
         Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
@@ -157,17 +169,17 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         super.onNewIntent(intent);
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction()))
-            mKeyCardAdapter.getFilter().filter(intent.getStringExtra(SearchManager.QUERY));
+            mAdapter.getFilter().filter(intent.getStringExtra(SearchManager.QUERY));
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        if (! KeyDb.isUnlocked()) {
+        if (!KeyDb.isUnlocked()) {
             authenticate();
         } else {
-            mKeyCardAdapter.loadEntries();
+            mAdapter.loadEntries();
 
             if (setCountDownTimerNow())
                 countDownTimer.start();
@@ -185,12 +197,12 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         }
     }
 
-   	@Override
-	protected void onStart() {
-		super.onStart();
-		if (! TextUtils.isEmpty(query))
-            mKeyCardAdapter.getFilter().filter(query);
-	}
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!TextUtils.isEmpty(query))
+            mAdapter.getFilter().filter(query);
+    }
 
     @Override
     public void onBackPressed() {
@@ -222,12 +234,34 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mKeyCardAdapter.getFilter().filter(newText);
+                mAdapter.getFilter().filter(newText);
                 return false;
             }
         });
 
         return true;
+    }
+
+    void swapAdapter(SHOW_KEYNOTE type) {
+        mType = type;
+        if (mType == SHOW_KEYNOTE.KEY) {
+            mAdapter = new KeyCardViewAdapter(this);
+            ((KeyCardViewAdapter) mAdapter).setCallback(keyID -> {
+                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+                intent.putExtra("key-id", keyID);
+                editKeyResult.launch(intent);
+            });
+        } else {
+            mAdapter = new NoteCardViewAdapter(this);
+            ((NoteCardViewAdapter) mAdapter).setCallback(keyID -> {
+//            Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+//            intent.putExtra("key-id", keyID);
+//            editKeyResult.launch(intent);
+            });
+        }
+
+        mAdapter.loadEntries();
+        mRecyclerView.swapAdapter(mAdapter, true);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -237,9 +271,9 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         int id = item.getItemId();
 
         if (id == R.id.nav_keys) {
-
+            swapAdapter(SHOW_KEYNOTE.KEY);
         } else if (id == R.id.nav_notes) {
-
+            swapAdapter(SHOW_KEYNOTE.NOTE);
         } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard();
         } else if (id == R.id.action_settings) {
@@ -265,8 +299,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
             SyncSDTask syncSDTask = new SyncSDTask(this, backupDirUri, null);
             startBackgroundTask(syncSDTask);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             syncFailed(e.getMessage());
         }
     }
@@ -275,7 +308,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
     void onTaskResult(SyncSDTask.Result result) {
         if (result.synced) {
             Toast.makeText(this, R.string.sync_successful, Toast.LENGTH_SHORT).show();
-            mKeyCardAdapter.loadEntries();
+            mAdapter.loadEntries();
         } else if (result.needPassword) {
             final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
             new AlertDialog.Builder(MainActivity.this)
@@ -289,7 +322,8 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
                         SyncSDTask syncSDTask = new SyncSDTask(MainActivity.this, backupDirUri, pw.getText().toString());
                         startBackgroundTask(syncSDTask);
                     })
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                    })
                     .show();
         } else {
             syncFailed(result.errorMessage);
@@ -304,7 +338,6 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
-
 
     private boolean setCountDownTimerNow() {
         int secondsToBlackout = 1000 * settings.getAuthInactivityDelay();
@@ -326,6 +359,9 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
         return true;
     }
+
+
+    private enum SHOW_KEYNOTE {KEY, NOTE}
 
 
 }

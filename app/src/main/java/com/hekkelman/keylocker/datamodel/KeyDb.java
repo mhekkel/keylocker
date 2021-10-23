@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.utilities.Settings;
 import com.hekkelman.keylocker.xmlenc.EncryptedData;
 
