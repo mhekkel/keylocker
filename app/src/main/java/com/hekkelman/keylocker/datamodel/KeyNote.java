@@ -18,7 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Root
-public class KeyNote {
+public abstract class KeyNote {
     private static final AtomicLong currentListID = new AtomicLong();
     private final long listID = currentListID.incrementAndGet();
 
@@ -145,4 +145,6 @@ public class KeyNote {
         query = query.toLowerCase(Locale.getDefault());
         return (!TextUtils.isEmpty(name) && name.toLowerCase(Locale.getDefault()).contains(query));
     }
+
+    public abstract String getDescription();
 }

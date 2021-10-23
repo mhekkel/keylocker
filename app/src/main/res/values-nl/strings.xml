@@ -78,7 +78,7 @@
     <string name="menu_popup_edit">Edit</string>
     <string name="menu_popup_remove">Remove</string>
     <string name="save_key_task_cancelled">Bewaren is niet gelukt</string>
-    <string name="dialog_save_key_before_close">Save</string>
+    <string name="dialog_save_before_close">Save</string>
     <string name="fab_create_new">Maak nieuwe</string>
     <string name="settings_category_title_ui">User interface</string>
     <string name="settings_title_tap_single">Single tap</string>
@@ -88,4 +88,7 @@
     <string name="change_password_failed_title">Creating a Locker Failed</string>
     <string name="password_too_short">This password is too short</string>
     <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="save_note_task_cancelled">Saving the note failed</string>
+    <string name="noteNameCaptionHint">note name</string>
+    <string name="title_activity_note_detail">KeyLocker Note</string>
 </resources>

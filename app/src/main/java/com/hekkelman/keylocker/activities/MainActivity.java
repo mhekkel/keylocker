@@ -96,25 +96,10 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         MenuItem mi = navigationView.getMenu().findItem(R.id.nav_keys);
         if (mi != null) mi.setChecked(true);
 
-        if (mType == SHOW_KEYNOTE.KEY) {
-            mAdapter = new KeyCardViewAdapter(this);
-            ((KeyCardViewAdapter) mAdapter).setCallback(keyID -> {
-                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-                intent.putExtra("key-id", keyID);
-                editKeyResult.launch(intent);
-            });
-        } else {
-            mAdapter = new NoteCardViewAdapter(this);
-            ((NoteCardViewAdapter) mAdapter).setCallback(keyID -> {
-//            Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-//            intent.putExtra("key-id", keyID);
-//            editKeyResult.launch(intent);
-            });
-        }
-
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setAdapter(mAdapter);
+
+        swapAdapter(SHOW_KEYNOTE.KEY);
 
         fabView.setOnClickListener(this::onClickFab);
 
@@ -253,15 +238,14 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
             });
         } else {
             mAdapter = new NoteCardViewAdapter(this);
-            ((NoteCardViewAdapter) mAdapter).setCallback(keyID -> {
-//            Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-//            intent.putExtra("key-id", keyID);
-//            editKeyResult.launch(intent);
+            ((NoteCardViewAdapter) mAdapter).setCallback(noteID -> {
+                Intent intent = new Intent(MainActivity.this, NoteDetailActivity.class);
+                intent.putExtra("note-id", noteID);
+                editKeyResult.launch(intent);
             });
         }
 
-        mAdapter.loadEntries();
-        mRecyclerView.swapAdapter(mAdapter, true);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -271,9 +255,15 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         int id = item.getItemId();
 
         if (id == R.id.nav_keys) {
-            swapAdapter(SHOW_KEYNOTE.KEY);
+            if (mType != SHOW_KEYNOTE.KEY) {
+                swapAdapter(SHOW_KEYNOTE.KEY);
+                mAdapter.loadEntries();
+            }
         } else if (id == R.id.nav_notes) {
-            swapAdapter(SHOW_KEYNOTE.NOTE);
+            if (mType != SHOW_KEYNOTE.NOTE) {
+                swapAdapter(SHOW_KEYNOTE.NOTE);
+                mAdapter.loadEntries();
+            }
         } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard();
         } else if (id == R.id.action_settings) {

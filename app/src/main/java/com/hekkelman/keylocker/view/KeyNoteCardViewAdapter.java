@@ -1,10 +1,11 @@
 package com.hekkelman.keylocker.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.ColorFilter;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
@@ -29,35 +30,48 @@ import androidx.recyclerview.widget.RecyclerView;
 public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends RecyclerView.Adapter<KeyNoteCardViewAdapter.KeyNoteCardHolder>
         implements Filterable {
 
-    protected final Settings settings;
     public final Context context;
+    protected final Settings settings;
     protected List<KeyOrNote> items;
-    private Filter searchFilter;
+    protected Filter searchFilter;
 
     public KeyNoteCardViewAdapter(Context context) {
         this.context = context;
         this.settings = new Settings(context);
     }
 
-    protected void onCardTapped(String keyID, Settings.TapMode tapMode) {
-        Key key = KeyDb.getKey(keyID);
-        switch (tapMode) {
-            case EDIT:
-                editHandler(key.getId());
-                break;
-            case COPY:
-                copyHandler(key.getPassword(), false);
-                break;
-            case COPY_BACKGROUND:
-                copyHandler(key.getPassword(), true);
-                break;
-            case SEND_KEYSTROKES:
-//						sendKeystrokes(position);
-                break;
-            default:
-                break;
-        }
+    @NonNull
+    @Override
+    public KeyNoteCardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_key_item, parent, false);
+
+        KeyNoteCardHolder holder = new KeyNoteCardHolder(context, v);
+        holder.setCallback(new KeyNoteCardHolder.KeyNoteCardHolderCallback() {
+            @Override
+            public void onMenuButtonClicked(View view, int position) {
+                showPopupMenu(view, position);
+            }
+
+            @Override
+            public void onCopyButtonClicked(String text) {
+                copyHandler(text, settings.isMinimizeAppOnCopyEnabled());
+            }
+
+            @Override
+            public void onCardSingleClicked(String keyID) {
+                onCardTapped(keyID, settings.getTapSingle());
+            }
+
+            @Override
+            public void onCardDoubleClicked(String keyID) {
+                onCardTapped(keyID, settings.getTapDouble());
+            }
+        });
+
+        return holder;
     }
+
+    protected abstract void onCardTapped(String keyID, Settings.TapMode tapMode);
 
     abstract public void loadEntries();
 
@@ -106,128 +120,96 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
         return items.get(position).getListID();
     }
 
-    @Override
-    public Filter getFilter() {
-        if (searchFilter == null)
-            searchFilter = new KeyFilter();
-        return searchFilter;
-    }
-
-    abstract static class KeyNoteCardHolder extends RecyclerView.ViewHolder {
+    static class KeyNoteCardHolder extends RecyclerView.ViewHolder {
         protected KeyNote item;
-		protected CardView card;
-		protected TextView nameView;
-		protected TextView infoView;
-		protected ImageButton copyButton;
-		protected ImageButton menuButton;
+        protected CardView card;
+        protected TextView nameView;
+        protected TextView infoView;
+        protected ImageButton copyButton;
+        protected ImageButton menuButton;
 
-		private KeyNoteCardHolderCallback keyNoteCardHolderCallback;
+        private KeyNoteCardHolderCallback keyNoteCardHolderCallback;
 
-		public KeyNoteCardHolder(Context context, View itemView) {
-			super(itemView);
+        public KeyNoteCardHolder(Context context, View itemView) {
+            super(itemView);
 
-			// Style the buttons in the current theme colors
-			ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);
+            // Style the buttons in the current theme colors
+            ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);
 
-			card = (CardView) itemView;
-			nameView = itemView.findViewById(R.id.itemCaption);
-			infoView = itemView.findViewById(R.id.itemUser);
-			menuButton = itemView.findViewById(R.id.menuButton);
-			copyButton = itemView.findViewById(R.id.copyButton);
+            card = (CardView) itemView;
+            nameView = itemView.findViewById(R.id.itemCaption);
+            infoView = itemView.findViewById(R.id.itemUser);
+            menuButton = itemView.findViewById(R.id.menuButton);
+            copyButton = itemView.findViewById(R.id.copyButton);
 
-			menuButton.getDrawable().setColorFilter(colorFilter);
-			copyButton.getDrawable().setColorFilter(colorFilter);
+            menuButton.getDrawable().setColorFilter(colorFilter);
+            copyButton.getDrawable().setColorFilter(colorFilter);
 
-			menuButton.setOnClickListener(view ->
-					adapterPositionSafeCallback((callback, adapterPosition) ->
-							callback.onMenuButtonClicked(view, adapterPosition)
-					)
-			);
+            menuButton.setOnClickListener(view ->
+                    adapterPositionSafeCallback((callback, adapterPosition) ->
+                            callback.onMenuButtonClicked(view, adapterPosition)
+                    )
+            );
 
-			copyButton.setOnClickListener(view ->
-					adapterPositionSafeCallback((callback, adapterPosition) ->
-							callback.onCopyButtonClicked(getItemTextForCopy())
-					)
-			);
+            copyButton.setOnClickListener(view ->
+                    adapterPositionSafeCallback((callback, adapterPosition) ->
+                            callback.onCopyButtonClicked(item.getDescription())
+                    )
+            );
 
-			card.setOnClickListener(new SimpleDoubleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					adapterPositionSafeCallback((callback, adapterPosition) ->
-							callback.onCardSingleClicked(item.getId())
-					);
-				}
+            card.setOnClickListener(new SimpleDoubleClickListener() {
+                @Override
+                public void onSingleClick(View v) {
+                    adapterPositionSafeCallback((callback, adapterPosition) ->
+                            callback.onCardSingleClicked(item.getId())
+                    );
+                }
 
-				@Override
-				public void onDoubleClick(View v) {
-					adapterPositionSafeCallback((callback, adapterPosition) ->
-							callback.onCardDoubleClicked(item.getId())
-					);
-				}
-			});
-		}
-
-		protected abstract String getItemTextForCopy();
-
-		protected void setItem(KeyNote keyNote) {
-			this.item = keyNote;
-
-			nameView.setText(keyNote.getName());
-//			infoView.setText(keyNote.getUser());
-		}
-
-		protected void adapterPositionSafeCallback(AdapterPositionSafeCallbackConsumer safeCallback) {
-			int clickedPosition = getBindingAdapterPosition();
-			if (keyNoteCardHolderCallback != null && clickedPosition != RecyclerView.NO_POSITION) {
-				safeCallback.accept(keyNoteCardHolderCallback, clickedPosition);
-			}
-		}
-
-		public void setCallback(KeyNoteCardHolderCallback cb) {
-			this.keyNoteCardHolderCallback = cb;
-		}
-
-		public interface KeyNoteCardHolderCallback {
-			void onMenuButtonClicked(View view, int position);
-
-			void onCopyButtonClicked(String text);
-
-			void onCardSingleClicked(String keyID);
-
-			void onCardDoubleClicked(String keyID);
-		}
-
-		@FunctionalInterface
-		private interface AdapterPositionSafeCallbackConsumer {
-			/**
-			 * The specified {@link KeyNoteCardHolderCallback} is guaranteed to be non-null, and adapterPosition is
-			 * guaranteed to be a valid position.
-			 */
-			void accept(@NonNull KeyNoteCardHolderCallback callback, int adapterPosition);
-		}
-    }
-
-    public class KeyFilter extends Filter {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            FilterResults results = new FilterResults();
-            List<Key> filtered;
-
-            if (constraint != null && constraint.length() > 0) {
-                constraint = constraint.toString().toUpperCase();
-                filtered = KeyDb.getFilteredKeys(constraint.toString());
-            } else
-                filtered = KeyDb.getKeys();
-
-            results.values = filtered;
-            return results;
+                @Override
+                public void onDoubleClick(View v) {
+                    adapterPositionSafeCallback((callback, adapterPosition) ->
+                            callback.onCardDoubleClicked(item.getId())
+                    );
+                }
+            });
         }
 
-        @SuppressLint("NotifyDataSetChanged")
-        @Override
-        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            items = (List<KeyOrNote>) filterResults.values;
-            notifyDataSetChanged();
+        protected void setItem(KeyNote keyNote) {
+            this.item = keyNote;
+
+            nameView.setText(keyNote.getName());
+            infoView.setText(keyNote.getDescription());
+        }
+
+        protected void adapterPositionSafeCallback(AdapterPositionSafeCallbackConsumer safeCallback) {
+            int clickedPosition = getBindingAdapterPosition();
+            if (keyNoteCardHolderCallback != null && clickedPosition != RecyclerView.NO_POSITION) {
+                safeCallback.accept(keyNoteCardHolderCallback, clickedPosition);
+            }
+        }
+
+        public void setCallback(KeyNoteCardHolderCallback cb) {
+            this.keyNoteCardHolderCallback = cb;
+        }
+
+        public interface KeyNoteCardHolderCallback {
+            void onMenuButtonClicked(View view, int position);
+
+            void onCopyButtonClicked(String text);
+
+            void onCardSingleClicked(String keyID);
+
+            void onCardDoubleClicked(String keyID);
+        }
+
+        @FunctionalInterface
+        private interface AdapterPositionSafeCallbackConsumer {
+            /**
+             * The specified {@link KeyNoteCardHolderCallback} is guaranteed to be non-null, and adapterPosition is
+             * guaranteed to be a valid position.
+             */
+            void accept(@NonNull KeyNoteCardHolderCallback callback, int adapterPosition);
         }
     }
+
 }

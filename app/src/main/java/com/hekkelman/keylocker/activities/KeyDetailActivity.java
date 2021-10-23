@@ -125,7 +125,7 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
                     .setMessage(R.string.dlog_discard_changes_msg)
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                     .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
-                    .setNeutralButton(R.string.dialog_save_key_before_close, (dialog, which) -> saveKey(true))
+                    .setNeutralButton(R.string.dialog_save_before_close, (dialog, which) -> saveKey(true))
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         } else finish();

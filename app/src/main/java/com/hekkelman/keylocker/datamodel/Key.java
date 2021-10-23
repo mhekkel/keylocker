@@ -179,7 +179,8 @@ public class Key extends KeyNote {
                 (!TextUtils.isEmpty(url) && url.toLowerCase(Locale.getDefault()).contains(query));
     }
 
-//	protected void setListID(long listID) {
-//		this.listID = listID;
-//	}
+    @Override
+    public String getDescription() {
+        return this.user;
+    }
 }

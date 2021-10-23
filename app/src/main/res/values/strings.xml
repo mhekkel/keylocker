@@ -43,6 +43,7 @@
 
     <string name="action_replace">Replace Key Locker File</string>
     <string name="keyNameIsRequired">Key name is a required field</string>
+    <string name="noteNameIsRequired">Note name is a required field</string>
 
     <string name="dlog_delete_locker_msg">You are about to overwrite your key locker file, this will delete all your
         current passwords and notes. Continue?
@@ -70,6 +71,8 @@
     <string name="change_pw_btn">Change</string>
     <string name="dlog_missing_key_title">Missing Key</string>
     <string name="dlog_missing_key_msg">The key could not be found.</string>
+    <string name="dlog_missing_note_title">Missing Note</string>
+    <string name="dlog_missing_note_msg">The note could not be found</string>
     <string name="sync_successful">Sync successful</string>
     <string name="sync_mkdir_exception">could not create directory on SDCard</string>
     <string name="sync_failed">Sync failed</string>
@@ -105,7 +108,7 @@
     <string name="menu_popup_edit">Edit</string>
     <string name="menu_popup_remove">Remove</string>
     <string name="save_key_task_cancelled">Saving was cancelled</string>
-    <string name="dialog_save_key_before_close">Save and Close</string>
+    <string name="dialog_save_before_close">Save and Close</string>
     <string name="settings_category_title_ui">User interface</string>
     <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
     <string name="settings_title_tap_single">Single tap</string>
@@ -125,6 +128,10 @@
     <string name="change_password_failed_title">Creating a Locker Failed</string>
     <string name="password_too_short">This password is too short</string>
     <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="save_note_task_cancelled">Saving the note failed</string>
+    <string name="noteTextCaptionHint">note text</string>
+    <string name="noteNameCaptionHint">note name</string>
+    <string name="title_activity_note_detail">Note</string>
 
     <string-array name="settings_entries_tap">
         <item>Nothing</item>

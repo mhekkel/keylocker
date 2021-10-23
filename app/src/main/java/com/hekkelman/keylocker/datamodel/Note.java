@@ -96,4 +96,8 @@ public class Note extends KeyNote {
                 (!TextUtils.isEmpty(text) && text.toLowerCase(Locale.getDefault()).contains(query));
     }
 
+    @Override
+    public String getDescription() {
+        return this.text;
+    }
 }

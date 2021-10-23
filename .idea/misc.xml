@@ -14,6 +14,7 @@
         <entry key="app/src/main/res/layout/activity_key_detail.xml" value="0.190625" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.22509057971014493" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23278985507246377" />
+        <entry key="app/src/main/res/layout/activity_note_detail.xml" value="0.2028985507246377" />
         <entry key="app/src/main/res/layout/activity_settings.xml" value="0.34601449275362317" />
         <entry key="app/src/main/res/layout/activity_unlock.xml" value="0.20652173913043478" />
         <entry key="app/src/main/res/layout/app_bar_main.xml" value="0.19114583333333332" />
@@ -23,10 +24,12 @@
         <entry key="app/src/main/res/layout/content_change_main_password.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/content_key_detail.xml" value="0.23278985507246377" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.19114583333333332" />
+        <entry key="app/src/main/res/layout/content_note_detail.xml" value="0.2028985507246377" />
         <entry key="app/src/main/res/layout/content_unlock.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/dialog_ask_password.xml" value="0.3423913043478261" />
         <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.20652173913043478" />
         <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/menu/keymenu.xml" value="0.3458333333333333" />
         <entry key="app/src/main/res/menu/mainmenu.xml" value="0.2989583333333333" />
       </map>
     </option>

@@ -52,6 +52,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.hekkelman.keylocker.activities.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".activities.NoteDetailActivity"
+            android:label="@string/title_activity_note_detail"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.hekkelman.keylocker.activities.MainActivity" />
+        </activity>
+
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings">
