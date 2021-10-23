@@ -66,7 +66,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/margin_key_input_field_with_button"
-                    android:hint="@string/keyPasswordCaptionHint"
+                    android:hint="@string/key_password_caption_hint"
                     android:imeOptions="actionGo"
                     android:inputType="textPassword"
                     android:selectAllOnFocus="true"

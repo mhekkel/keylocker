@@ -121,7 +121,8 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
     }
 
     public void onClickFab(View view) {
-        Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+        Intent intent = new Intent(MainActivity.this,
+                mType == SHOW_KEYNOTE.KEY ?  KeyDetailActivity.class : NoteDetailActivity.class);
         newKeyResult.launch(intent);
     }
 
@@ -233,7 +234,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         mType = type;
         if (mType == SHOW_KEYNOTE.KEY) {
             mAdapter = new KeyCardViewAdapter(this);
-            ((KeyCardViewAdapter) mAdapter).setEditCallback(keyID -> {
+            mAdapter.setEditCallback(keyID -> {
                 Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
                 intent.putExtra("key-id", keyID);
                 editKeyResult.launch(intent);
@@ -248,7 +249,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
             });
         } else {
             mAdapter = new NoteCardViewAdapter(this);
-            ((NoteCardViewAdapter) mAdapter).setEditCallback(noteID -> {
+            mAdapter.setEditCallback(noteID -> {
                 Intent intent = new Intent(MainActivity.this, NoteDetailActivity.class);
                 intent.putExtra("note-id", noteID);
                 editKeyResult.launch(intent);
@@ -266,7 +267,6 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -289,7 +289,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
             startActivity(intent);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

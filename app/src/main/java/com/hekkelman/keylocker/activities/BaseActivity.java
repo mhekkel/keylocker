@@ -16,9 +16,6 @@ import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-/**
- * Base application
- */
 public class BaseActivity extends AppCompatActivity {
 
     public Settings settings;
@@ -28,11 +25,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         settings = new Settings(this);
 
-//        setTheme(settings.getTheme());
         setLocale();
-
-        //Set navigation bar color
-//        getWindow().setNavigationBarColor(Tools.getThemeColor(this,R.attr.navigationBarColor));
 
         super.onCreate(savedInstanceState);
 

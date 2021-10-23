@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeyLocker</string>
     <string name="action_settings">Instellingen</string>
     <string name="action_unlock">Ontgrendel</string>
     <string name="action_unlock_short">Ontgrendel</string>
     <string name="error_incorrect_password">Dit wachtwoord in onjuist</string>
     <string name="error_invalid_password">Dit wachtwoord is te kort</string>
     <string name="keyNameCaptionHint">Wachtwoordnaam</string>
-    <string name="keyPasswordCaptionHint">Wachtwoord</string>
+    <string name="key_password_caption_hint">Wachtwoord</string>
     <string name="navigation_drawer_close">Sluit navigatie balk</string>
     <string name="prompt_password">Wachtwoord of pincode</string>
     <string name="title_activity_key_detail">Wachtwoord</string>
-    <string name="title_activity_unlock">KeyLocker</string>
     <string name="navigation_drawer_open">Open navigatie balk</string>
     <string name="lastModifiedTemplate">Laatste wijziging: %s</string>
     <string name="keyUserCaptionHint">Gebruikersnaam</string>
@@ -23,8 +21,8 @@
     <string name="init_hint_2_nr">Pincode of wachtwoord (controle)</string>
     <string name="init_numeric_cb">Numeriek wachtwoord (pincode)</string>
     <string name="init_text">U staat op het punt een nieuwe sleutelkluis aan te maken. Deze sleutelkluis dient u te beschermen met een sterk wachtwoord bestaande uit tenminste vijf cijfers. Het is het laatste wachtwoord wat u dient te onthouden.</string>
-    <string name="nav_keys_str">Toon Wachtwoorden</string>
-    <string name="nav_notes_str">Toon Notities</string>
+    <string name="nav_keys_str">Wachtwoorden</string>
+    <string name="nav_notes_str">Notities</string>
     <string name="dlog_delete_locker_msg">U staat op het punt uw huidige sleutelkluis te overschrijven, alle sleutels gaan hierbij verloren. Wilt u doorgaan?</string>
     <string name="dlog_delete_locker_title">Sleutelkluis overschrijven</string>
     <string name="sync_with_sdcard">SD kaart</string>
@@ -51,7 +49,7 @@
     <string name="dlog_missing_key_title">Ontbrekende sleutel</string>
     <string name="dlog_save_failed_msg">Het opslaan is mislukt, foutmelding: </string>
     <string name="dlog_save_failed_title">Opslaan mislukt</string>
-    <string name="keyNameIsRequired">Wachtwoordnaam is een verplicht veld</string>
+    <string name="key_name_is_required">Wachtwoordnaam is een verplicht veld</string>
     <string name="save_successful">Opgeslagen</string>
     <string name="sync_cancelled">Synchronisatie afgebroken</string>
     <string name="sync_failed">Synchronisatie mislukt</string>
@@ -66,31 +64,52 @@
     <string name="visitFailed">Is dat wel een geldige URL?</string>
     <string name="keylocker_logo">KeyLocker logo</string>
     <string name="item">Item</string>
-    <string name="username">username</string>
-    <string name="button_keycard_copy">Copy password</string>
-    <string name="button_keycard_options">Edit password</string>
+    <string name="username">gebruikersnaam</string>
+    <string name="button_keycard_copy">Kopieer wachtwoord</string>
+    <string name="button_keycard_options">Wijzig wachtwoord</string>
     <string name="activity_unlock_title">Unlock KeyLocker</string>
-    <string name="unlock_hint_pin">PIN</string>
-    <string name="unlock_hint_password">Password</string>
-    <string name="title_activity_init">Create new KeyLocker</string>
-    <string name="label_clipboard_content">KeyLocker password</string>
-    <string name="toast_copied_to_clipboard">Copied to clipboard</string>
-    <string name="menu_popup_edit">Edit</string>
-    <string name="menu_popup_remove">Remove</string>
+    <string name="unlock_hint_pin">Pincode</string>
+    <string name="unlock_hint_password">Wachtwoord</string>
+    <string name="title_activity_init">Maak een nieuwe sleutelkluis</string>
+    <string name="label_clipboard_content">KeyLocker wachtwoord</string>
+    <string name="toast_copied_to_clipboard">Naar klembord gekopieerd</string>
+    <string name="menu_popup_edit">Wijzig</string>
+    <string name="menu_popup_remove">Verwijder</string>
     <string name="save_key_task_cancelled">Bewaren is niet gelukt</string>
-    <string name="dialog_save_before_close">Save</string>
+    <string name="dialog_save_before_close">Bewaar en Sluit</string>
     <string name="fab_create_new">Maak nieuwe</string>
-    <string name="settings_category_title_ui">User interface</string>
-    <string name="settings_title_tap_single">Single tap</string>
-    <string name="settings_title_tap_double">Double tap</string>
-    <string name="settings_desc_backup_location_set">Backup dir set</string>
-    <string name="settings_title_backup_location">Local backup location</string>
-    <string name="change_password_failed_title">Creating a Locker Failed</string>
-    <string name="password_too_short">This password is too short</string>
-    <string name="passwords_do_not_match">Passwords do not match</string>
-    <string name="save_note_task_cancelled">Saving the note failed</string>
-    <string name="noteNameCaptionHint">note name</string>
-    <string name="title_activity_note_detail">KeyLocker Note</string>
+    <string name="settings_category_title_ui">Vormgeving</string>
+    <string name="settings_title_tap_single">Enkele tik</string>
+    <string name="settings_title_tap_double">Dubbel tikken</string>
+    <string name="settings_desc_backup_location_set">Backup locatie ingesteld</string>
+    <string name="settings_title_backup_location">Lokale backup locatie</string>
+    <string name="change_password_failed_title">Aanmaken van een sleutelkluis is mislukt</string>
+    <string name="password_too_short">Dit wachtwoord is te kort</string>
+    <string name="passwords_do_not_match">De wachtwoorden komen niet overeen</string>
+    <string name="save_note_task_cancelled">Opslaan is mislukt</string>
+    <string name="noteNameCaptionHint">notitie naam</string>
+    <string name="title_activity_note_detail">Notitie</string>
     <string name="key_was_removed">Key removed</string>
-    <string name="undo_remove">Undo</string>
+    <string name="undo_remove">Herstel</string>
+    <string name="backup_toast_no_location">Kies eerst een backup locatie in Instellingen</string>
+    <string name="change_password_failed_message">"Het is niet gelukt het wachtwoord te wijzigen, de foutmelding is: "</string>
+    <string name="dlog_missing_note_msg">De notitie kon niet worden gevonden</string>
+    <string name="dlog_missing_note_title">Ontbrekende notitie</string>
+    <string name="note_name_is_required">Een naam is verplicht</string>
+    <string name="noteTextCaptionHint">notitie tekst</string>
+    <string name="prefs_backup_options_title">Backup opties</string>
+    <string name="settings_desc_backup_location_not_set">De backup locatie is nog niet ingesteld</string>
+    <string name="sync_failed_msg">"Opslaan van de gegeven is mislukt met melding: "</string>
+    <string name="sync_task_cancelled">Synchronisatie afgebroken</string>
+    <string name="dlog_creating_locker_failed">Creating locker failed</string>
+    <string name="dlog_creating_locker_failed_body">Somehow, KeyLocker failed to create a new Locker file, the error is: %s</string>
+
+    <string-array name="settings_entries_tap">
+        <item>Niets</item>
+        <item>Wijzig</item>
+        <item>Kopieer</item>
+        <item>Kopieer en ga naar achtergrond</item>
+        <item>Deel als toetsaanslagen</item>
+    </string-array>
+
 </resources>

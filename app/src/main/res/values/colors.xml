@@ -9,4 +9,5 @@
     <color name="primary_light_pressed">#99a0a3</color>
     <color name="accent">#FF9800</color>
     <color name="icons">#FFFFFF</color>
+    <color name="ic_launcher_background">#19a2de</color>
 </resources>

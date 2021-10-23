@@ -2,19 +2,13 @@ package com.hekkelman.keylocker.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -137,7 +131,7 @@ public class NoteDetailActivity extends BackgroundTaskActivity<SaveNoteTask.Resu
         String name = nameField.getText().toString();
 
         if (TextUtils.isEmpty(name)) {
-            nameField.setError(getString(R.string.noteNameIsRequired));
+            nameField.setError(getString(R.string.note_name_is_required));
         } else {
             SaveNoteTask task = new SaveNoteTask(this, note, name,
                     textField.getText().toString(),

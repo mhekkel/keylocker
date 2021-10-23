@@ -47,9 +47,9 @@ public class InitActivity extends BaseActivity
         String password_2 = mPassword2.getText().toString();
 
         if (password_1.length() < 5)
-            mPassword1.setError("Password is too short");
+            mPassword1.setError(getString(R.string.password_too_short));
         else if (!password_1.equals(password_2))
-            mPassword2.setError("Passwords do not match");
+            mPassword2.setError(getString(R.string.passwords_do_not_match));
         else {
             try {
                 char[] password = password_1.toCharArray();
@@ -58,8 +58,8 @@ public class InitActivity extends BaseActivity
                 finishWithResult(password);
             } catch (Exception e) {
                 new AlertDialog.Builder(InitActivity.this)
-                        .setTitle("Creating a Locker Failed")
-                        .setMessage("Somehow, KeyLocker failed to create a new Locker file, the error is: " + e.getMessage())
+                        .setTitle(R.string.dlog_creating_locker_failed)
+                        .setMessage(getString(R.string.dlog_creating_locker_failed_body) + e.getMessage())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }

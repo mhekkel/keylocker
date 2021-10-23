@@ -155,7 +155,7 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
         String name = nameField.getText().toString();
 
         if (TextUtils.isEmpty(name)) {
-            nameField.setError(getString(R.string.keyNameIsRequired));
+            nameField.setError(getString(R.string.key_name_is_required));
         } else {
             SaveKeyTask task = new SaveKeyTask(this, key, name,
                     userField.getText().toString(),
