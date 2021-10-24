@@ -80,7 +80,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
                 android:onClick="onClickRenewPassword"
-                android:src="@drawable/ic_autorenew_black_24dp"
+                android:src="@drawable/ic_autorenew"
                 android:background="@drawable/btn_background_circle"
                 android:elevation="4dp"
                 />
@@ -116,7 +116,7 @@
                 android:layout_margin="4dp"
                 android:layout_alignParentEnd="true"
                 android:onClick="onClickVisitURL"
-                android:src="@drawable/ic_arrow_forward_black_24dp"
+                android:src="@drawable/ic_arrow_forward"
                 android:background="@drawable/btn_background_circle"
                 android:elevation="4dp" />
 
