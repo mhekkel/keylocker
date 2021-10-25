@@ -14,19 +14,24 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.utilities.Settings;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
-public class InitActivity extends BaseActivity
+public class InitActivity extends AppCompatActivity
         implements EditText.OnEditorActionListener, View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
 
+    private Settings settings;
     private TextInputEditText mPassword1;
     private TextInputEditText mPassword2;
     private SwitchCompat mPINSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.settings = new Settings(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
 

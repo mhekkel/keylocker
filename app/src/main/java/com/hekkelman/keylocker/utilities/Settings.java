@@ -2,7 +2,7 @@ package com.hekkelman.keylocker.utilities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+
 import androidx.preference.PreferenceManager;
 
 import com.hekkelman.keylocker.R;
@@ -73,10 +73,6 @@ public class Settings {
 
     public void registerPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
         settings.registerOnSharedPreferenceChangeListener(listener);
-    }
-
-    public boolean getRelockOnScreenOff() {
-        return getBoolean(R.string.settings_key_relock_screen_off, true);
     }
 
     public boolean getRelockOnBackground() {

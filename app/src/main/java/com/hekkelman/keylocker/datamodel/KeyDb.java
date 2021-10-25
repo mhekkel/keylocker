@@ -37,6 +37,7 @@ public class KeyDb {
     public static final SafetyToken safetyToken = new SafetyToken();
     private static final Object keyDbLock = new Object();
     private static KeyDb sInstance;
+    private static boolean sRelockOnBackground;
     private final File file;
     private final boolean backup;
 
@@ -67,6 +68,8 @@ public class KeyDb {
 
     public static void init(Settings settings) {
         synchronized (keyDbLock) {
+            sRelockOnBackground = settings.getRelockOnBackground();
+
             ProcessLifecycleOwner.get().getLifecycle().addObserver(new DefaultLifecycleObserver() {
                 @Override
                 public void onStop(@NonNull LifecycleOwner owner) {
@@ -77,9 +80,14 @@ public class KeyDb {
         }
     }
 
+    public static void setRelockOnBackground(boolean lock) {
+        sRelockOnBackground = lock;
+    }
+
     public static void onReceivedScreenOff() {
         synchronized (keyDbLock) {
-            KeyDb.sInstance = null;
+            if (sRelockOnBackground)
+                KeyDb.sInstance = null;
         }
     }
 

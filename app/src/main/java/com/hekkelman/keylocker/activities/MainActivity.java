@@ -3,7 +3,10 @@ package com.hekkelman.keylocker.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +26,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.tasks.SyncSDTask;
+import com.hekkelman.keylocker.utilities.Settings;
 import com.hekkelman.keylocker.view.KeyCardViewAdapter;
 import com.hekkelman.keylocker.view.KeyNoteCardViewAdapter;
 import com.hekkelman.keylocker.view.NoteCardViewAdapter;
@@ -45,6 +49,8 @@ import androidx.recyclerview.widget.RecyclerView;
 public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
+    public Settings settings;
+    private ScreenOffReceiver screenOffReceiver;
     private KeyNoteCardViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private String query;
@@ -57,7 +63,14 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        settings = new Settings(this);
+
         super.onCreate(savedInstanceState);
+
+        if (settings.getRelockOnBackground()) {
+            screenOffReceiver = new ScreenOffReceiver();
+            registerReceiver(screenOffReceiver, screenOffReceiver.filter);
+        }
 
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recycler_view);
@@ -127,6 +140,9 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        if (key.equals(getString(R.string.settings_key_relock_background)))
+            KeyDb.setRelockOnBackground(settings.getRelockOnBackground());
+
 //		if (key.equals(getString(R.string.settings_key_label_size)) ||
 //				key.equals(getString(R.string.settings_key_label_display)) ||
 //				key.equals(getString(R.string.settings_key_split_group_size)) ||
@@ -199,6 +215,13 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (screenOffReceiver != null)
+            unregisterReceiver(screenOffReceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -379,5 +402,14 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
 
     private enum SHOW_KEYNOTE {KEY, NOTE}
 
+    public static class ScreenOffReceiver extends BroadcastReceiver {
+        public IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+                KeyDb.onReceivedScreenOff();
+        }
+    }
 
 }

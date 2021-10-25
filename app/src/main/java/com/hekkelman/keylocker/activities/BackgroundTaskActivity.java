@@ -6,12 +6,13 @@ import com.hekkelman.keylocker.tasks.UiBasedBackgroundTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-public abstract class BackgroundTaskActivity<Result> extends BaseActivity {
+public abstract class BackgroundTaskActivity<Result> extends AppCompatActivity {
     final protected String TAG_TASK_FRAGMENT = this.getClass().getSimpleName() + ".TaskFragment";
 
     private ProcessLifecycleObserver mObserver = null;

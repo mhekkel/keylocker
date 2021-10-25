@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="settings_key_relock_screen_off" translatable="false">pref_relock_screen_off</string>
     <string name="settings_key_relock_background" translatable="false">pref_relock_background</string>
     <string name="settings_key_minimize_on_copy" translatable="false">pref_minimize_on_copy</string>
     <string name="settings_key_tap_single" translatable="false">pref_tap_single</string>

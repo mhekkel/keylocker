@@ -21,6 +21,7 @@ import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.tasks.UnlockTask;
 import com.hekkelman.keylocker.tasks.UnlockTask.Result;
+import com.hekkelman.keylocker.utilities.Settings;
 
 import java.io.File;
 
@@ -34,6 +35,7 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	public final static int SHOW_RESET_AT_RETRY_COUNT	= 3;
 
 	// UI references.
+	public Settings mSettings;
 	private TextInputLayout mPasswordLayout;
 	private TextInputEditText mPasswordInput;
 	private SwitchCompat mPINSwitch;
@@ -44,6 +46,8 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		this.mSettings = new Settings(this);
+
 		super.onCreate(savedInstanceState);
 
 		mKeyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
@@ -78,7 +82,7 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	}
 
 	private void initPasswordPinSwitch(View v) {
-		boolean usePin = settings.getUsePin();
+		boolean usePin = mSettings.getUsePin();
 
 		mPINSwitch.setOnCheckedChangeListener(
 			new CompoundButton.OnCheckedChangeListener() {
@@ -109,10 +113,10 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 	private void initPasswordLayoutView(View v) {
 		int hintResId = (mPINSwitch.isChecked()) ? R.string.unlock_hint_pin :  R.string.unlock_hint_password;
 		mPasswordLayout.setHint(getString(hintResId));
-		if (settings.getBlockAccessibility()) {
+		if (mSettings.getBlockAccessibility()) {
 			mPasswordLayout.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
 		}
-		if (settings.getBlockAutofill()) {
+		if (mSettings.getBlockAutofill()) {
 			mPasswordLayout.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
 		}
 	}

@@ -9,8 +9,8 @@
             app:key="@string/settings_key_main_password" />
 
         <SwitchPreference
-            app:title="@string/pref_relock_screen_off_label"
-            app:key="@string/settings_key_relock_screen_off"/>
+            app:title="@string/pref_relock_background"
+            app:key="@string/settings_key_relock_background"/>
 
     </PreferenceCategory>
 

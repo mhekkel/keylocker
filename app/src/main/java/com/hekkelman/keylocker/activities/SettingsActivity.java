@@ -16,6 +16,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.utilities.Settings;
 
 public class SettingsActivity extends AppCompatActivity {
