@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single" android:id="@+id/group_1">
         <item android:id="@+id/nav_keys" android:title="@string/nav_keys_str"
             android:icon="@drawable/ic_key"/>
         <item android:id="@+id/nav_notes" android:title="@string/nav_notes_str"
             android:icon="@drawable/ic_insert_comment"/>
     </group>
 
-    <group>
+    <group android:id="@+id/group_2">
         <item android:title="@string/action_synchronize">
             <menu>
                 <item android:id="@+id/nav_sync_sdcard" android:title="@string/sync_with_sdcard"
@@ -21,7 +21,7 @@
         </item>
     </group>
 
-    <group>
+    <group android:id="@+id/group_3">
         <item android:id="@+id/action_settings" android:title="@string/action_settings"
             android:icon="@drawable/ic_settings"/>
         <item

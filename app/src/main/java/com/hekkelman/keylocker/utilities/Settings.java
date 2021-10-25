@@ -14,7 +14,7 @@ public class Settings {
     private final Context context;
     private final SharedPreferences settings;
 
-    public enum TapMode {EDIT, COPY, COPY_BACKGROUND, SEND_KEYSTROKES}
+    public enum TapMode {NOTHING, EDIT, COPY, COPY_BACKGROUND, SEND_KEYSTROKES}
 
     public Settings(Context context) {
         this.context = context;
@@ -71,28 +71,8 @@ public class Settings {
                 .apply();
     }
 
-    public Locale getLocale() {
-        String lang = getString(R.string.settings_key_lang, R.string.settings_default_lang);
-
-        if (lang.equals("system")) {
-            return Resources.getSystem().getConfiguration().getLocales().get(0);
-        } else {
-            String[] splitLang =  lang.split("_");
-
-            if (splitLang.length > 1) {
-                return new Locale(splitLang[0], splitLang[1]);
-            } else {
-                return new Locale(lang);
-            }
-        }
-    }
-
     public void registerPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
         settings.registerOnSharedPreferenceChangeListener(listener);
-    }
-
-    public boolean getScreenshotsEnabled() {
-        return getBoolean(R.string.settings_key_enable_screenshot, false);
     }
 
     public boolean getRelockOnScreenOff() {

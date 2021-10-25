@@ -96,11 +96,8 @@
     <string name="button_keycard_copy">Copy password</string>
     <string name="button_keycard_options">Edit password</string>
     <string name="activity_unlock_title">Unlock KeyLocker</string>
-    <string name="settings_key_use_pin" translatable="false">pref_use_pin</string>
-    <string name="settings_key_block_accessibility" translatable="false">pref_block_accessibility</string>
     <string name="unlock_hint_pin">PIN</string>
     <string name="unlock_hint_password">Password</string>
-    <string name="settings_key_block_autofill" translatable="false">pref_block_autofill</string>
     <string name="title_activity_init">Create new KeyLocker</string>
     <string name="fab_create_new">Create new</string>
     <string name="label_clipboard_content">KeyLocker password</string>
@@ -110,10 +107,8 @@
     <string name="save_key_task_cancelled">Saving was cancelled</string>
     <string name="dialog_save_before_close">Save and Close</string>
     <string name="settings_category_title_ui">User interface</string>
-    <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
     <string name="settings_title_tap_single">Single tap</string>
     <string name="settings_title_tap_double">Double tap</string>
-    <string name="settings_key_backup_dir" translatable="false">pref_backup_dir</string>
     <string name="empty_string" translatable="false" />
     <string name="prefs_backup_options_title">Backup options</string>
     <string name="settings_desc_backup_location_set">Backup dir set</string>
@@ -121,9 +116,6 @@
     <string name="settings_title_backup_location">Local backup location</string>
     <string name="backup_toast_no_location">Please select a backup location first in settings</string>
     <string name="sync_task_cancelled">Synchronisation was cancelled</string>
-    <string name="settings_key_backup_cat" translatable="false">pref_backup_cat</string>
-    <string name="settings_key_password_cat" translatable="false">pref_password_cat</string>
-    <string name="settings_key_main_password" translatable="false">pref_main_password</string>
     <string name="change_password_failed_message">"Somehow, KeyLocker failed to change the password, the error is: "</string>
     <string name="change_password_failed_title">Creating a Locker Failed</string>
     <string name="password_too_short">This password is too short</string>
@@ -136,6 +128,9 @@
     <string name="undo_remove">Undo</string>
     <string name="dlog_creating_locker_failed">Creating locker failed</string>
     <string name="dlog_creating_locker_failed_body">Somehow, KeyLocker failed to create a new Locker file, the error is: </string>
+    <string name="dlog_password_title">Enter password</string>
+    <string name="settings_title_security_cat">Security</string>
+    <string name="pref_relock_screen_off_label">Lock the application when the screen is turned off</string>
 
     <string-array name="settings_entries_tap">
         <item>Nothing</item>

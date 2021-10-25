@@ -64,9 +64,8 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         NavigationView navigationView = findViewById(R.id.nav_view);
         FloatingActionButton fabView = findViewById(R.id.fab);
 
-        if (!settings.getScreenshotsEnabled())
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-                    WindowManager.LayoutParams.FLAG_SECURE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -319,6 +318,14 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
             mAdapter.loadEntries();
         } else if (result.needPassword) {
             final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
+
+            final EditText passwordEditText = view.findViewById(R.id.dlog_password);
+            if (settings.getBlockAccessibility())
+                passwordEditText.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+
+            if (settings.getBlockAutofill())
+                passwordEditText.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+
             new AlertDialog.Builder(MainActivity.this)
                     .setView(view)
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -333,6 +340,7 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
                     .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                     })
                     .show();
+
         } else {
             syncFailed(result.errorMessage);
         }

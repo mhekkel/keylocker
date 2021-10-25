@@ -2,11 +2,16 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:title="Main keylocker password">
+        app:title="@string/settings_title_security_cat">
 
         <Preference
             app:title="@string/pref_title_locker_password"
             app:key="@string/settings_key_main_password" />
+
+        <SwitchPreference
+            app:title="@string/pref_relock_screen_off_label"
+            app:key="@string/settings_key_relock_screen_off"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/settings_category_title_ui" app:key="@string/settings_key_cat_ui">

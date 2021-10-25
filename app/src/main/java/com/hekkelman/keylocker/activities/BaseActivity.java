@@ -25,37 +25,19 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         settings = new Settings(this);
 
-        setLocale();
-
         super.onCreate(savedInstanceState);
 
-        screenOffReceiver = new ScreenOffReceiver();
-        registerReceiver(screenOffReceiver, screenOffReceiver.filter);
+        if (settings.getRelockOnScreenOff()) {
+            screenOffReceiver = new ScreenOffReceiver();
+            registerReceiver(screenOffReceiver, screenOffReceiver.filter);
+        }
     }
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(screenOffReceiver);
+        if (screenOffReceiver != null)
+            unregisterReceiver(screenOffReceiver);
         super.onDestroy();
-    }
-
-    @Override
-    public void onResume() {
-        setLocale();
-        super.onResume();
-    }
-
-    public void setLocale() {
-        Locale locale = settings.getLocale();
-
-        Resources resources = getResources();
-        Configuration config = resources.getConfiguration();
-
-        LocaleList localeList = new LocaleList(locale);
-        LocaleList.setDefault(localeList);
-        config.setLocale(locale);
-        config.setLocales(localeList);
-        createConfigurationContext(config);
     }
 
     public static class ScreenOffReceiver extends BroadcastReceiver {

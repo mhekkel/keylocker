@@ -78,7 +78,7 @@
     <string name="save_key_task_cancelled">Bewaren is niet gelukt</string>
     <string name="dialog_save_before_close">Bewaar en Sluit</string>
     <string name="fab_create_new">Maak nieuwe</string>
-    <string name="settings_category_title_ui">Vormgeving</string>
+    <string name="settings_category_title_ui">Gebruikersinterface</string>
     <string name="settings_title_tap_single">Enkele tik</string>
     <string name="settings_title_tap_double">Dubbel tikken</string>
     <string name="settings_desc_backup_location_set">Backup locatie ingesteld</string>
@@ -103,6 +103,9 @@
     <string name="sync_task_cancelled">Synchronisatie afgebroken</string>
     <string name="dlog_creating_locker_failed">Creating locker failed</string>
     <string name="dlog_creating_locker_failed_body">Somehow, KeyLocker failed to create a new Locker file, the error is: %s</string>
+    <string name="dlog_password_title">Enter password</string>
+    <string name="settings_title_security_cat">Security</string>
+    <string name="pref_relock_screen_off_label">Lock the application when the screen is turned off</string>
 
     <string-array name="settings_entries_tap">
         <item>Niets</item>
