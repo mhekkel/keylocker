@@ -27,24 +27,24 @@
     <string name="dlog_delete_locker_title">Sleutelkluis overschrijven</string>
     <string name="sync_with_sdcard">SD kaart</string>
     <string name="title_activity_settings">Instellingen</string>
-    <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ij;ie;o;oh;oo;u</string>
+    <string name="settings_default_password_vowels">a;ae;ah;ai;e;ee;ei;i;ij;ie;o;oh;oo;u</string>
     <string name="dlog_discard_changes_msg">U staat op het punt de wijzigingen ongedaan te maken. Wilt u doorgaan?</string>
     <string name="dlog_discard_changes_title">Nog niet opgeslagen</string>
-    <string name="consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
+    <string name="settings_default_password_consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
     <string name="action_replace">Vervang sleutelkluis</string>
     <string name="change_pw_btn">Verander</string>
     <string name="change_pw_hint_1">Nieuw wachtwoord</string>
     <string name="change_pw_hint_2">Nieuw wachtwoord (controle)</string>
     <string name="pref_change_password_text">Vervang hier het hoofdwachtwoord voor uw sleutelkluis. Kies uit een pincode (alleen cijfers, makkelijker maar minder veilig) of uit een wachtwoord (veel veiliger).</string>
-    <string name="pref_password_generator">Wachtwoord generator</string>
-    <string name="pref_title_include_capitals">Gebruik hoofdletters</string>
-    <string name="pref_title_include_digits">Gebruik cijfers</string>
-    <string name="pref_title_include_symbols">Gebruik symbolen</string>
-    <string name="pref_title_no_ambiguous">Vermijd ambiguiteit</string>
-    <string name="pref_title_password_length">Wachtwoord lengte</string>
-    <string name="pref_description_ambiguous">Gebruik geen letters of cijfers die moeilijk te onderscheiden zijn zoals O (hoofdletter o) en 0 (nul).</string>
+    <string name="settings_category_password_generator">Wachtwoord generator</string>
+    <string name="settings_title_password_include_capitals">Gebruik hoofdletters</string>
+    <string name="settings_title_password_include_digits">Gebruik cijfers</string>
+    <string name="settings_title_password_include_symbols">Gebruik symbolen</string>
+    <string name="settings_title_password_not_ambiguous">Vermijd ambiguiteit</string>
+    <string name="settings_title_password_length">Wachtwoord lengte</string>
+    <string name="settings_summary_password_not_ambiguous">Gebruik geen letters of cijfers die moeilijk te onderscheiden zijn zoals O (hoofdletter o) en 0 (nul).</string>
     <string name="title_activity_change_main_password">Hoofd Wachtwoord</string>
-    <string name="pref_title_locker_password">Wijzig hoofdwachtwoord</string>
+    <string name="settings_title_main_password">Wijzig hoofdwachtwoord</string>
     <string name="dlog_missing_key_msg">De sleutel kon niet worden gevonden</string>
     <string name="dlog_missing_key_title">Ontbrekende sleutel</string>
     <string name="dlog_save_failed_msg">Het opslaan is mislukt, foutmelding: </string>
@@ -78,7 +78,7 @@
     <string name="save_key_task_cancelled">Bewaren is niet gelukt</string>
     <string name="dialog_save_before_close">Bewaar en Sluit</string>
     <string name="fab_create_new">Maak nieuwe</string>
-    <string name="settings_category_title_ui">Gebruikersinterface</string>
+    <string name="settings_category_user_interface">Gebruikersinterface</string>
     <string name="settings_title_tap_single">Enkele tik</string>
     <string name="settings_title_tap_double">Dubbel tikken</string>
     <string name="settings_desc_backup_location_set">Backup locatie ingesteld</string>
@@ -97,22 +97,16 @@
     <string name="dlog_missing_note_title">Ontbrekende notitie</string>
     <string name="note_name_is_required">Een naam is verplicht</string>
     <string name="noteTextCaptionHint">notitie tekst</string>
-    <string name="prefs_backup_options_title">Backup opties</string>
+    <string name="settings_category_backup">Backup opties</string>
     <string name="settings_desc_backup_location_not_set">De backup locatie is nog niet ingesteld</string>
     <string name="sync_failed_msg">"Opslaan van de gegeven is mislukt met melding: "</string>
     <string name="sync_task_cancelled">Synchronisatie afgebroken</string>
     <string name="dlog_creating_locker_failed">Creating locker failed</string>
     <string name="dlog_creating_locker_failed_body">Somehow, KeyLocker failed to create a new Locker file, the error is: %s</string>
     <string name="dlog_password_title">Enter password</string>
-    <string name="settings_title_security_cat">Security</string>
-    <string name="pref_relock_background">Vergrendel programma wanneer het in de achtergrond gaat</string>
-
-    <string-array name="settings_entries_tap">
-        <item>Niets</item>
-        <item>Wijzig</item>
-        <item>Kopieer</item>
-        <item>Kopieer en ga naar achtergrond</item>
-        <item>Deel als toetsaanslagen</item>
-    </string-array>
+    <string name="settings_category_security">Security</string>
+    <string name="settings_title_relock_background">Vergrendel programma wanneer het in de achtergrond gaat</string>
+    <string name="settings_title_auth_inactivity">Lock the application after being inactive for a specified time</string>
+    <string name="settings_title_auth_inactivity_delay">Lock after this many seconds of inactivity</string>
 
 </resources>

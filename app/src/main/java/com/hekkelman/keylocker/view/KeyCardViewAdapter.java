@@ -4,14 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.Filter;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
-import com.hekkelman.keylocker.datamodel.Note;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import java.util.List;

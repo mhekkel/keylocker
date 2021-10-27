@@ -2,19 +2,32 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:title="@string/settings_title_security_cat">
+        app:title="@string/settings_category_security">
 
         <Preference
-            app:title="@string/pref_title_locker_password"
+            app:title="@string/settings_title_main_password"
             app:key="@string/settings_key_main_password" />
 
         <SwitchPreference
-            app:title="@string/pref_relock_background"
+            app:title="@string/settings_title_relock_background"
             app:key="@string/settings_key_relock_background"/>
+
+        <SwitchPreference
+            app:title="@string/settings_title_auth_inactivity"
+            app:key="@string/settings_key_auth_inactivity"/>
+
+        <EditTextPreference
+            app:defaultValue="@integer/settings_default_auth_inactivity_delay"
+            app:key="@string/settings_key_auth_inactivity_delay"
+            app:maxLines="1"
+            app:singleLine="true"
+            app:useSimpleSummaryProvider="true"
+            app:title="@string/settings_title_auth_inactivity_delay"
+            app:dependency="@string/settings_key_auth_inactivity"/>
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/settings_category_title_ui" app:key="@string/settings_key_cat_ui">
+    <PreferenceCategory app:title="@string/settings_category_user_interface" app:key="@string/settings_key_cat_ui">
         <ListPreference
             app:key="@string/settings_key_tap_single"
             app:title="@string/settings_title_tap_single"
@@ -35,7 +48,7 @@
 
     <PreferenceCategory
         app:key="@string/settings_key_backup_cat"
-        app:title="@string/prefs_backup_options_title">
+        app:title="@string/settings_category_backup">
 
         <Preference
             app:key="@string/settings_key_backup_dir"
@@ -46,39 +59,37 @@
 
     <PreferenceCategory
         app:key="@string/settings_key_password_cat"
-        app:title="@string/pref_password_generator"
+        app:title="@string/settings_category_password_generator"
         app:initialExpandedChildrenCount="1">
 
         <EditTextPreference
             app:defaultValue="8"
-            app:key="password-length"
+            app:key="@string/settings_key_password_length"
             app:maxLines="1"
             app:singleLine="true"
             app:useSimpleSummaryProvider="true"
-            app:title="@string/pref_title_password_length" />
+            app:title="@string/settings_title_password_length" />
 
         <SwitchPreference
             app:defaultValue="true"
-            app:key="password-no-ambiguous"
-            app:summary="@string/pref_description_ambiguous"
-            app:title="@string/pref_title_no_ambiguous" />
+            app:key="@string/settings_key_password_not_ambiguous"
+            app:summary="@string/settings_summary_password_not_ambiguous"
+            app:title="@string/settings_title_password_not_ambiguous" />
 
         <SwitchPreference
             app:defaultValue="true"
             app:key="password-include-capitals"
-            app:title="@string/pref_title_include_capitals" />
+            app:title="@string/settings_title_password_include_capitals" />
 
         <SwitchPreference
             app:defaultValue="true"
             app:key="password-include-digits"
-            app:title="@string/pref_title_include_digits" />
+            app:title="@string/settings_title_password_include_digits" />
 
         <SwitchPreference
             app:defaultValue="true"
             app:key="password-include-symbols"
-            app:title="@string/pref_title_include_symbols" />
-
+            app:title="@string/settings_title_password_include_symbols" />
 
     </PreferenceCategory>
-
 </PreferenceScreen>

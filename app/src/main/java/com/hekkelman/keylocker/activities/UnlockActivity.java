@@ -85,9 +85,7 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 		boolean usePin = mSettings.getUsePin();
 
 		mPINSwitch.setOnCheckedChangeListener(
-			new CompoundButton.OnCheckedChangeListener() {
-				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				(buttonView, isChecked) -> {
 					mPasswordInput.setText("");
 
 					if (isChecked) {
@@ -98,7 +96,6 @@ public class UnlockActivity extends BackgroundTaskActivity<UnlockTask.Result>
 						mPasswordLayout.setHint(getString(R.string.unlock_hint_password));
 					}
 				}
-			}
 		);
 
 		mPINSwitch.setChecked(usePin);

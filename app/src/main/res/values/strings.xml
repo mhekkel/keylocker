@@ -50,18 +50,6 @@
     </string>
     <string name="dlog_delete_locker_title">Delete Key Locker File</string>
 
-    <string name="title_activity_settings">Settings</string>
-
-    <string name="vowels">a;ae;ah;ai;e;ee;ei;i;ie;o;oh;oo;u</string>
-    <string name="consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
-    <string name="pref_title_password_length">Password Length</string>
-    <string name="pref_description_ambiguous">Avoid ambigous characters such as 0 (zero) and O (capital o)</string>
-    <string name="pref_title_no_ambiguous">No Ambiguous</string>
-    <string name="pref_title_include_capitals">Include Capitals</string>
-    <string name="pref_title_include_symbols">Include Symbols</string>
-    <string name="pref_title_include_digits">Include Digits</string>
-    <string name="pref_password_generator">Password generator</string>
-    <string name="pref_title_locker_password">Change Main Password</string>
     <string name="title_activity_change_main_password">Main Password</string>
     <string name="pref_change_password_text">You can change the main password for KeyLocker here. You can choose between
         a pin code (digits only, easier to use but less secure) or a full password or pass phrase (much more secure).
@@ -106,14 +94,7 @@
     <string name="menu_popup_remove">Remove</string>
     <string name="save_key_task_cancelled">Saving was cancelled</string>
     <string name="dialog_save_before_close">Save and Close</string>
-    <string name="settings_category_title_ui">User interface</string>
-    <string name="settings_title_tap_single">Single tap</string>
-    <string name="settings_title_tap_double">Double tap</string>
     <string name="empty_string" translatable="false" />
-    <string name="prefs_backup_options_title">Backup options</string>
-    <string name="settings_desc_backup_location_set">Backup dir set</string>
-    <string name="settings_desc_backup_location_not_set">Backup location not set yet</string>
-    <string name="settings_title_backup_location">Local backup location</string>
     <string name="backup_toast_no_location">Please select a backup location first in settings</string>
     <string name="sync_task_cancelled">Synchronisation was cancelled</string>
     <string name="change_password_failed_message">"Somehow, KeyLocker failed to change the password, the error is: "</string>
@@ -129,16 +110,5 @@
     <string name="dlog_creating_locker_failed">Creating locker failed</string>
     <string name="dlog_creating_locker_failed_body">Somehow, KeyLocker failed to create a new Locker file, the error is: </string>
     <string name="dlog_password_title">Enter password</string>
-    <string name="settings_title_security_cat">Security</string>
-    <string name="pref_relock_background">Lock the application when it goes into the background</string>
-
-    <string-array name="settings_entries_tap">
-        <item>Nothing</item>
-        <item>Edit</item>
-        <item>Copy</item>
-        <item>Copy and go to background</item>
-        <item>Share as Keystrokes</item>
-    </string-array>
-
 
 </resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="settings_entries_tap">
+        <item>Niets</item>
+        <item>Wijzig</item>
+        <item>Kopieer</item>
+        <item>Kopieer en ga naar achtergrond</item>
+        <item>Deel als toetsaanslagen</item>
+    </string-array>
+
+</resources>

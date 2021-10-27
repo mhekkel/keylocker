@@ -20,6 +20,7 @@ import com.hekkelman.keylocker.datamodel.Note;
 import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.tasks.SaveNoteTask;
 import com.hekkelman.keylocker.tasks.TaskResult;
+import com.hekkelman.keylocker.utilities.AppContainer;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -41,8 +42,8 @@ public class NoteDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_detail);
 
-        KeyLockerApp app = (KeyLockerApp) getApplication();
-        this.saveNoteTask = new SaveNoteTask(this, app.getExecutorService(), app.getMainThreadHandler());
+        AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
+        this.saveNoteTask = new SaveNoteTask(this, appContainer.getExecutorService(), appContainer.getMainThreadHandler());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

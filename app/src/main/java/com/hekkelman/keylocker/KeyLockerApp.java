@@ -9,15 +9,8 @@ import java.util.concurrent.Executors;
 
 import androidx.core.os.HandlerCompat;
 
+import com.hekkelman.keylocker.utilities.AppContainer;
+
 public class KeyLockerApp extends Application {
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private Handler mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper());
-
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
-
-    public Handler getMainThreadHandler() {
-        return mainThreadHandler;
-    }
+    public AppContainer appContainer = new AppContainer();
 }

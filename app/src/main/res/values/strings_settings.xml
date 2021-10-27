@@ -1,0 +1,39 @@
+<resources>
+
+    <string name="settings_activity_title">Settings</string>
+
+    <string name="settings_category_security">Security</string>
+    <string name="settings_category_user_interface">User interface</string>
+    <string name="settings_category_backup">Backup</string>
+    <string name="settings_category_password_generator">Password generator</string>
+
+    <string name="settings_title_main_password">Change Main Password</string>
+    <string name="settings_title_relock_background">Lock the application when it goes into the background</string>
+    <string name="settings_title_auth_inactivity">Lock the application after being inactive for a specified time</string>
+    <string name="settings_title_auth_inactivity_delay">Lock after this many seconds of inactivity</string>
+
+    <string name="settings_title_tap_single">Single tap</string>
+    <string name="settings_title_tap_double">Double tap</string>
+
+    <string name="settings_title_backup_location">Local backup location</string>
+    <string name="settings_desc_backup_location_set">Backup dir set</string>
+    <string name="settings_desc_backup_location_not_set">Backup location not set yet</string>
+
+    <string name="settings_title_password_length">Password Length</string>
+    <string name="settings_title_password_not_ambiguous">No Ambiguous</string>
+    <string name="settings_summary_password_not_ambiguous">Avoid ambiguous characters such as 0 (zero) and O (capital o)</string>
+    <string name="settings_title_password_include_capitals">Include Capitals</string>
+    <string name="settings_title_password_include_symbols">Include Symbols</string>
+    <string name="settings_title_password_include_digits">Include Digits</string>
+    <string name="settings_default_password_vowels">a;ae;ah;ai;e;ee;ei;i;ie;o;oh;oo;u</string>
+    <string name="settings_default_password_consonants">b;c;ch;d;f;g;gh;h;j;k;l;m;n;ng;p;ph;qu;r;s;sh;t;th;v;w;x;y;z</string>
+
+    <string-array name="settings_entries_tap">
+        <item>Nothing</item>
+        <item>Edit</item>
+        <item>Copy</item>
+        <item>Copy and go to background</item>
+        <item>Share as Keystrokes</item>
+    </string-array>
+
+</resources>
