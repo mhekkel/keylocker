@@ -11,8 +11,8 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.NoActionBar">
+        android:layout_height="200dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -23,7 +23,123 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_key_detail" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/key_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:hint="@string/keyNameCaptionHint"
+                android:imeOptions="actionGo"
+                android:inputType="text"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/key_user"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:hint="@string/keyUserCaptionHint"
+                android:imeOptions="actionGo"
+                android:inputType="text"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                app:endIconMode="password_toggle"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/key_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_key_input_field_with_button"
+                    android:hint="@string/key_password_caption_hint"
+                    android:imeOptions="actionGo"
+                    android:inputType="textPassword"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="4dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:onClick="onClickRenewPassword"
+                android:src="@drawable/ic_autorenew"
+                android:background="@drawable/btn_background_circle"
+                android:elevation="4dp"
+                />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/key_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_key_input_field_with_button"
+                    android:hint="@string/keyURLCaptionHint"
+                    android:imeOptions="actionGo"
+                    android:inputType="textUri"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="4dp"
+                android:layout_alignParentEnd="true"
+                android:onClick="onClickVisitURL"
+                android:src="@drawable/ic_arrow_forward"
+                android:background="@drawable/btn_background_circle"
+                android:elevation="4dp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/key_last_modified"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
 
     <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
     <!--            android:id="@+id/fab"-->

@@ -17,7 +17,6 @@ import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.Note;
-import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.tasks.SaveNoteTask;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
@@ -55,7 +54,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         nameField = findViewById(R.id.noteNameField);
         textField = findViewById(R.id.noteTextField);
 
-        lastModified = findViewById(R.id.lastModifiedCaption);
+        lastModified = findViewById(R.id.key_last_modified);
 
         unlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);

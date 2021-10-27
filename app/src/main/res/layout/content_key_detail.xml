@@ -23,7 +23,7 @@
             app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/keyNameField"
+                android:id="@+id/key_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
@@ -40,7 +40,7 @@
             app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/keyUserField"
+                android:id="@+id/key_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
@@ -62,7 +62,7 @@
                 app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/keyPasswordField"
+                    android:id="@+id/key_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/margin_key_input_field_with_button"
@@ -98,7 +98,7 @@
                 app:hintTextAppearance="@style/TextAppearance.AppCompat">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/keyURLField"
+                    android:id="@+id/key_url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/margin_key_input_field_with_button"
@@ -125,7 +125,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/lastModifiedCaption"
+        android:id="@+id/key_last_modified"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" />

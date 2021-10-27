@@ -26,8 +26,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.tasks.SaveKeyTask;
@@ -72,11 +70,11 @@ public class KeyDetailActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
 
-        nameField = findViewById(R.id.keyNameField);
-        userField = findViewById(R.id.keyUserField);
-        passwordField = findViewById(R.id.keyPasswordField);
-        urlField = findViewById(R.id.keyURLField);
-        lastModified = findViewById(R.id.lastModifiedCaption);
+        nameField = findViewById(R.id.key_name);
+        userField = findViewById(R.id.key_user);
+        passwordField = findViewById(R.id.key_password);
+        urlField = findViewById(R.id.key_url);
+        lastModified = findViewById(R.id.key_last_modified);
 
         unlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
