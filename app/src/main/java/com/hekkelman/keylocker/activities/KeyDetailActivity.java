@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -25,15 +27,17 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 
+import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.tasks.TaskResult;
 
 import java.util.Locale;
 import java.util.Random;
 
-public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result> {
+public class KeyDetailActivity extends AppCompatActivity {
 
     private Key key;
 
@@ -43,11 +47,20 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
     protected EditText urlField;
     protected TextView lastModified;
 
+    private SaveKeyTask saveKeyTask;
+
     private ActivityResultLauncher<Intent> unlockResult;
+
+    public KeyDetailActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        KeyLockerApp app = (KeyLockerApp) getApplication();
+        this.saveKeyTask = new SaveKeyTask(this, app.getExecutorService(), app.getMainThreadHandler());
+
         setContentView(R.layout.activity_key_detail);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -157,12 +170,16 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
         if (TextUtils.isEmpty(name)) {
             nameField.setError(getString(R.string.key_name_is_required));
         } else {
-            SaveKeyTask task = new SaveKeyTask(this, key, name,
-                    userField.getText().toString(),
+            saveKeyTask.saveKey(key, name, userField.getText().toString(),
                     passwordField.getText().toString(),
                     urlField.getText().toString(),
-                    finishOnSaved);
-            startBackgroundTask(task);
+                    finishOnSaved, this::onTaskResult);
+//            SaveKeyTask task = new SaveKeyTask(this, executor, handler, key, name,
+//                    userField.getText().toString(),
+//                    passwordField.getText().toString(),
+//                    urlField.getText().toString(),
+//                    finishOnSaved);
+//            startBackgroundTask(task);
         }
     }
 
@@ -284,16 +301,16 @@ public class KeyDetailActivity extends BackgroundTaskActivity<SaveKeyTask.Result
         return result.toString();
     }
 
-    @Override
-    void onTaskResult(SaveKeyTask.Result result) {
-        if (result.saved) {
+    public void onTaskResult(TaskResult<Boolean> result) {
+        if (result instanceof TaskResult.Success) {
             Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
-            if (result.finish)
+            if (((TaskResult.Success<Boolean>)result).data)
                 finish();
         } else {
+            Exception exception = ((TaskResult.Error)result).exception;
             new AlertDialog.Builder(KeyDetailActivity.this)
                     .setTitle(R.string.dlog_save_failed_title)
-                    .setMessage(getString(R.string.dlog_save_failed_msg) + result.errorMessage)
+                    .setMessage(getString(R.string.dlog_save_failed_msg) + exception.getMessage())
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();

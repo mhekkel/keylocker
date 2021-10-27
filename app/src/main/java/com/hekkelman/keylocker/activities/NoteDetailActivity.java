@@ -13,28 +13,36 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.Note;
+import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.tasks.SaveNoteTask;
+import com.hekkelman.keylocker.tasks.TaskResult;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class NoteDetailActivity extends BackgroundTaskActivity<SaveNoteTask.Result> {
+public class NoteDetailActivity extends AppCompatActivity {
 
     protected EditText nameField;
     protected EditText textField;
     protected TextView lastModified;
     private Note note;
     private ActivityResultLauncher<Intent> unlockResult;
+    private SaveNoteTask saveNoteTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_detail);
+
+        KeyLockerApp app = (KeyLockerApp) getApplication();
+        this.saveNoteTask = new SaveNoteTask(this, app.getExecutorService(), app.getMainThreadHandler());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -130,14 +138,10 @@ public class NoteDetailActivity extends BackgroundTaskActivity<SaveNoteTask.Resu
     private void saveNote(boolean finishOnSaved) {
         String name = nameField.getText().toString();
 
-        if (TextUtils.isEmpty(name)) {
+        if (TextUtils.isEmpty(name))
             nameField.setError(getString(R.string.note_name_is_required));
-        } else {
-            SaveNoteTask task = new SaveNoteTask(this, note, name,
-                    textField.getText().toString(),
-                    finishOnSaved);
-            startBackgroundTask(task);
-        }
+        else
+            saveNoteTask.saveNote(note, name, textField.getText().toString(), finishOnSaved, this::onTaskResult);
     }
 
     @Override
@@ -150,16 +154,16 @@ public class NoteDetailActivity extends BackgroundTaskActivity<SaveNoteTask.Resu
         }
     }
 
-    @Override
-    void onTaskResult(SaveNoteTask.Result result) {
-        if (result.saved) {
+    void onTaskResult(TaskResult<Boolean> result) {
+        if (result instanceof TaskResult.Success) {
             Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
-            if (result.finish)
+            if (((TaskResult.Success<Boolean>)result).data)
                 finish();
         } else {
+            Exception exception = ((TaskResult.Error)result).exception;
             new AlertDialog.Builder(NoteDetailActivity.this)
                     .setTitle(R.string.dlog_save_failed_title)
-                    .setMessage(getString(R.string.dlog_save_failed_msg) + result.errorMessage)
+                    .setMessage(getString(R.string.dlog_save_failed_msg) + exception.getMessage())
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();

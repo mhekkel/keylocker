@@ -5,6 +5,7 @@
     tools:ignore="GoogleAppIndexingWarning">
 
     <application
+        android:name=".KeyLockerApp"
         android:allowBackup="true"
         android:backupAgent=".utilities.BackupAgent"
         android:fullBackupOnly="true"

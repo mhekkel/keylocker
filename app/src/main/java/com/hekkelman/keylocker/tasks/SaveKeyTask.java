@@ -1,67 +1,43 @@
 package com.hekkelman.keylocker.tasks;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
+import java.util.concurrent.Executor;
+
 import androidx.annotation.NonNull;
 
-public class SaveKeyTask extends UiBasedBackgroundTask<SaveKeyTask.Result> {
+public class SaveKeyTask {
 
-    private final Key key;
-    private final String name;
-    private final String user;
-    private final String password;
-    private final String url;
-    private final boolean finishOnSaved;
+    private final Executor executor;
+    private final Handler handler;
 
-    public SaveKeyTask(Context context, Key key, String name, String user, String password, String url, boolean finishOnSaved) {
-        super(Result.failure(context.getString(R.string.save_key_task_cancelled)));
-
-        this.key = key;
-        this.name = name;
-        this.user = user;
-        this.password = password;
-        this.url = url;
-        this.finishOnSaved = finishOnSaved;
+    public SaveKeyTask(Context context, Executor executor, Handler handler) {
+        this.executor = executor;
+        this.handler = handler;
     }
 
-    //    @Override
-    @NonNull
-    protected Result doInBackground() {
-        return saveKey();
+    public void saveKey(final Key key, final String name, final String user, final String password, final String url, final boolean finishOnSaved,
+                        final TaskCallback<Boolean> callback) {
+        executor.execute(() -> {
+            try {
+                KeyDb.setKey(key, name, user, password, url);
+                notifyResult(new TaskResult.Success<>(finishOnSaved), callback);
+            } catch (KeyDbException exception) {
+                notifyResult(new TaskResult.Error<>(exception), callback);
+            }
+        });
     }
 
-    @NonNull
-    private Result saveKey() {
-        try {
-            KeyDb.setKey(key, this.name, this.user, this.password, this.url);
-            return Result.success(this.finishOnSaved);
-        } catch (KeyDbException exception) {
-            return Result.failure(exception.getMessage());
-        }
+    private void notifyResult(
+            final TaskResult<Boolean> result,
+            final TaskCallback<Boolean> callback) {
+        handler.post(() -> callback.onComplete(result));
     }
 
-    public static class Result {
-        public final boolean saved;
-        public final boolean finish;
-        public final String errorMessage;
-
-        public Result(boolean saved, boolean finish, String errorMessage) {
-            this.saved = saved;
-            this.finish = finish;
-            this.errorMessage = errorMessage;
-        }
-
-        public static Result success(boolean finish) {
-            return new Result(true, finish, "");
-        }
-
-        public static Result failure(String errorMessage) {
-            return new Result(false, false, errorMessage);
-        }
-    }
 }
