@@ -84,7 +84,18 @@ public class MainFActivity extends AppCompatActivity
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_main);
-        return navController.navigateUp() || super.onSupportNavigateUp();
+
+        boolean result = navController.navigateUp();
+        if (! result) {
+            result = super.onSupportNavigateUp();
+        }
+
+        if (!result && drawer.getDrawerLockMode(GravityCompat.START) == DrawerLayout.LOCK_MODE_UNLOCKED) {
+            drawer.openDrawer(GravityCompat.START);
+            result = true;
+        }
+
+        return result;
     }
 
     void onKeyDbChanged(@Nullable KeyDb keyDb) {
