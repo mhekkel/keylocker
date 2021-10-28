@@ -48,7 +48,24 @@
         </entry>
         <entry key="primary_sub_nav_graph.xml">
           <value>
-            <LayoutPositions />
+            <LayoutPositions>
+              <option name="myPositions">
+                <map>
+                  <entry key="fragment_key_detail">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </LayoutPositions>
           </value>
         </entry>
       </map>

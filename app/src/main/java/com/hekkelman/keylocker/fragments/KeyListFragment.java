@@ -2,6 +2,7 @@ package com.hekkelman.keylocker.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -9,17 +10,22 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.databinding.CardviewKeyItemBinding;
 import com.hekkelman.keylocker.databinding.FragmentItemListBinding;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDbModel;
 import com.hekkelman.keylocker.datamodel.KeyNote;
+import com.hekkelman.keylocker.utilities.DrawerLocker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +59,12 @@ public class KeyListFragment extends Fragment {
         };
 
         recyclerView.setAdapter(new KeyNoteRecyclerViewAdapter(keyDbModel, onClickListener));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((DrawerLocker)getActivity()).setDrawerLockerEnabled(true);
     }
 
     public static class KeyNoteRecyclerViewAdapter extends RecyclerView.Adapter<KeyNoteRecyclerViewAdapter.ViewHolder> {

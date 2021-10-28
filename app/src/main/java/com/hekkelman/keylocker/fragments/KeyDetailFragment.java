@@ -2,26 +2,28 @@ package com.hekkelman.keylocker.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+
 import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.databinding.ActivityMainDetailBinding;
 import com.hekkelman.keylocker.databinding.FragmentKeyDetailBinding;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDbModel;
+import com.hekkelman.keylocker.utilities.DrawerLocker;
 
 public class KeyDetailFragment extends Fragment {
 
@@ -58,19 +60,35 @@ public class KeyDetailFragment extends Fragment {
         urlField = binding.keyUrl;
         lastModified = binding.keyLastModified;
 
-//        mToolbarLayout = rootView.findViewById(R.id.toolbar_layout);
-//        mTextView = binding.itemDetail;
+//        setHasOptionsMenu(true);
 
-        // Show the placeholder content as text in a TextView & in the toolbar if available.
-//        updateContent();
-//        rootView.setOnDragListener(dragListener);
         return rootView;
     }
+
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        int id = item.getItemId();
+//
+//        if (id == android.R.id.home) {
+//
+////            NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_main);
+////            if (NavigationUI.navigateUp(navController, appBarConfiguration))
+////                return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((DrawerLocker) getActivity()).setDrawerLockerEnabled(false);
     }
 
     private void onChanged(Key key) {
@@ -112,11 +130,4 @@ public class KeyDetailFragment extends Fragment {
 //
 //        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 //    }
-//
-//    @Override
-//    public boolean onSupportNavigateUp() {
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_item_detail);
-//        return navController.navigateUp() || super.onSupportNavigateUp();
-//    }
-
 }

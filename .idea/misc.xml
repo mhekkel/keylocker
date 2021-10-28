@@ -7,10 +7,13 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22644927536231885" />
         <entry key="app/src/main/res/layout/activity_main_detail.xml" value="0.22644927536231885" />
         <entry key="app/src/main/res/layout/activity_main_f.xml" value="0.22644927536231885" />
+        <entry key="app/src/main/res/layout/activity_single.xml" value="0.20820668693009117" />
         <entry key="app/src/main/res/layout/content_key_detail.xml" value="0.11980749746707194" />
         <entry key="app/src/main/res/layout/content_unlock.xml" value="0.22644927536231885" />
         <entry key="app/src/main/res/layout/fragment_item_detail.xml" value="0.22644927536231885" />
         <entry key="app/src/main/res/layout/fragment_key_detail.xml" value="0.22644927536231885" />
+        <entry key="app/src/main/res/layout/toolbar.xml" value="0.20820668693009117" />
+        <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.24635416666666668" />
       </map>
     </option>
   </component>

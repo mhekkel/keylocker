@@ -9,10 +9,9 @@
         android:id="@+id/item_list_fragment"
         android:name="com.hekkelman.keylocker.fragments.KeyListFragment"
         android:label="@string/app_name">
-
         <action
             android:id="@+id/show_key_detail"
-            app:destination="@+id/key_detail_fragment"/>
+            app:destination="@+id/key_detail_fragment" />
     </fragment>
 
     <fragment
