@@ -46,7 +46,7 @@ public class KeyDb {
     private KeyChain keyChain;
 
     // constructor, regular key db file
-    private KeyDb(char[] password, File file) throws KeyDbException {
+    public KeyDb(char[] password, File file) throws KeyDbException {
         this.password = password;
         this.file = file;
         this.backup = false;

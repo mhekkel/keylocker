@@ -13,20 +13,27 @@ import com.hekkelman.keylocker.utilities.Settings;
 import java.io.File;
 
 public class KeyDbModel extends AndroidViewModel {
-    private final KeyDb2 keyDb;
+    private KeyDb keyDb;
     private final Settings settings;
     private final MutableLiveData<Key> selectedKey = new MutableLiveData<>();
     private final MutableLiveData<Note> selectedNote = new MutableLiveData<>();
+    private final File keyFile;
 
     public KeyDbModel(@NonNull Application application) {
         super(application);
         settings = new Settings(application);
 
-        File keyFile = new File(getApplication().getFilesDir(), KeyDb.KEY_DB_NAME);
-        keyDb = new KeyDb2(keyFile);
+        keyFile = new File(getApplication().getFilesDir(), KeyDb.KEY_DB_NAME);
+        keyDb = null;
     }
 
+    public boolean exists() {
+        return keyFile.exists();
+    }
 
+    public boolean locked() {
+        return keyDb == null;
+    }
 
     public void select(Key key) {
         selectedKey.setValue(key);
@@ -42,5 +49,13 @@ public class KeyDbModel extends AndroidViewModel {
 
     public LiveData<Note> getSelectedNote() {
         return selectedNote;
+    }
+
+    public void unlock(char[] password) {
+        try {
+            keyDb = new KeyDb(password, keyFile);
+        } catch (KeyDbException exception) {
+            exception.printStackTrace();
+        }
     }
 }

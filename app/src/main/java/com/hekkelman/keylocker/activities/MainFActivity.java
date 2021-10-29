@@ -1,9 +1,14 @@
 package com.hekkelman.keylocker.activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,12 +35,21 @@ public class MainFActivity extends AppCompatActivity
 
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawer;
+    private ActivityResultLauncher<Intent> unlockResult;
+    private ActivityResultLauncher<Intent> initResult;
+    private KeyDbModel keyDbModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        KeyDbModel keyDbModel = new ViewModelProvider(this).get(KeyDbModel.class);
+        unlockResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
+
+        initResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
+
+        keyDbModel = new ViewModelProvider(this).get(KeyDbModel.class);
 //        keyDbModel.getKeyDb().observe(this, this::onKeyDbChanged);
 
         ActivitySingleBinding binding = ActivitySingleBinding.inflate(getLayoutInflater());
@@ -82,6 +96,19 @@ public class MainFActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (!keyDbModel.exists()) {
+            Intent initIntent = new Intent(this, InitActivity.class);
+            initResult.launch(initIntent);
+        } else if (keyDbModel.locked()) {
+            Intent authIntent = new Intent(this, UnlockActivity.class);
+            initResult.launch(authIntent);
+        }
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_main);
 
@@ -96,6 +123,18 @@ public class MainFActivity extends AppCompatActivity
         }
 
         return result;
+    }
+
+    public void onUnlockedResult(ActivityResult result) {
+        if (result.getResultCode() == Activity.RESULT_CANCELED)
+            finish();
+        else {
+            Intent data = result.getData();
+            if (data.hasExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY)) {
+                char[] password = data.getCharArrayExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY);
+                keyDbModel.unlock(password);
+            }
+        }
     }
 
     void onKeyDbChanged(@Nullable KeyDb keyDb) {
