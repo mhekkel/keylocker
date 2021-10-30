@@ -60,7 +60,7 @@ public class UnlockActivity extends AppCompatActivity
 		AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
 		this.unlockTask = new UnlockTask(appContainer.getExecutorService(), appContainer.getMainThreadHandler());
 
-		mKeyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+//		mKeyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
 
 		setTitle(R.string.activity_unlock_title);
 
@@ -197,21 +197,21 @@ public class UnlockActivity extends AppCompatActivity
 			// form field with an error.
 			focusView.requestFocus();
 		} else {
-			// Show a progress spinner, and kick off a background task to
-			// perform the user login attempt.
-			unlockTask.unlock(mKeyFile, password.toCharArray(), result -> {
-				if (result instanceof TaskResult.Success)
-					finishWithResult(true, password.toCharArray());
-				else {
-					mPasswordInput.setText("");
-					if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT) {
-						mResetButton.setVisibility(View.VISIBLE);
-					}
-
-					mPasswordInput.setError(getString(R.string.error_incorrect_password));
-					mPasswordInput.requestFocus();
-				}
-			});
+//			// Show a progress spinner, and kick off a background task to
+//			// perform the user login attempt.
+//			unlockTask.unlock(mKeyFile, password.toCharArray(), result -> {
+//				if (result instanceof TaskResult.Success)
+//					finishWithResult(true, password.toCharArray());
+//				else {
+//					mPasswordInput.setText("");
+//					if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT) {
+//						mResetButton.setVisibility(View.VISIBLE);
+//					}
+//
+//					mPasswordInput.setError(getString(R.string.error_incorrect_password));
+//					mPasswordInput.requestFocus();
+//				}
+//			});
 		}
 	}
 

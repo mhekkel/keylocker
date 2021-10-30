@@ -14,7 +14,7 @@
         android:layout_alignParentStart="true"
         android:scrollbars="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:context="com.hekkelman.keylocker.activities.MainFActivity"
+        tools:context="com.hekkelman.keylocker.activities.MainActivity"
         tools:listitem="@layout/cardview_key_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

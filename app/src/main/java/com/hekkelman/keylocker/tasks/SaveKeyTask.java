@@ -1,23 +1,22 @@
 package com.hekkelman.keylocker.tasks;
 
-import android.content.Context;
 import android.os.Handler;
 
-import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbDao;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.util.concurrent.Executor;
 
-import androidx.annotation.NonNull;
-
 public class SaveKeyTask {
 
+    private final KeyDbDao keyDb;
     private final Executor executor;
     private final Handler handler;
 
-    public SaveKeyTask(Context context, Executor executor, Handler handler) {
+    public SaveKeyTask(KeyDbDao keyDb, Executor executor, Handler handler) {
+        this.keyDb = keyDb;
         this.executor = executor;
         this.handler = handler;
     }
@@ -26,7 +25,7 @@ public class SaveKeyTask {
                         final TaskCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
-                KeyDb.setKey(key, name, user, password, url);
+                keyDb.updateKey(key, name, user, password, url);
                 notifyResult(new TaskResult.Success<>(finishOnSaved), callback);
             } catch (KeyDbException exception) {
                 notifyResult(new TaskResult.Error<>(exception), callback);

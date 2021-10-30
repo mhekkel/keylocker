@@ -3,8 +3,8 @@ package com.hekkelman.keylocker.tasks;
 import android.os.Handler;
 
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbModel;
 
-import java.io.File;
 import java.util.concurrent.Executor;
 
 public class UnlockTask {
@@ -16,10 +16,10 @@ public class UnlockTask {
         this.handler = handler;
     }
 
-    public void unlock(final File keyDbFile, final char[] plainPassword,
+    public void unlock(final KeyDbModel keyDb, final char[] plainPassword,
                        final TaskCallback<Void> callback) {
         executor.execute(() -> {
-            if (KeyDb.isValidPassword(plainPassword, keyDbFile))
+            if (keyDb.unlock(plainPassword))
                 notifyResult(new TaskResult.Success<>(null), callback);
             else
                 notifyResult(new TaskResult.Error<>(null), callback);

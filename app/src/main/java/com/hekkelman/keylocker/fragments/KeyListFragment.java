@@ -14,6 +14,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,11 +29,13 @@ import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.utilities.DrawerLocker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class KeyListFragment extends Fragment {
 
     private FragmentItemListBinding binding;
+    private KeyNoteRecyclerViewAdapter adapter;
 
     @Nullable
     @Override
@@ -48,6 +51,8 @@ public class KeyListFragment extends Fragment {
         RecyclerView recyclerView = binding.recyclerView;
         KeyDbModel keyDbModel = new ViewModelProvider(getActivity()).get(KeyDbModel.class);
 
+        keyDbModel.getAvailableKeys().observe(getViewLifecycleOwner(), this::onAvailableKeysChanged);
+
         View.OnClickListener onClickListener = itemView -> {
             KeyNote item = (KeyNote) itemView.getTag();
             Bundle arguments = new Bundle();
@@ -58,7 +63,12 @@ public class KeyListFragment extends Fragment {
             }
         };
 
-        recyclerView.setAdapter(new KeyNoteRecyclerViewAdapter(keyDbModel, onClickListener));
+        adapter = new KeyNoteRecyclerViewAdapter(keyDbModel, onClickListener);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void onAvailableKeysChanged(List<Key> keys) {
+        adapter.setKeys(keys);
     }
 
     @Override
@@ -76,8 +86,12 @@ public class KeyListFragment extends Fragment {
         public KeyNoteRecyclerViewAdapter(KeyDbModel keyDbModel, View.OnClickListener onClickListener) {
             this.keyDbModel = keyDbModel;
             this.onClickListener = onClickListener;
+        }
 
-            items.add(new Key("x", "een", "aap", "", ""));
+        protected void setKeys(List<Key> keys) {
+            this.items.clear();
+            this.items.addAll(keys);
+            notifyDataSetChanged();
         }
 
         @NonNull

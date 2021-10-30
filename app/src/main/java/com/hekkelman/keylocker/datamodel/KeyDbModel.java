@@ -11,28 +11,35 @@ import androidx.lifecycle.ViewModel;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import java.io.File;
+import java.util.List;
 
 public class KeyDbModel extends AndroidViewModel {
-    private KeyDb keyDb;
-    private final Settings settings;
+    private KeyDbDao keyDbDao;
     private final MutableLiveData<Key> selectedKey = new MutableLiveData<>();
     private final MutableLiveData<Note> selectedNote = new MutableLiveData<>();
-    private final File keyFile;
+    private final MutableLiveData<List<Key>> availableKeys = new MutableLiveData<>();
+    private boolean locked = true;
 
     public KeyDbModel(@NonNull Application application) {
         super(application);
-        settings = new Settings(application);
-
-        keyFile = new File(getApplication().getFilesDir(), KeyDb.KEY_DB_NAME);
-        keyDb = null;
     }
 
-    public boolean exists() {
-        return keyFile.exists();
+    public boolean unlock(char[] password) {
+        try {
+            keyDbDao = KeyDbFactory.createKeyLocker(getApplication(), password);
+            locked = false;
+        } catch (KeyDbException exception) {
+            exception.printStackTrace();
+        }
+        return !locked;
+    }
+
+    public KeyDbDao getKeyDb() {
+        return keyDbDao;
     }
 
     public boolean locked() {
-        return keyDb == null;
+        return locked;
     }
 
     public void select(Key key) {
@@ -43,6 +50,8 @@ public class KeyDbModel extends AndroidViewModel {
         return selectedKey;
     }
 
+    public LiveData<List<Key>> getAvailableKeys() { return availableKeys; }
+
     public void select(Note note) {
         selectedNote.setValue(note);
     }
@@ -51,11 +60,11 @@ public class KeyDbModel extends AndroidViewModel {
         return selectedNote;
     }
 
-    public void unlock(char[] password) {
-        try {
-            keyDb = new KeyDb(password, keyFile);
-        } catch (KeyDbException exception) {
-            exception.printStackTrace();
-        }
+    public void loadKeys() {
+        availableKeys.setValue(keyDbDao.getAllKeys());
+    }
+
+    public void lock() {
+        this.locked = true;
     }
 }

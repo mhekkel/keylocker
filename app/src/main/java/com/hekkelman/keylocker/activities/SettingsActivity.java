@@ -98,8 +98,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private void requestNewMainPassword() {
-            Intent intent = new Intent(getActivity(), ChangeMainPasswordActivity.class);
-            changeMainPasswordResult.launch(intent);
+//            Intent intent = new Intent(getActivity(), ChangeMainPasswordActivity.class);
+//            changeMainPasswordResult.launch(intent);
         }
 
         private void onChangeMainPasswordResult(ActivityResult result) {

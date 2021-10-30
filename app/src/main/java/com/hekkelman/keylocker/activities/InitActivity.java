@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbFactory;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -58,7 +59,7 @@ public class InitActivity extends AppCompatActivity
         else {
             try {
                 char[] password = password_1.toCharArray();
-                KeyDb.initialize(password, getFilesDir());
+                KeyDbFactory.initialize(this, password);
                 settings.setUsePin(mPINSwitch.isChecked());
                 finishWithResult(password);
             } catch (Exception e) {

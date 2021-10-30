@@ -86,7 +86,7 @@ public class Note extends KeyNote {
         return text;
     }
 
-    public void setText(String text, KeyDb.SafetyToken safetyToken) {
+    protected void setText(String text) {
         this.text = text;
     }
 

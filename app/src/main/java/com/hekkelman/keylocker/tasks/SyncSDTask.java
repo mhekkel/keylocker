@@ -27,12 +27,12 @@ public class SyncSDTask {
     public void syncToSD(Context context, Uri backupDir, String backupPassword,
                          final TaskCallback<Void> callback) {
         executor.execute(() -> {
-            try {
-                KeyDb.synchronize(context, backupDir, backupPassword != null ? backupPassword.toCharArray() : null);
-                notifyResult(new TaskResult.Success<>(null), callback);
-            } catch (KeyDbException exception) {
-                notifyResult(new TaskResult.Error<>(exception), callback);
-            }
+//            try {
+//                KeyDb.synchronize(context, backupDir, backupPassword != null ? backupPassword.toCharArray() : null);
+//                notifyResult(new TaskResult.Success<>(null), callback);
+//            } catch (KeyDbException exception) {
+//                notifyResult(new TaskResult.Error<>(exception), callback);
+//            }
         });
     }
 

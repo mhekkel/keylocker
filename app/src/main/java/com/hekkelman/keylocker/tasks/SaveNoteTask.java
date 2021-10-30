@@ -22,12 +22,12 @@ public class SaveNoteTask {
     public void saveNote(final Note note, final String name, final String text, final boolean finishOnSaved,
                          final TaskCallback<Boolean> callback) {
         executor.execute(() -> {
-            try {
-                KeyDb.setNote(note, name, text);
-                notifyResult(new TaskResult.Success<>(finishOnSaved), callback);
-            } catch (KeyDbException exception) {
-                notifyResult(new TaskResult.Error<>(exception), callback);
-            }
+//            try {
+//                KeyDb.setNote(note, name, text);
+//                notifyResult(new TaskResult.Success<>(finishOnSaved), callback);
+//            } catch (KeyDbException exception) {
+//                notifyResult(new TaskResult.Error<>(exception), callback);
+//            }
         });
     }
 

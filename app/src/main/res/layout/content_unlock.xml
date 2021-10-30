@@ -44,16 +44,14 @@
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_password"
-                    android:imeActionId="6543"
-                    android:imeActionLabel="@string/action_unlock_short"
-                    android:imeOptions="actionDone"
-                    android:inputType="numberPassword"
-                    android:fontFamily="sans-serif"
-                    android:maxLines="1"
-                    android:singleLine="true"
                     android:autofillHints="password"
-                    />
+                    android:fontFamily="sans-serif"
+                    android:hint="@string/prompt_password"
+                    android:imeOptions="actionDone"
+                    android:imeActionLabel="@string/action_unlock_short"
+                    android:inputType="numberPassword"
+                    android:maxLines="1"
+                    android:singleLine="true" />
 
                 <requestFocus/>
 
