@@ -55,7 +55,7 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
 
             @Override
             public void onCopyButtonClicked(String text) {
-                copyHandler(text, settings.isMinimizeAppOnCopyEnabled());
+                copyHandler(text, false);
             }
 
             @Override

@@ -1,55 +1,34 @@
 package com.hekkelman.keylocker.tasks;
 
+import android.os.Handler;
+
 import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.tasks.UnlockTask.Result;
 
 import java.io.File;
+import java.util.concurrent.Executor;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+public class UnlockTask {
+    private final Executor executor;
+    private final Handler handler;
 
-public class UnlockTask extends UiBasedBackgroundTask<Result> {
-
-    private final File keyDbFile;
-    private final char[] plainPassword;
-
-    public UnlockTask(File keyDbFile, String plainPassword) {
-        super(Result.failure());
-
-        this.keyDbFile = keyDbFile;
-        this.plainPassword = plainPassword.toCharArray();
+    public UnlockTask(Executor executor, Handler handler) {
+        this.executor = executor;
+        this.handler = handler;
     }
 
-    //    @Override
-    @NonNull
-    protected Result doInBackground() {
-        return confirmAuthentication();
+    public void unlock(final File keyDbFile, final char[] plainPassword,
+                       final TaskCallback<Void> callback) {
+        executor.execute(() -> {
+            if (KeyDb.isValidPassword(plainPassword, keyDbFile))
+                notifyResult(new TaskResult.Success<>(null), callback);
+            else
+                notifyResult(new TaskResult.Error<>(null), callback);
+        });
     }
 
-    @NonNull
-    private Result confirmAuthentication() {
-        if (KeyDb.isValidPassword(plainPassword, keyDbFile))
-            return Result.success(plainPassword);
-        else
-            return Result.failure();
-    }
-
-    public static class Result {
-        @Nullable
-        public final char[] encryptionKey;
-        public final boolean requestReset;
-
-        public Result(@Nullable char[] encryptionKey, boolean requestReset) {
-            this.encryptionKey = encryptionKey;
-            this.requestReset = requestReset;
-        }
-
-        public static Result success(char[] encryptionKey) {
-            return new Result(encryptionKey, false);
-        }
-
-        public static Result failure() {
-            return new Result(null, false);
-        }
+    private void notifyResult(
+            final TaskResult<Void> result,
+            final TaskCallback<Void> callback) {
+        handler.post(() -> callback.onComplete(result));
     }
 }

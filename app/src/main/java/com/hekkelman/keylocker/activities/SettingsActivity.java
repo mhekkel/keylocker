@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
+import android.text.InputType;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -52,30 +54,47 @@ public class SettingsActivity extends AppCompatActivity {
             changeMainPasswordResult = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(), this::onChangeMainPasswordResult);
 
+            EditTextPreference numberPreference = findPreference(getString(R.string.settings_key_auth_inactivity_delay));
+            if (numberPreference != null) {
+                numberPreference.setOnBindEditTextListener(preference -> {
+                    preference.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    preference.selectAll();
+                });
+            }
+            numberPreference = findPreference(getString(R.string.settings_key_password_length));
+            if (numberPreference != null) {
+                numberPreference.setOnBindEditTextListener(preference -> {
+                    preference.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    preference.selectAll();
+                });
+            }
+
             selectBackupDirResult = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(), this::onSelectBackupDirResult);
 
             // Main password
             Preference mainPassword = findPreference(getString(R.string.settings_key_main_password));
-            mainPassword.setOnPreferenceClickListener(preference -> {
-                requestNewMainPassword();
-                return true;
-            });
+            if (mainPassword != null) {
+                mainPassword.setOnPreferenceClickListener(preference -> {
+                    requestNewMainPassword();
+                    return true;
+                });
+            }
 
             // Backup location
             Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
 
-            if (! settings.getLocalBackupDir().isEmpty()) {
-                backupLocation.setSummary(R.string.settings_desc_backup_location_set);
-            } else {
-                backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
+            if (backupLocation != null) {
+                if (! settings.getLocalBackupDir().isEmpty())
+                    backupLocation.setSummary(R.string.settings_desc_backup_location_set);
+                else
+                    backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
+
+                backupLocation.setOnPreferenceClickListener(preference -> {
+                    requestBackupAccess();
+                    return true;
+                });
             }
-
-            backupLocation.setOnPreferenceClickListener(preference -> {
-                requestBackupAccess();
-                return true;
-            });
-
         }
 
         private void requestNewMainPassword() {

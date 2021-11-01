@@ -42,7 +42,7 @@ public class Settings {
     }
 
     private int getIntValue(int keyId, int defaultValue) {
-        return settings.getInt(getResString(keyId), defaultValue);
+        return Integer.parseInt(settings.getString(getResString(keyId), Integer.toString(defaultValue)));
     }
 
     public void setBoolean(int keyId, boolean value) {
@@ -77,10 +77,6 @@ public class Settings {
 
     public boolean getRelockOnBackground() {
         return getBoolean(R.string.settings_key_relock_background, true);
-    }
-
-    public boolean isMinimizeAppOnCopyEnabled() {
-        return getBoolean(R.string.settings_key_minimize_on_copy, false);
     }
 
     public TapMode getTapSingle() {

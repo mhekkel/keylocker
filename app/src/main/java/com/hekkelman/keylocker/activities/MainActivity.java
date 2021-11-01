@@ -17,26 +17,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.Toast;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.tasks.SyncSDTask;
-import com.hekkelman.keylocker.utilities.Settings;
-import com.hekkelman.keylocker.view.KeyCardViewAdapter;
-import com.hekkelman.keylocker.view.KeyNoteCardViewAdapter;
-import com.hekkelman.keylocker.view.NoteCardViewAdapter;
-
-import java.io.File;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -46,7 +32,26 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.hekkelman.keylocker.KeyLockerApp;
+import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
+import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.tasks.SaveNoteTask;
+import com.hekkelman.keylocker.tasks.SyncSDTask;
+import com.hekkelman.keylocker.tasks.TaskResult;
+import com.hekkelman.keylocker.utilities.AppContainer;
+import com.hekkelman.keylocker.utilities.Settings;
+import com.hekkelman.keylocker.view.KeyCardViewAdapter;
+import com.hekkelman.keylocker.view.KeyNoteCardViewAdapter;
+import com.hekkelman.keylocker.view.NoteCardViewAdapter;
+
+import java.io.File;
+
+public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public Settings settings;
@@ -60,12 +65,16 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
     private ActivityResultLauncher<Intent> newKeyResult;
     private ActivityResultLauncher<Intent> editKeyResult;
     private SHOW_KEYNOTE mType = SHOW_KEYNOTE.KEY;
+    private SyncSDTask syncSDTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         settings = new Settings(this);
 
         super.onCreate(savedInstanceState);
+
+        AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
+        this.syncSDTask = new SyncSDTask(this, appContainer.getExecutorService(), appContainer.getMainThreadHandler());
 
         if (settings.getRelockOnBackground()) {
             screenOffReceiver = new ScreenOffReceiver();
@@ -187,6 +196,14 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
             if (setCountDownTimerNow())
                 countDownTimer.start();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        if (countDownTimer != null)
+            countDownTimer.cancel();
+
+        super.onPause();
     }
 
     public void authenticate() {
@@ -320,52 +337,50 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
         String backupDir = settings.getLocalBackupDir();
 
         if (TextUtils.isEmpty(backupDir)) {
-            Toast.makeText(this, R.string.backup_toast_no_location, Toast.LENGTH_SHORT).show();
+            Snackbar.make(mRecyclerView, R.string.backup_toast_no_location, BaseTransientBottomBar.LENGTH_SHORT).show();
             return;
         }
 
         try {
             Uri backupDirUri = Uri.parse(backupDir);
-
-            SyncSDTask syncSDTask = new SyncSDTask(this, backupDirUri, null);
-            startBackgroundTask(syncSDTask);
+            syncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
         } catch (Exception e) {
             syncFailed(e.getMessage());
         }
     }
 
-    @Override
-    void onTaskResult(SyncSDTask.Result result) {
-        if (result.synced) {
-            Toast.makeText(this, R.string.sync_successful, Toast.LENGTH_SHORT).show();
+    void onTaskResult(TaskResult<Void> result) {
+        if (result instanceof TaskResult.Success) {
+            Snackbar.make(mRecyclerView, R.string.sync_successful, BaseTransientBottomBar.LENGTH_SHORT).show();
             mAdapter.loadEntries();
-        } else if (result.needPassword) {
-            final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
-
-            final EditText passwordEditText = view.findViewById(R.id.dlog_password);
-            if (settings.getBlockAccessibility())
-                passwordEditText.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-
-            if (settings.getBlockAutofill())
-                passwordEditText.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
-
-            new AlertDialog.Builder(MainActivity.this)
-                    .setView(view)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        EditText pw = view.findViewById(R.id.dlog_password);
-
-                        String backupDir = settings.getLocalBackupDir();
-                        Uri backupDirUri = Uri.parse(backupDir);
-
-                        SyncSDTask syncSDTask = new SyncSDTask(MainActivity.this, backupDirUri, pw.getText().toString());
-                        startBackgroundTask(syncSDTask);
-                    })
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                    })
-                    .show();
-
         } else {
-            syncFailed(result.errorMessage);
+            Exception e = ((TaskResult.Error<Void>)result).exception;
+
+            if (e instanceof InvalidPasswordException) {
+                final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
+
+                final EditText pw = view.findViewById(R.id.dlog_password);
+                if (settings.getBlockAccessibility())
+                    pw.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+
+                if (settings.getBlockAutofill())
+                    pw.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setView(view)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            String backupDir = settings.getLocalBackupDir();
+
+                            Uri backupDirUri = Uri.parse(backupDir);
+                            syncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
+                        })
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                        })
+                        .show();
+
+            } else {
+                syncFailed(e.getMessage());
+            }
         }
     }
 
@@ -379,24 +394,29 @@ public class MainActivity extends BackgroundTaskActivity<SyncSDTask.Result>
     }
 
     private boolean setCountDownTimerNow() {
-        int secondsToBlackout = 1000 * settings.getAuthInactivityDelay();
+        try {
+            int secondsToBlackout = 1000 * settings.getAuthInactivityDelay();
 
-        if (!settings.getAuthInactivity() || secondsToBlackout == 0)
+            if (!settings.getAuthInactivity() || secondsToBlackout == 0)
+                return false;
+
+            countDownTimer = new CountDownTimer(secondsToBlackout, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                }
+
+                @Override
+                public void onFinish() {
+                    authenticate();
+                    this.cancel();
+                }
+            };
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
-
-        countDownTimer = new CountDownTimer(secondsToBlackout, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-            }
-
-            @Override
-            public void onFinish() {
-                authenticate();
-                this.cancel();
-            }
-        };
-
-        return true;
+        }
     }
 
 

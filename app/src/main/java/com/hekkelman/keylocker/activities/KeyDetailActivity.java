@@ -7,12 +7,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceManager;
+
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,12 +26,15 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.tasks.TaskResult;
+import com.hekkelman.keylocker.utilities.AppContainer;
 
 import java.util.Locale;
 import java.util.Random;
@@ -58,8 +60,8 @@ public class KeyDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        KeyLockerApp app = (KeyLockerApp) getApplication();
-        this.saveKeyTask = new SaveKeyTask(this, app.getExecutorService(), app.getMainThreadHandler());
+        AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
+        this.saveKeyTask = new SaveKeyTask(this, appContainer.getExecutorService(), appContainer.getMainThreadHandler());
 
         setContentView(R.layout.activity_key_detail);
 
@@ -174,12 +176,6 @@ public class KeyDetailActivity extends AppCompatActivity {
                     passwordField.getText().toString(),
                     urlField.getText().toString(),
                     finishOnSaved, this::onTaskResult);
-//            SaveKeyTask task = new SaveKeyTask(this, executor, handler, key, name,
-//                    userField.getText().toString(),
-//                    passwordField.getText().toString(),
-//                    urlField.getText().toString(),
-//                    finishOnSaved);
-//            startBackgroundTask(task);
         }
     }
 
@@ -194,17 +190,21 @@ public class KeyDetailActivity extends AppCompatActivity {
     }
 
     public void onClickRenewPassword(View v) {
+// TODO implement
+
         // get preferences
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
-        int length = Integer.parseInt(prefs.getString("password-length", "8"));
-        boolean noAmbiguous = prefs.getBoolean("password-no-ambiguous", true);
-        boolean includeCapitals = prefs.getBoolean("password-include-capitals", true);
-        boolean includeDigits = prefs.getBoolean("password-include-digits", true);
-        boolean includeSymbols = prefs.getBoolean("password-include-symbols", true);
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
+//        int length = Integer.parseInt(prefs.getString(getString(R.string.settings_key_password_length), "8"));
+//        boolean noAmbiguous = prefs.getBoolean("password-no-ambiguous", true);
+//        boolean includeCapitals = prefs.getBoolean("password-include-capitals", true);
+//        boolean includeDigits = prefs.getBoolean("password-include-digits", true);
+//        boolean includeSymbols = prefs.getBoolean("password-include-symbols", true);
 
-        String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
 
-        passwordField.setText(pw);
+
+//        String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
+//
+//        passwordField.setText(pw);
     }
 
     public void onClickVisitURL(View v) {
@@ -237,8 +237,8 @@ public class KeyDetailActivity extends AppCompatActivity {
     private String generatePassword(int length, boolean noAmbiguous, boolean includeCapitals, boolean includeDigits, boolean includeSymbols) {
         final String kAmbiguous = "B8G6I1l0OQDS5Z2";
 
-        String[] vowels = getString(R.string.vowels).split(";");
-        String[] consonants = getString(R.string.consonants).split(";");
+        String[] vowels = getString(R.string.settings_default_password_vowels).split(";");
+        String[] consonants = getString(R.string.settings_default_password_consonants).split(";");
         StringBuilder result = new StringBuilder();
 
         Random rng = new Random();

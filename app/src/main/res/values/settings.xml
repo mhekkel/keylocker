@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="settings_key_relock_background" translatable="false">pref_relock_background</string>
-    <string name="settings_key_minimize_on_copy" translatable="false">pref_minimize_on_copy</string>
     <string name="settings_key_tap_single" translatable="false">pref_tap_single</string>
-    <string name="settings_default_tap_single" translatable="false">nothing</string>
-    <string name="settings_default_tap_double" translatable="false">nothing</string>
     <string name="settings_key_tap_double" translatable="false">pref_tap_double</string>
-    <string name="settings_key_auth_inactivity_delay" translatable="false">pref_auth_inactivity_delay</string>
     <string name="settings_key_auth_inactivity" translatable="false">pref_auth_inactivity</string>
+    <string name="settings_key_auth_inactivity_delay" translatable="false">pref_auth_inactivity_delay</string>
     <string name="settings_key_use_pin" translatable="false">pref_use_pin</string>
     <string name="settings_key_block_accessibility" translatable="false">pref_block_accessibility</string>
     <string name="settings_key_block_autofill" translatable="false">pref_block_autofill</string>
@@ -16,13 +13,19 @@
     <string name="settings_key_backup_cat" translatable="false">pref_backup_cat</string>
     <string name="settings_key_password_cat" translatable="false">pref_password_cat</string>
     <string name="settings_key_main_password" translatable="false">pref_main_password</string>
+    <string name="settings_key_password_length" translatable="false">pref_password_length</string>
+    <string name="settings_key_password_not_ambiguous" translatable="false">pref_password_not_ambiguous</string>
 
-    <string-array name="settings_values_tap" translatable="false">
+    <string name="settings_default_tap_single" translatable="false">nothing</string>
+    <string name="settings_default_tap_double" translatable="false">nothing</string>
+    <integer name="settings_default_auth_inactivity_delay" translatable="false">30</integer>
+
+    <string-array name="settings_values_tap">
         <item>nothing</item>
         <item>edit</item>
         <item>copy</item>
         <item>copy_background</item>
-        <item>send_keystrokes</item>
+        <item>share_keystrokes</item>
     </string-array>
 
 </resources>
