@@ -100,7 +100,7 @@ public abstract class KeyNote {
         return name;
     }
 
-    public void setName(String name, KeyDb.SafetyToken safetyToken) {
+    public void setName(String name) {
         this.name = name;
         updateTimeStamp();
     }

@@ -1,24 +1,11 @@
 package com.hekkelman.keylocker.datamodel;
 
-import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.KeyNote;
-
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.core.PersistenceException;
-import org.simpleframework.xml.core.Validate;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Root
 public class Key extends KeyNote {
@@ -30,18 +17,18 @@ public class Key extends KeyNote {
     private String url;
 
     // constructors
-    public Key(Key key) {
+    protected Key(Key key) {
         super(key);
         this.user = key.user;
         this.password = key.password;
         this.url = key.url;
     }
 
-    public Key() {
+    protected Key() {
         super();
     }
 
-    public Key(String keyID, String name, String user, String password, String url) {
+    protected Key(String keyID, String name, String user, String password, String url) {
         super(keyID, name);
 
         this.user = user;
@@ -110,7 +97,7 @@ public class Key extends KeyNote {
         return user;
     }
 
-    public void setUser(String user, KeyDb.SafetyToken safetyToken) {
+    protected void setUser(String user) {
         this.user = user;
         updateTimeStamp();
     }
@@ -119,7 +106,7 @@ public class Key extends KeyNote {
         return password;
     }
 
-    public void setPassword(String password, KeyDb.SafetyToken safetyToken) {
+    protected void setPassword(String password) {
         this.password = password;
         updateTimeStamp();
     }
@@ -128,7 +115,7 @@ public class Key extends KeyNote {
         return url;
     }
 
-    public void setUrl(String url, KeyDb.SafetyToken safetyToken) {
+    protected void setUrl(String url) {
         this.url = url;
         updateTimeStamp();
     }
