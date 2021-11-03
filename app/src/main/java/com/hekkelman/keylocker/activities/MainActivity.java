@@ -3,10 +3,7 @@ package com.hekkelman.keylocker.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,8 +36,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.tasks.SaveNoteTask;
 import com.hekkelman.keylocker.tasks.SyncSDTask;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
@@ -49,37 +44,23 @@ import com.hekkelman.keylocker.view.KeyCardViewAdapter;
 import com.hekkelman.keylocker.view.KeyNoteCardViewAdapter;
 import com.hekkelman.keylocker.view.NoteCardViewAdapter;
 
-import java.io.File;
-
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends KeyDbBaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public Settings settings;
-    private ScreenOffReceiver screenOffReceiver;
     private KeyNoteCardViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
-    private String query;
-    private CountDownTimer countDownTimer;
-    private ActivityResultLauncher<Intent> unlockResult;
-    private ActivityResultLauncher<Intent> initResult;
-    private ActivityResultLauncher<Intent> newKeyResult;
-    private ActivityResultLauncher<Intent> editKeyResult;
+    private String mQuery;
+    private ActivityResultLauncher<Intent> mNewKeyResult;
+    private ActivityResultLauncher<Intent> mEditKeyResult;
     private SHOW_KEYNOTE mType = SHOW_KEYNOTE.KEY;
-    private SyncSDTask syncSDTask;
+    private SyncSDTask mSyncSDTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        settings = new Settings(this);
-
         super.onCreate(savedInstanceState);
 
-        AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
-        this.syncSDTask = new SyncSDTask(this, appContainer.getExecutorService(), appContainer.getMainThreadHandler());
-
-        if (settings.getRelockOnBackground()) {
-            screenOffReceiver = new ScreenOffReceiver();
-            registerReceiver(screenOffReceiver, screenOffReceiver.filter);
-        }
+        AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
+        this.mSyncSDTask = new SyncSDTask(this, appContainer.executorService, appContainer.mainThreadHandler);
 
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recycler_view);
@@ -93,20 +74,12 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
-        settings.registerPreferenceChangeListener(this);
+        mSettings.registerPreferenceChangeListener(this);
 
-        KeyDb.init(settings);
-
-        unlockResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
-
-        initResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
-
-        newKeyResult = registerForActivityResult(
+        mNewKeyResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
-        editKeyResult = registerForActivityResult(
+        mEditKeyResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -129,28 +102,23 @@ public class MainActivity extends AppCompatActivity
         Intent intent = getIntent();
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction()))
-            query = intent.getStringExtra(SearchManager.QUERY);
+            mQuery = intent.getStringExtra(SearchManager.QUERY);
     }
 
     private void onEditKeyResult(ActivityResult result) {
 //        this.requireAuthentication = false;
     }
 
-    public void onUnlockedResult(ActivityResult result) {
-        if (result.getResultCode() == Activity.RESULT_CANCELED)
-            finish();
-    }
-
     public void onClickFab(View view) {
         Intent intent = new Intent(MainActivity.this,
                 mType == SHOW_KEYNOTE.KEY ?  KeyDetailActivity.class : NoteDetailActivity.class);
-        newKeyResult.launch(intent);
+        mNewKeyResult.launch(intent);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        if (key.equals(getString(R.string.settings_key_relock_background)))
-            KeyDb.setRelockOnBackground(settings.getRelockOnBackground());
+//        if (key.equals(getString(R.string.settings_key_relock_background)))
+//            KeyDb.setRelockOnBackground(mSettings.getRelockOnBackground());
 
 //		if (key.equals(getString(R.string.settings_key_label_size)) ||
 //				key.equals(getString(R.string.settings_key_label_display)) ||
@@ -185,43 +153,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        if (!KeyDb.isUnlocked()) {
-            authenticate();
-        } else {
-            mAdapter.loadEntries();
-
-            if (setCountDownTimerNow())
-                countDownTimer.start();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        if (countDownTimer != null)
-            countDownTimer.cancel();
-
-        super.onPause();
-    }
-
-    public void authenticate() {
-        File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
-        if (!keyFile.exists()) {
-            Intent authIntent = new Intent(this, InitActivity.class);
-            initResult.launch(authIntent);
-        } else {
-            Intent authIntent = new Intent(this, UnlockActivity.class);
-            unlockResult.launch(authIntent);
-        }
+    public void loadData() {
+        if (mViewModel.keyDb != null)
+            mAdapter.loadEntries(mViewModel.keyDb);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (!TextUtils.isEmpty(query))
-            mAdapter.getFilter().filter(query);
+        if (!TextUtils.isEmpty(mQuery))
+            mAdapter.getFilter().filter(mQuery);
     }
 
     @Override
@@ -232,13 +173,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (screenOffReceiver != null)
-            unregisterReceiver(screenOffReceiver);
-        super.onDestroy();
     }
 
     @Override
@@ -276,13 +210,13 @@ public class MainActivity extends AppCompatActivity
             mAdapter.setEditCallback(keyID -> {
                 Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
                 intent.putExtra("key-id", keyID);
-                editKeyResult.launch(intent);
+                mEditKeyResult.launch(intent);
             });
             mAdapter.setKeyNoteRemovedCallback(keyID -> {
                  Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
                          .setAction(R.string.undo_remove, view -> {
-                             KeyDb.undoDeleteKey(keyID);
-                             mAdapter.loadEntries();
+                             mViewModel.keyDb.undoDeleteKey(keyID);
+                             mAdapter.loadEntries(mViewModel.keyDb);
                          })
                          .show();
             });
@@ -291,13 +225,13 @@ public class MainActivity extends AppCompatActivity
             mAdapter.setEditCallback(noteID -> {
                 Intent intent = new Intent(MainActivity.this, NoteDetailActivity.class);
                 intent.putExtra("note-id", noteID);
-                editKeyResult.launch(intent);
+                mEditKeyResult.launch(intent);
             });
             mAdapter.setKeyNoteRemovedCallback(noteID -> {
                 Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
                         .setAction(R.string.undo_remove, view -> {
-                            KeyDb.undoDeleteNote(noteID);
-                            mAdapter.loadEntries();
+                            mViewModel.keyDb.undoDeleteNote(noteID);
+                            mAdapter.loadEntries(mViewModel.keyDb);
                         })
                         .show();
             });
@@ -314,12 +248,12 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_keys) {
             if (mType != SHOW_KEYNOTE.KEY) {
                 swapAdapter(SHOW_KEYNOTE.KEY);
-                mAdapter.loadEntries();
+                mAdapter.loadEntries(mViewModel.keyDb);
             }
         } else if (id == R.id.nav_notes) {
             if (mType != SHOW_KEYNOTE.NOTE) {
                 swapAdapter(SHOW_KEYNOTE.NOTE);
-                mAdapter.loadEntries();
+                mAdapter.loadEntries(mViewModel.keyDb);
             }
         } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard();
@@ -334,7 +268,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void syncWithSDCard() {
-        String backupDir = settings.getLocalBackupDir();
+        String backupDir = mSettings.getLocalBackupDir();
 
         if (TextUtils.isEmpty(backupDir)) {
             Snackbar.make(mRecyclerView, R.string.backup_toast_no_location, BaseTransientBottomBar.LENGTH_SHORT).show();
@@ -343,7 +277,7 @@ public class MainActivity extends AppCompatActivity
 
         try {
             Uri backupDirUri = Uri.parse(backupDir);
-            syncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
+            mSyncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
         } catch (Exception e) {
             syncFailed(e.getMessage());
         }
@@ -352,7 +286,7 @@ public class MainActivity extends AppCompatActivity
     void onTaskResult(TaskResult<Void> result) {
         if (result instanceof TaskResult.Success) {
             Snackbar.make(mRecyclerView, R.string.sync_successful, BaseTransientBottomBar.LENGTH_SHORT).show();
-            mAdapter.loadEntries();
+            mAdapter.loadEntries(mViewModel.keyDb);
         } else {
             Exception e = ((TaskResult.Error<Void>)result).exception;
 
@@ -360,19 +294,19 @@ public class MainActivity extends AppCompatActivity
                 final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
 
                 final EditText pw = view.findViewById(R.id.dlog_password);
-                if (settings.getBlockAccessibility())
+                if (mSettings.getBlockAccessibility())
                     pw.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
 
-                if (settings.getBlockAutofill())
+                if (mSettings.getBlockAutofill())
                     pw.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
 
                 new AlertDialog.Builder(MainActivity.this)
                         .setView(view)
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            String backupDir = settings.getLocalBackupDir();
+                            String backupDir = mSettings.getLocalBackupDir();
 
                             Uri backupDirUri = Uri.parse(backupDir);
-                            syncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
+                            mSyncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
                         })
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                         })
@@ -393,43 +327,7 @@ public class MainActivity extends AppCompatActivity
                 .show();
     }
 
-    private boolean setCountDownTimerNow() {
-        try {
-            int secondsToBlackout = 1000 * settings.getAuthInactivityDelay();
-
-            if (!settings.getAuthInactivity() || secondsToBlackout == 0)
-                return false;
-
-            countDownTimer = new CountDownTimer(secondsToBlackout, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                }
-
-                @Override
-                public void onFinish() {
-                    authenticate();
-                    this.cancel();
-                }
-            };
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
 
     private enum SHOW_KEYNOTE {KEY, NOTE}
-
-    public static class ScreenOffReceiver extends BroadcastReceiver {
-        public IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
-                KeyDb.onReceivedScreenOff();
-        }
-    }
 
 }

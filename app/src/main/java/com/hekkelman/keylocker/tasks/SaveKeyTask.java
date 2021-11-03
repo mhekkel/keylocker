@@ -6,6 +6,7 @@ import android.os.Handler;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbDao;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 
 import java.util.concurrent.Executor;
@@ -22,11 +23,12 @@ public class SaveKeyTask {
         this.handler = handler;
     }
 
-    public void saveKey(final Key key, final String name, final String user, final String password, final String url, final boolean finishOnSaved,
+    public void saveKey(final KeyDbDao keyDb,
+                        final Key key, final String name, final String user, final String password, final String url, final boolean finishOnSaved,
                         final TaskCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
-                KeyDb.setKey(key, name, user, password, url);
+                keyDb.updateKey(key, name, user, password, url);
                 notifyResult(new TaskResult.Success<>(finishOnSaved), callback);
             } catch (KeyDbException exception) {
                 notifyResult(new TaskResult.Error<>(exception), callback);

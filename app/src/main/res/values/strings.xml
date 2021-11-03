@@ -110,5 +110,8 @@
     <string name="dlog_creating_locker_failed">Creating locker failed</string>
     <string name="dlog_creating_locker_failed_body">Somehow, KeyLocker failed to create a new Locker file, the error is: </string>
     <string name="dlog_password_title">Enter password</string>
+    <string name="settings_key_password_include_capitals">pref_password_include_capitals</string>
+    <string name="settings_key_password_include_digits">prefs_password_include_digits</string>
+    <string name="settings_key_password_include_symbols">pref_password_include_symbols</string>
 
 </resources>

@@ -12,8 +12,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbFactory;
+import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,17 +25,20 @@ public class InitActivity extends AppCompatActivity
         implements EditText.OnEditorActionListener, View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
 
-    private Settings settings;
+    private Settings mSettings;
+    private AppContainer mAppContainer;
     private TextInputEditText mPassword1;
     private TextInputEditText mPassword2;
     private SwitchCompat mPINSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.settings = new Settings(this);
+        this.mSettings = new Settings(this);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
+
+        mAppContainer = ((KeyLockerApp) getApplication()).mAppContainer;
 
         mPassword1 = findViewById(R.id.password_1);
         mPassword2 = findViewById(R.id.password_2);
@@ -57,10 +62,10 @@ public class InitActivity extends AppCompatActivity
             mPassword2.setError(getString(R.string.passwords_do_not_match));
         else {
             try {
-                char[] password = password_1.toCharArray();
-                KeyDb.initialize(password, getFilesDir());
-                settings.setUsePin(mPINSwitch.isChecked());
-                finishWithResult(password);
+                mAppContainer.keyDb = mAppContainer.keyDbFactory.initialize(password_1);
+                mAppContainer.locked.setValue(false);
+                mSettings.setUsePin(mPINSwitch.isChecked());
+                finishWithResult();
             } catch (Exception e) {
                 new AlertDialog.Builder(InitActivity.this)
                         .setTitle(R.string.dlog_creating_locker_failed)
@@ -92,13 +97,11 @@ public class InitActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        finishWithResult(null);
+        finishWithResult();
     }
 
-    private void finishWithResult(char[] encryptionKey) {
+    private void finishWithResult() {
         Intent data = new Intent();
-        if (encryptionKey != null)
-            data.putExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
         setResult(RESULT_OK, data);
         finish();
     }

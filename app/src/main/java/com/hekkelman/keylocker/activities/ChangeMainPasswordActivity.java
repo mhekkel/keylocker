@@ -47,29 +47,29 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
                 }
         );
 
-        Button btn = findViewById(R.id.change_pw_btn);
-        btn.setOnClickListener(
-                v -> {
-                    String password_1 = pw1.getText().toString();
-                    String password_2 = pw2.getText().toString();
-
-                    if (password_1.length() < 5)
-                        pw1.setError(getString(R.string.password_too_short));
-                    else if (!password_1.equals(password_2))
-                        pw2.setError(getString(R.string.passwords_do_not_match));
-                    else {
-                        try {
-                            KeyDb.changePassword(password_1.toCharArray());
-                            finish();
-                        } catch (Exception e) {
-                            new AlertDialog.Builder(ChangeMainPasswordActivity.this)
-                                    .setTitle(R.string.change_password_failed_title)
-                                    .setMessage(getString(R.string.change_password_failed_message) + e.getMessage())
-                                    .setIcon(android.R.drawable.ic_dialog_alert)
-                                    .show();
-                        }
-                    }
-                }
-        );
+//        Button btn = findViewById(R.id.change_pw_btn);
+//        btn.setOnClickListener(
+//                v -> {
+//                    String password_1 = pw1.getText().toString();
+//                    String password_2 = pw2.getText().toString();
+//
+//                    if (password_1.length() < 5)
+//                        pw1.setError(getString(R.string.password_too_short));
+//                    else if (!password_1.equals(password_2))
+//                        pw2.setError(getString(R.string.passwords_do_not_match));
+//                    else {
+//                        try {
+//                            KeyDb.changePassword(password_1.toCharArray());
+//                            finish();
+//                        } catch (Exception e) {
+//                            new AlertDialog.Builder(ChangeMainPasswordActivity.this)
+//                                    .setTitle(R.string.change_password_failed_title)
+//                                    .setMessage(getString(R.string.change_password_failed_message) + e.getMessage())
+//                                    .setIcon(android.R.drawable.ic_dialog_alert)
+//                                    .show();
+//                        }
+//                    }
+//                }
+//        );
     }
 }

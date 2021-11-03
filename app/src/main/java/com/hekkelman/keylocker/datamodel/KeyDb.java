@@ -100,6 +100,21 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
+    public void undoDeleteKey(String keyID) {
+        synchronized (lock) {
+            Key key = keyChain.getKeyByID(keyID);
+            if (key != null) {
+                key.setDeleted(true);
+                try {
+                    write();
+                } catch (KeyDbException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
     public Note createNote() {
         return new Note();
     }
@@ -156,6 +171,21 @@ public class KeyDb implements KeyDbDao {
         synchronized (lock) {
             note.setDeleted(true);
             write();
+        }
+    }
+
+    @Override
+    public void undoDeleteNote(String noteID) {
+        synchronized (lock) {
+            Note note = keyChain.getNoteByID(noteID);
+            if (note != null) {
+                note.setDeleted(true);
+                try {
+                    write();
+                } catch (KeyDbException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

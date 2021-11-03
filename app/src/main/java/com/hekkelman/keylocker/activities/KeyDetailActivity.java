@@ -26,8 +26,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.tasks.SaveKeyTask;
@@ -37,9 +35,10 @@ import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Random;
 
-public class KeyDetailActivity extends AppCompatActivity {
+public class KeyDetailActivity extends KeyDbBaseActivity {
 
     private Key key;
 
@@ -51,8 +50,6 @@ public class KeyDetailActivity extends AppCompatActivity {
 
     private SaveKeyTask saveKeyTask;
 
-    private ActivityResultLauncher<Intent> unlockResult;
-
     public KeyDetailActivity() {
     }
 
@@ -60,8 +57,8 @@ public class KeyDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
-        this.saveKeyTask = new SaveKeyTask(this, appContainer.getExecutorService(), appContainer.getMainThreadHandler());
+        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+        this.saveKeyTask = new SaveKeyTask(this, appContainer.executorService, appContainer.mainThreadHandler);
 
         setContentView(R.layout.activity_key_detail);
 
@@ -78,18 +75,15 @@ public class KeyDetailActivity extends AppCompatActivity {
         urlField = findViewById(R.id.keyURLField);
         lastModified = findViewById(R.id.lastModifiedCaption);
 
-        unlockResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
-
         Intent intent = getIntent();
         String keyID = intent.getStringExtra("key-id");
 
         if (keyID == null) {
             lastModified.setVisibility(View.INVISIBLE);
-            setKey(new Key());
+            setKey(appContainer.keyDb.createKey());
         } else {
-            Key key = KeyDb.getKey(keyID);
-            if (key == null) {
+            Optional<Key> key = appContainer.keyDb.getKey(keyID);
+            if (! key.isPresent()) {
                 new AlertDialog.Builder(KeyDetailActivity.this)
                         .setTitle(R.string.dlog_missing_key_title)
                         .setMessage(R.string.dlog_missing_key_msg)
@@ -103,8 +97,13 @@ public class KeyDetailActivity extends AppCompatActivity {
                 return;
             }
 
-            setKey(key);
+            setKey(key.get());
         }
+    }
+
+    @Override
+    protected void loadData() {
+
     }
 
     private void setKey(Key key) {
@@ -125,11 +124,6 @@ public class KeyDetailActivity extends AppCompatActivity {
         String lastModified = key.getTimestamp();
         if (lastModified != null)
             this.lastModified.setText(String.format(getString(R.string.lastModifiedTemplate), lastModified));
-    }
-
-    public void onUnlockedResult(ActivityResult result) {
-        if (result.getResultCode() == Activity.RESULT_CANCELED)
-            finish();
     }
 
     @Override
@@ -172,39 +166,23 @@ public class KeyDetailActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(name)) {
             nameField.setError(getString(R.string.key_name_is_required));
         } else {
-            saveKeyTask.saveKey(key, name, userField.getText().toString(),
+            saveKeyTask.saveKey(mViewModel.keyDb, key, name, userField.getText().toString(),
                     passwordField.getText().toString(),
                     urlField.getText().toString(),
                     finishOnSaved, this::onTaskResult);
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (!KeyDb.isUnlocked()) {
-            Intent authIntent = new Intent(this, UnlockActivity.class);
-            unlockResult.launch(authIntent);
-        }
-    }
-
     public void onClickRenewPassword(View v) {
-// TODO implement
+        int length = mSettings.getGeneratedPasswordLength();
+        boolean noAmbiguous = mSettings.getGeneratedPasswordNoAmbiguous();
+        boolean includeCapitals = mSettings.getGeneratedPasswordIncludeCapitals();
+        boolean includeDigits = mSettings.getGeneratedPasswordIncludeDigits();
+        boolean includeSymbols = mSettings.getGeneratedPasswordIncludeSymbols();
 
-        // get preferences
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(KeyDetailActivity.this);
-//        int length = Integer.parseInt(prefs.getString(getString(R.string.settings_key_password_length), "8"));
-//        boolean noAmbiguous = prefs.getBoolean("password-no-ambiguous", true);
-//        boolean includeCapitals = prefs.getBoolean("password-include-capitals", true);
-//        boolean includeDigits = prefs.getBoolean("password-include-digits", true);
-//        boolean includeSymbols = prefs.getBoolean("password-include-symbols", true);
+        String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
 
-
-
-//        String pw = generatePassword(length, noAmbiguous, includeCapitals, includeDigits, includeSymbols);
-//
-//        passwordField.setText(pw);
+        passwordField.setText(pw);
     }
 
     public void onClickVisitURL(View v) {

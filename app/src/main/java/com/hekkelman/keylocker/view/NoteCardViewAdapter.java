@@ -2,25 +2,22 @@ package com.hekkelman.keylocker.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Filter;
 
-import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbDao;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.datamodel.Note;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class NoteCardViewAdapter extends KeyNoteCardViewAdapter<Note> {
+
+	private KeyDbDao keyDb;
 
 	public NoteCardViewAdapter(Context context) {
 		super(context);
@@ -28,32 +25,42 @@ public class NoteCardViewAdapter extends KeyNoteCardViewAdapter<Note> {
 
 	@SuppressLint("NotifyDataSetChanged")
 	public void loadEntries() {
-		items = KeyDb.getNotes();
+		items = keyDb.getAllNotes();
 		notifyDataSetChanged();
 	}
 
 	protected void removeKeyOrNote(KeyNote note) throws KeyDbException {
-		KeyDb.deleteNote((Note)note);
+		keyDb.deleteNote((Note)note);
 	}
 
 	protected void onCardTapped(String noteID, Settings.TapMode tapMode) {
-		Note note = KeyDb.getNote(noteID);
-		switch (tapMode) {
-			case EDIT:
-				editHandler(note.getId());
-				break;
-			case COPY:
-				copyHandler(note.getText(), false);
-				break;
-			case COPY_BACKGROUND:
-				copyHandler(note.getText(), true);
-				break;
-			case SEND_KEYSTROKES:
+		Optional<Note> note = keyDb.getNote(noteID);
+		if (note.isPresent()) {
+			switch (tapMode) {
+				case EDIT:
+					editHandler(note.get().getId());
+					break;
+				case COPY:
+					copyHandler(note.get().getText(), false);
+					break;
+				case COPY_BACKGROUND:
+					copyHandler(note.get().getText(), true);
+					break;
+				case SEND_KEYSTROKES:
 //						sendKeystrokes(position);
-				break;
-			default:
-				break;
+					break;
+				default:
+					break;
+			}
 		}
+	}
+
+	@SuppressLint("NotifyDataSetChanged")
+	@Override
+	public void loadEntries(KeyDb keyDb) {
+		this.keyDb = keyDb;
+		items = keyDb.getAllNotes();
+		notifyDataSetChanged();
 	}
 
 	@Override
@@ -71,9 +78,13 @@ public class NoteCardViewAdapter extends KeyNoteCardViewAdapter<Note> {
 
 			if (constraint != null && constraint.length() > 0) {
 				constraint = constraint.toString().toUpperCase();
-				filtered = KeyDb.getFilteredNotes(constraint.toString());
+				CharSequence finalConstraint = constraint;
+				filtered = keyDb.getAllNotes()
+						.stream()
+						.filter(note -> note.match(finalConstraint.toString()))
+						.collect(Collectors.toList());
 			} else
-				filtered = KeyDb.getNotes();
+				filtered = keyDb.getAllNotes();
 
 			results.values = filtered;
 			return results;

@@ -22,13 +22,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbFactory;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.tasks.UnlockTask;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
-
-import java.io.File;
 
 /**
  * A login screen that offers login via pin/password.
@@ -36,18 +34,17 @@ import java.io.File;
 public class UnlockActivity extends AppCompatActivity
 		implements EditText.OnEditorActionListener, View.OnClickListener {
 
-	public final static String EXTRA_AUTH_PASSWORD_KEY	= "password_key";
 	public final static int SHOW_RESET_AT_RETRY_COUNT	= 3;
 
 	private UnlockTask unlockTask;
 
 	// UI references.
-	public Settings mSettings;
+	private Settings mSettings;
+	private AppContainer mAppContainer;
 	private TextInputLayout mPasswordLayout;
 	private TextInputEditText mPasswordInput;
 	private SwitchCompat mPINSwitch;
 	private Button mUnlockButton;
-	private File mKeyFile;
 	private Button mResetButton;
 	private int mRetryCount = 0;
 
@@ -57,10 +54,8 @@ public class UnlockActivity extends AppCompatActivity
 
 		super.onCreate(savedInstanceState);
 
-		AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
-		this.unlockTask = new UnlockTask(appContainer.getExecutorService(), appContainer.getMainThreadHandler());
-
-		mKeyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+		mAppContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+		this.unlockTask = new UnlockTask(mAppContainer.executorService, mAppContainer.mainThreadHandler);
 
 		setTitle(R.string.activity_unlock_title);
 
@@ -165,8 +160,9 @@ public class UnlockActivity extends AppCompatActivity
 	}
 
 	private void resetLocker() {
-		if (mKeyFile.exists())
-			mKeyFile.delete();
+//		if (mKeyFile.exists())
+//			mKeyFile.delete();
+		mAppContainer.keyDbFactory.reset();
 		finishWithResult(false, null);
 	}
 
@@ -199,7 +195,7 @@ public class UnlockActivity extends AppCompatActivity
 		} else {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
-			unlockTask.unlock(mKeyFile, password.toCharArray(), result -> {
+			unlockTask.unlock(mAppContainer, password, result -> {
 				if (result instanceof TaskResult.Success)
 					finishWithResult(true, password.toCharArray());
 				else {
@@ -230,8 +226,6 @@ public class UnlockActivity extends AppCompatActivity
 
 	private void finishWithResult(boolean success, char[] encryptionKey) {
 		Intent data = new Intent();
-		if (encryptionKey != null)
-			data.putExtra(EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
 		if (success)
 			setResult(RESULT_OK, data);
 		finish();

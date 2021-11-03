@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.datamodel.KeyDbDao;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.Note;
 
@@ -19,11 +20,12 @@ public class SaveNoteTask {
         this.handler = handler;
     }
 
-    public void saveNote(final Note note, final String name, final String text, final boolean finishOnSaved,
+    public void saveNote(final KeyDbDao keyDb,
+            final Note note, final String name, final String text, final boolean finishOnSaved,
                          final TaskCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
-                KeyDb.setNote(note, name, text);
+                keyDb.updateNote(note, name, text);
                 notifyResult(new TaskResult.Success<>(finishOnSaved), callback);
             } catch (KeyDbException exception) {
                 notifyResult(new TaskResult.Error<>(exception), callback);

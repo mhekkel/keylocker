@@ -17,10 +17,11 @@ import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.Note;
-import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.tasks.SaveNoteTask;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
+
+import java.util.Optional;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -28,13 +29,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class NoteDetailActivity extends AppCompatActivity {
+public class NoteDetailActivity extends KeyDbBaseActivity {
 
     protected EditText nameField;
     protected EditText textField;
     protected TextView lastModified;
     private Note note;
-    private ActivityResultLauncher<Intent> unlockResult;
     private SaveNoteTask saveNoteTask;
 
     @Override
@@ -42,8 +42,8 @@ public class NoteDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_detail);
 
-        AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
-        this.saveNoteTask = new SaveNoteTask(this, appContainer.getExecutorService(), appContainer.getMainThreadHandler());
+        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+        this.saveNoteTask = new SaveNoteTask(this, appContainer.executorService, appContainer.mainThreadHandler);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -57,9 +57,6 @@ public class NoteDetailActivity extends AppCompatActivity {
 
         lastModified = findViewById(R.id.lastModifiedCaption);
 
-        unlockResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
-
         Intent intent = getIntent();
         String noteID = intent.getStringExtra("note-id");
 
@@ -67,8 +64,8 @@ public class NoteDetailActivity extends AppCompatActivity {
             lastModified.setVisibility(View.INVISIBLE);
             setNote(new Note());
         } else {
-            Note note = KeyDb.getNote(noteID);
-            if (note == null) {
+            Optional<Note> note = appContainer.keyDb.getNote(noteID);
+            if (! note.isPresent()) {
                 new AlertDialog.Builder(NoteDetailActivity.this)
                         .setTitle(R.string.dlog_missing_note_title)
                         .setMessage(R.string.dlog_missing_note_msg)
@@ -78,8 +75,13 @@ public class NoteDetailActivity extends AppCompatActivity {
                 return;
             }
 
-            setNote(note);
+            setNote(note.get());
         }
+    }
+
+    @Override
+    protected void loadData() {
+
     }
 
     private void setNote(Note note) {
@@ -94,11 +96,6 @@ public class NoteDetailActivity extends AppCompatActivity {
         String lastModified = note.getTimestamp();
         if (lastModified != null)
             this.lastModified.setText(String.format(getString(R.string.lastModifiedTemplate), lastModified));
-    }
-
-    public void onUnlockedResult(ActivityResult result) {
-        if (result.getResultCode() == Activity.RESULT_CANCELED)
-            finish();
     }
 
     @Override
@@ -142,17 +139,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(name))
             nameField.setError(getString(R.string.note_name_is_required));
         else
-            saveNoteTask.saveNote(note, name, textField.getText().toString(), finishOnSaved, this::onTaskResult);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (!KeyDb.isUnlocked()) {
-            Intent authIntent = new Intent(this, UnlockActivity.class);
-            unlockResult.launch(authIntent);
-        }
+            saveNoteTask.saveNote(mViewModel.keyDb, note, name, textField.getText().toString(), finishOnSaved, this::onTaskResult);
     }
 
     void onTaskResult(TaskResult<Boolean> result) {

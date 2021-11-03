@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.activities.MainActivity;
+import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.utilities.Settings;
@@ -82,7 +83,7 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
         this.keyNoteRemovedCallback = cb;
     }
 
-    abstract public void loadEntries();
+    abstract public void loadEntries(KeyDb keyDb);
 
     protected void removeHandler(int position) {
         try {
