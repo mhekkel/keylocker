@@ -40,9 +40,9 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.databinding.ActivityMainBinding;
 import com.hekkelman.keylocker.databinding.CardviewKeyItemBinding;
-import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
-import com.hekkelman.keylocker.datamodel.Key;
+import com.hekkelman.keylocker.databinding.DialogAskPasswordBinding;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.tasks.SyncSDTask;
@@ -65,6 +65,7 @@ public class MainActivity extends KeyDbBaseActivity
     private ActivityResultLauncher<Intent> mEditKeyResult;
     private KEY_OR_NOTE_TYPE mType = KEY_OR_NOTE_TYPE.KEY;
     private SyncSDTask mSyncSDTask;
+    private ActivityMainBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,15 +74,18 @@ public class MainActivity extends KeyDbBaseActivity
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
         this.mSyncSDTask = new SyncSDTask(this, appContainer.executorService, appContainer.mainThreadHandler);
 
-        setContentView(R.layout.activity_main);
-        mRecyclerView = findViewById(R.id.recycler_view);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        FloatingActionButton fabView = findViewById(R.id.fab);
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = mBinding.getRoot();
+        setContentView(view);
+
+        mRecyclerView = mBinding.recyclerView;
+        NavigationView navigationView = mBinding.navView;
+        FloatingActionButton fabView = mBinding.fab;
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
 
         mNewKeyResult = registerForActivityResult(
@@ -90,7 +94,7 @@ public class MainActivity extends KeyDbBaseActivity
         mEditKeyResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = mBinding.drawerLayout;
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -120,7 +124,7 @@ public class MainActivity extends KeyDbBaseActivity
 
     private void onCardEdit(KeyNote keyNote) {
         Intent intent;
-        if (keyNote instanceof Key) {
+        if (keyNote instanceof KeyNote.Key) {
             intent = new Intent(MainActivity.this, KeyDetailActivity.class);
             intent.putExtra("key-id", keyNote.getId());
         } else {
@@ -193,7 +197,7 @@ public class MainActivity extends KeyDbBaseActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = mBinding.drawerLayout;
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -267,7 +271,7 @@ public class MainActivity extends KeyDbBaseActivity
             startActivity(intent);
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = mBinding.drawerLayout;
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -296,10 +300,10 @@ public class MainActivity extends KeyDbBaseActivity
         } else {
             Exception e = ((TaskResult.Error<Void>) result).exception;
 
-            if (e instanceof InvalidPasswordException) {
-                final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
-
-                final EditText pw = view.findViewById(R.id.dlog_password);
+            if (e instanceof KeyDbException.InvalidPasswordException) {
+                DialogAskPasswordBinding binding = DialogAskPasswordBinding.inflate(getLayoutInflater());
+                final View view = binding.getRoot();
+                final EditText pw = binding.dlogPassword;
                 if (mSettings.getBlockAccessibility())
                     pw.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
 
@@ -383,7 +387,7 @@ public class MainActivity extends KeyDbBaseActivity
 
         @NonNull
         @Override
-        public KeyNoteCardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public KeyNoteCardHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
             CardviewKeyItemBinding binding =
                     CardviewKeyItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);

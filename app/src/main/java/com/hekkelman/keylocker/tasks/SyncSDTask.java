@@ -4,15 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
-import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.KeyDbException;
-import com.hekkelman.keylocker.datamodel.Note;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.util.concurrent.Executor;
 
 public class SyncSDTask {

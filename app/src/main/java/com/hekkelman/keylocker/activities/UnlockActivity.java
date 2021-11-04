@@ -22,11 +22,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDbFactory;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.tasks.UnlockTask;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
+
+import java.util.Objects;
 
 /**
  * A login screen that offers login via pin/password.
@@ -75,7 +76,7 @@ public class UnlockActivity extends AppCompatActivity
 		stub.setLayoutResource(R.layout.content_unlock);
 		View v = stub.inflate();
 
-		mPINSwitch = v.findViewById(R.id.numeric_cb);
+		mPINSwitch = v.findViewById(R.id.numeric_check_box);
 		mPasswordLayout = v.findViewById(R.id.passwordLayout);
 		mPasswordInput = v.findViewById(R.id.password);
 
@@ -176,7 +177,7 @@ public class UnlockActivity extends AppCompatActivity
 		mPasswordInput.setError(null);
 
 		// Store values at the time of the login attempt.
-		String password = mPasswordInput.getText().toString();
+		String password = Objects.requireNonNull(mPasswordInput.getText()).toString();
 
 		boolean cancel = false;
 		View focusView = null;

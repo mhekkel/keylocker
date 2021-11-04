@@ -22,7 +22,7 @@ public class KeyDb implements KeyDbDao {
     // fields
     private final File file;
     private final Object lock = new Object();
-    private final char[] password;
+    private char[] password;
     private KeyChain keyChain;
     protected boolean backup = false;
 
@@ -34,20 +34,33 @@ public class KeyDb implements KeyDbDao {
         read();
     }
 
-    @Override
-    public Key createKey() {
-        return new Key();
+    public void changePassword(String password) throws KeyDbException {
+        synchronized (lock) {
+            char[] savedPassword = this.password;
+            this.password = password.toCharArray();
+            try {
+                write();
+            } catch (Exception e) {
+                this.password = savedPassword;
+                throw e;
+            }
+        }
     }
 
     @Override
-    public Optional<Key> getKey(String id) {
+    public KeyNote.Key createKey() {
+        return new KeyNote.Key();
+    }
+
+    @Override
+    public Optional<KeyNote.Key> getKey(String id) {
         synchronized (lock) {
             return Optional.ofNullable(keyChain.getKeyByID(id));
         }
     }
 
     @Override
-    public List<Key> getAllKeys() {
+    public List<KeyNote.Key> getAllKeys() {
         synchronized (lock) {
             return keyChain.getKeys()
                     .stream()
@@ -58,7 +71,7 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
-    public void saveKey(Key key) throws KeyDbException {
+    public void saveKey(KeyNote.Key key) throws KeyDbException {
         synchronized (lock) {
             keyChain.addKey(key);
             write();
@@ -66,9 +79,9 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
-    public void updateKey(Key key, String name, String user, String password, String url) throws KeyDbException {
+    public void updateKey(KeyNote.Key key, String name, String user, String password, String url) throws KeyDbException {
         synchronized (lock) {
-            Key savedCopy = new Key(key);
+            KeyNote.Key savedCopy = new KeyNote.Key(key);
 
             try {
                 key.setName(name);
@@ -92,7 +105,7 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
-    public void deleteKey(Key key) throws KeyDbException {
+    public void deleteKey(KeyNote.Key key) throws KeyDbException {
         synchronized (lock) {
             key.setDeleted(true);
             write();
@@ -102,7 +115,7 @@ public class KeyDb implements KeyDbDao {
     @Override
     public void undoDeleteKey(String keyID) {
         synchronized (lock) {
-            Key key = keyChain.getKeyByID(keyID);
+            KeyNote.Key key = keyChain.getKeyByID(keyID);
             if (key != null) {
                 key.setDeleted(false);
                 try {
@@ -115,19 +128,19 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
-    public Note createNote() {
-        return new Note();
+    public KeyNote.Note createNote() {
+        return new KeyNote.Note();
     }
 
     @Override
-    public Optional<Note> getNote(String id) {
+    public Optional<KeyNote.Note> getNote(String id) {
         synchronized (lock) {
             return Optional.ofNullable(keyChain.getNoteByID(id));
         }
     }
 
     @Override
-    public List<Note> getAllNotes() {
+    public List<KeyNote.Note> getAllNotes() {
         synchronized (lock) {
             return keyChain.getNotes()
                     .stream()
@@ -138,7 +151,7 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
-    public void saveNote(Note note) throws KeyDbException {
+    public void saveNote(KeyNote.Note note) throws KeyDbException {
         synchronized (lock) {
             keyChain.addNote(note);
             write();
@@ -146,9 +159,9 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
-    public void updateNote(Note note, String name, String text) throws KeyDbException {
+    public void updateNote(KeyNote.Note note, String name, String text) throws KeyDbException {
         synchronized (lock) {
-            Note savedCopy = new Note(note);
+            KeyNote.Note savedCopy = new KeyNote.Note(note);
 
             try {
                 note.setName(name);
@@ -167,7 +180,7 @@ public class KeyDb implements KeyDbDao {
     }
 
     @Override
-    public void deleteNote(Note note) throws KeyDbException {
+    public void deleteNote(KeyNote.Note note) throws KeyDbException {
         synchronized (lock) {
             note.setDeleted(true);
             write();
@@ -177,7 +190,7 @@ public class KeyDb implements KeyDbDao {
     @Override
     public void undoDeleteNote(String noteID) {
         synchronized (lock) {
-            Note note = keyChain.getNoteByID(noteID);
+            KeyNote.Note note = keyChain.getNoteByID(noteID);
             if (note != null) {
                 note.setDeleted(true);
                 try {
@@ -231,7 +244,7 @@ public class KeyDb implements KeyDbDao {
         try {
             read(new FileInputStream(this.file));
         } catch (FileNotFoundException e) {
-            throw new MissingFileException();
+            throw new KeyDbException.MissingFileException();
         }
     }
 
@@ -240,7 +253,7 @@ public class KeyDb implements KeyDbDao {
             Serializer serializer = new Persister();
             keyChain = serializer.read(KeyChain.class, is);
         } catch (Exception e) {
-            throw new InvalidPasswordException();
+            throw new KeyDbException.InvalidPasswordException();
         }
     }
 
@@ -248,7 +261,7 @@ public class KeyDb implements KeyDbDao {
         try {
             write(new FileOutputStream(this.file));
         } catch (FileNotFoundException e) {
-            throw new KeyDbRuntimeException(e);
+            throw new KeyDbException.KeyDbRuntimeException(e);
         }
     }
 
@@ -262,21 +275,21 @@ public class KeyDb implements KeyDbDao {
 
             EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output, this.backup);
         } catch (Exception e) {
-            throw new KeyDbRuntimeException(e);
+            throw new KeyDbException.KeyDbRuntimeException(e);
         }
     }
 
     public void delete(KeyNote keyNote) throws KeyDbException {
-        if (keyNote instanceof Key)
-            deleteKey((Key)keyNote);
-        else if (keyNote instanceof Note)
-            deleteNote((Note)keyNote);
+        if (keyNote instanceof KeyNote.Key)
+            deleteKey((KeyNote.Key) keyNote);
+        else if (keyNote instanceof KeyNote.Note)
+            deleteNote((KeyNote.Note) keyNote);
     }
 
     public void undoDelete(KeyNote keyNote) {
-        if (keyNote instanceof Key)
+        if (keyNote instanceof KeyNote.Key)
             undoDeleteKey(keyNote.getId());
-        else if (keyNote instanceof Note)
+        else if (keyNote instanceof KeyNote.Note)
             undoDeleteNote(keyNote.getId());
     }
 

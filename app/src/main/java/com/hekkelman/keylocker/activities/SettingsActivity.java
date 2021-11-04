@@ -21,6 +21,8 @@ import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.utilities.Settings;
 
+import java.util.Objects;
+
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -133,10 +135,12 @@ public class SettingsActivity extends AppCompatActivity {
         @SuppressLint("WrongConstant")
         protected void onSelectBackupDirResult(ActivityResult result) {
             Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
+            assert backupLocation != null;
             backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
 
             if (result.getResultCode() == RESULT_OK) {
                 Intent data = result.getData();
+                assert data != null;
                 Uri treeUri = data.getData();
                 if (treeUri != null) {
                     final int takeFlags = data.getFlags()
@@ -144,7 +148,7 @@ public class SettingsActivity extends AppCompatActivity {
                             | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
                     // Check for the freshest data.
-                    getActivity().getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
+                    requireActivity().getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
 
                     settings.setLocalBackupDir(treeUri.toString());
                     backupLocation.setSummary(R.string.settings_desc_backup_location_set);

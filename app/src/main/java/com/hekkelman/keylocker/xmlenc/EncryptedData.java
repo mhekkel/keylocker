@@ -3,7 +3,6 @@ package com.hekkelman.keylocker.xmlenc;
 import android.util.Base64;
 
 import com.hekkelman.keylocker.datamodel.KeyDbException;
-import com.hekkelman.keylocker.datamodel.KeyDbRuntimeException;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -73,7 +72,7 @@ public class EncryptedData {
                     new SecretKeySpec(key.getEncoded(), "AES"),
                     new IvParameterSpec(iv));
         } catch (Exception e) {
-            throw new KeyDbRuntimeException(e);
+            throw new KeyDbException.KeyDbRuntimeException(e);
         }
 
         return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
@@ -117,7 +116,7 @@ public class EncryptedData {
             Serializer serializer = new Persister();
             serializer.write(encData, os);
         } catch (Exception e) {
-            throw new KeyDbRuntimeException(e);
+            throw new KeyDbException.KeyDbRuntimeException(e);
         }
     }
 }

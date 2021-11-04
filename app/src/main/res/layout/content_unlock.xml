@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/init_numeric_cb"
-                android:id="@+id/numeric_cb"
+                android:id="@+id/numeric_check_box"
                 android:checked="true"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />

@@ -1,6 +1,5 @@
 package com.hekkelman.keylocker.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -9,8 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.TextUtils;
 import android.view.Menu;
@@ -22,9 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -32,19 +26,19 @@ import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.databinding.ActivityKeyDetailBinding;
+import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.tasks.SaveKeyTask;
-import com.hekkelman.keylocker.datamodel.Key;
-import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
 public class KeyDetailActivity extends KeyDbBaseActivity {
 
-    private Key key;
+    private KeyNote.Key key;
 
     protected EditText nameField;
     protected EditText userField;
@@ -71,7 +65,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
 
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
@@ -90,7 +84,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
             lastModified.setVisibility(View.INVISIBLE);
             setKey(appContainer.keyDb.createKey());
         } else {
-            Optional<Key> key = appContainer.keyDb.getKey(keyID);
+            Optional<KeyNote.Key> key = appContainer.keyDb.getKey(keyID);
             if (! key.isPresent()) {
                 new AlertDialog.Builder(KeyDetailActivity.this)
                         .setTitle(R.string.dlog_missing_key_title)
@@ -114,7 +108,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
 
     }
 
-    private void setKey(Key key) {
+    private void setKey(KeyNote.Key key) {
         this.key = key;
 
         String name = key.getName();

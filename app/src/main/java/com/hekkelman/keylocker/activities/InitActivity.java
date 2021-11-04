@@ -14,12 +14,13 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDbFactory;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+
+import java.util.Objects;
 
 public class InitActivity extends AppCompatActivity
         implements EditText.OnEditorActionListener, View.OnClickListener,
@@ -40,10 +41,10 @@ public class InitActivity extends AppCompatActivity
 
         mAppContainer = ((KeyLockerApp) getApplication()).mAppContainer;
 
-        mPassword1 = findViewById(R.id.password_1);
-        mPassword2 = findViewById(R.id.password_2);
+        mPassword1 = findViewById(R.id.password_one);
+        mPassword2 = findViewById(R.id.password_two);
 
-        mPINSwitch = findViewById(R.id.numeric_cb);
+        mPINSwitch = findViewById(R.id.numeric_check_box);
 
         mPINSwitch.setOnCheckedChangeListener(this);
 
@@ -53,8 +54,8 @@ public class InitActivity extends AppCompatActivity
 
     @Override
     public void onClick(View view) {
-        String password_1 = mPassword1.getText().toString();
-        String password_2 = mPassword2.getText().toString();
+        String password_1 = Objects.requireNonNull(mPassword1.getText()).toString();
+        String password_2 = Objects.requireNonNull(mPassword2.getText()).toString();
 
         if (password_1.length() < 5)
             mPassword1.setError(getString(R.string.password_too_short));

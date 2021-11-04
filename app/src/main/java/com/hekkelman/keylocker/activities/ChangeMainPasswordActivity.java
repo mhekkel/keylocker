@@ -1,36 +1,51 @@
 package com.hekkelman.keylocker.activities;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.databinding.ActivityChangeMainPasswordBinding;
 import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.utilities.AppContainer;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
 public class ChangeMainPasswordActivity extends AppCompatActivity {
 
+    private TextInputEditText pw1;
+    private TextInputEditText pw2;
+    private AppContainer mAppContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_change_main_password);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+
+        mAppContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+
+        ActivityChangeMainPasswordBinding binding = ActivityChangeMainPasswordBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null)
             supportActionBar.setDisplayHomeAsUpEnabled(true);
 
-        final EditText pw1 = findViewById(R.id.password_1);
-        final EditText pw2 = findViewById(R.id.password_2);
+        pw1 = binding.passwordOne;
+        pw2 = binding.passwordTwo;
 
-        final SwitchCompat sw = findViewById(R.id.numeric_cb);
+        final SwitchCompat sw = binding.numericCheckBox;
 
         sw.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
@@ -47,29 +62,29 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
                 }
         );
 
-//        Button btn = findViewById(R.id.change_pw_btn);
-//        btn.setOnClickListener(
-//                v -> {
-//                    String password_1 = pw1.getText().toString();
-//                    String password_2 = pw2.getText().toString();
-//
-//                    if (password_1.length() < 5)
-//                        pw1.setError(getString(R.string.password_too_short));
-//                    else if (!password_1.equals(password_2))
-//                        pw2.setError(getString(R.string.passwords_do_not_match));
-//                    else {
-//                        try {
-//                            KeyDb.changePassword(password_1.toCharArray());
-//                            finish();
-//                        } catch (Exception e) {
-//                            new AlertDialog.Builder(ChangeMainPasswordActivity.this)
-//                                    .setTitle(R.string.change_password_failed_title)
-//                                    .setMessage(getString(R.string.change_password_failed_message) + e.getMessage())
-//                                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                                    .show();
-//                        }
-//                    }
-//                }
-//        );
+        Button btn = binding.changePwBtn;
+        btn.setOnClickListener(this::onClickChangePassword);
+    }
+
+    private void onClickChangePassword(View v) {
+        String password_1 = pw1.getText().toString();
+        String password_2 = pw2.getText().toString();
+
+        if (password_1.length() < 5)
+            pw1.setError(getString(R.string.password_too_short));
+        else if (!password_1.equals(password_2))
+            pw2.setError(getString(R.string.passwords_do_not_match));
+        else {
+            try {
+                mAppContainer.keyDb.changePassword(password_1);
+                finish();
+            } catch (Exception e) {
+                new AlertDialog.Builder(ChangeMainPasswordActivity.this)
+                        .setTitle(R.string.change_password_failed_title)
+                        .setMessage(getString(R.string.change_password_failed_message) + e.getMessage())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        }
     }
 }

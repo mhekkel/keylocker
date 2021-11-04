@@ -5,20 +5,20 @@ import java.util.Optional;
 
 public interface KeyDbDao {
     // key
-    Key createKey();
-    Optional<Key> getKey(String id);
-    List<Key> getAllKeys();
-    void saveKey(Key key) throws KeyDbException;
-    void updateKey(Key key, String name, String user, String password, String url) throws KeyDbException;
-    void deleteKey(Key key) throws KeyDbException;
+    KeyNote.Key createKey();
+    Optional<KeyNote.Key> getKey(String id);
+    List<KeyNote.Key> getAllKeys();
+    void saveKey(KeyNote.Key key) throws KeyDbException;
+    void updateKey(KeyNote.Key key, String name, String user, String password, String url) throws KeyDbException;
+    void deleteKey(KeyNote.Key key) throws KeyDbException;
     void undoDeleteKey(String keyID);
 
     // note
-    Note createNote();
-    Optional<Note> getNote(String id);
-    List<Note> getAllNotes();
-    void saveNote(Note note) throws KeyDbException;
-    void updateNote(Note note, String name, String text) throws KeyDbException;
-    void deleteNote(Note note) throws KeyDbException;
+    KeyNote.Note createNote();
+    Optional<KeyNote.Note> getNote(String id);
+    List<KeyNote.Note> getAllNotes();
+    void saveNote(KeyNote.Note note) throws KeyDbException;
+    void updateNote(KeyNote.Note note, String name, String text) throws KeyDbException;
+    void deleteNote(KeyNote.Note note) throws KeyDbException;
     void undoDeleteNote(String noteID);
 }

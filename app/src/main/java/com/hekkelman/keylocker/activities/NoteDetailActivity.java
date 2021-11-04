@@ -1,6 +1,5 @@
 package com.hekkelman.keylocker.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,24 +12,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.databinding.ActivityKeyDetailBinding;
 import com.hekkelman.keylocker.databinding.ActivityNoteDetailBinding;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.Note;
+import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.tasks.SaveNoteTask;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
 
+import java.util.Objects;
 import java.util.Optional;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 public class NoteDetailActivity extends KeyDbBaseActivity {
@@ -38,7 +30,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
     protected EditText nameField;
     protected EditText textField;
     protected TextView lastModified;
-    private Note note;
+    private KeyNote.Note note;
     private SaveNoteTask saveNoteTask;
 
     @Override
@@ -54,7 +46,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
 
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
@@ -69,9 +61,9 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
 
         if (noteID == null) {
             lastModified.setVisibility(View.INVISIBLE);
-            setNote(new Note());
+            setNote(new KeyNote.Note());
         } else {
-            Optional<Note> note = appContainer.keyDb.getNote(noteID);
+            Optional<KeyNote.Note> note = appContainer.keyDb.getNote(noteID);
             if (! note.isPresent()) {
                 new AlertDialog.Builder(NoteDetailActivity.this)
                         .setTitle(R.string.dlog_missing_note_title)
@@ -91,7 +83,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
 
     }
 
-    private void setNote(Note note) {
+    private void setNote(KeyNote.Note note) {
         this.note = note;
 
         String name = note.getName();
