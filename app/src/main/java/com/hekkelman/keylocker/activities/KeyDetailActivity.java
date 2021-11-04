@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,8 +27,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.databinding.ActivityKeyDetailBinding;
 import com.hekkelman.keylocker.tasks.SaveKeyTask;
 import com.hekkelman.keylocker.datamodel.Key;
 import com.hekkelman.keylocker.datamodel.KeyDb;
@@ -49,6 +53,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
     protected TextView lastModified;
 
     private SaveKeyTask saveKeyTask;
+    private RelativeLayout container;
 
     public KeyDetailActivity() {
     }
@@ -60,20 +65,23 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
         this.saveKeyTask = new SaveKeyTask(this, appContainer.executorService, appContainer.mainThreadHandler);
 
-        setContentView(R.layout.activity_key_detail);
+        ActivityKeyDetailBinding binding = ActivityKeyDetailBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
 
-        nameField = findViewById(R.id.keyNameField);
-        userField = findViewById(R.id.keyUserField);
-        passwordField = findViewById(R.id.keyPasswordField);
-        urlField = findViewById(R.id.keyURLField);
-        lastModified = findViewById(R.id.lastModifiedCaption);
+        container = binding.container;
+        nameField = binding.keyNameField;
+        userField = binding.keyUserField;
+        passwordField = binding.keyPasswordField;
+        urlField = binding.keyURLField;
+        lastModified = binding.lastModifiedCaption;
 
         Intent intent = getIntent();
         String keyID = intent.getStringExtra("key-id");
@@ -199,7 +207,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            Toast.makeText(KeyDetailActivity.this, R.string.visitFailed, Toast.LENGTH_SHORT).show();
+            Snackbar.make(container, R.string.visitFailed, BaseTransientBottomBar.LENGTH_SHORT).show();
         }
     }
 

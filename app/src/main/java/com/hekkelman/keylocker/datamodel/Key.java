@@ -170,4 +170,9 @@ public class Key extends KeyNote {
     public String getDescription() {
         return this.user;
     }
+
+    @Override
+    public String getText() {
+        return this.password;
+    }
 }

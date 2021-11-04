@@ -147,4 +147,6 @@ public abstract class KeyNote {
     }
 
     public abstract String getDescription();
+
+    public abstract String getText();
 }

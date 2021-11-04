@@ -104,7 +104,7 @@ public class KeyDb implements KeyDbDao {
         synchronized (lock) {
             Key key = keyChain.getKeyByID(keyID);
             if (key != null) {
-                key.setDeleted(true);
+                key.setDeleted(false);
                 try {
                     write();
                 } catch (KeyDbException e) {
@@ -264,6 +264,20 @@ public class KeyDb implements KeyDbDao {
         } catch (Exception e) {
             throw new KeyDbRuntimeException(e);
         }
+    }
+
+    public void delete(KeyNote keyNote) throws KeyDbException {
+        if (keyNote instanceof Key)
+            deleteKey((Key)keyNote);
+        else if (keyNote instanceof Note)
+            deleteNote((Note)keyNote);
+    }
+
+    public void undoDelete(KeyNote keyNote) {
+        if (keyNote instanceof Key)
+            undoDeleteKey(keyNote.getId());
+        else if (keyNote instanceof Note)
+            undoDeleteNote(keyNote.getId());
     }
 
 //    private void synchronize(File file) throws KeyDbException {

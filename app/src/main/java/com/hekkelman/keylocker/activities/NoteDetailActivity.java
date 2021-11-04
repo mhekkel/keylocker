@@ -13,8 +13,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.databinding.ActivityKeyDetailBinding;
+import com.hekkelman.keylocker.databinding.ActivityNoteDetailBinding;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.Note;
 import com.hekkelman.keylocker.tasks.SaveNoteTask;
@@ -40,20 +44,23 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_note_detail);
+
+        ActivityNoteDetailBinding binding = ActivityNoteDetailBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
         this.saveNoteTask = new SaveNoteTask(this, appContainer.executorService, appContainer.mainThreadHandler);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
 
-        nameField = findViewById(R.id.noteNameField);
-        textField = findViewById(R.id.noteTextField);
+        nameField = binding.noteNameField;
+        textField = binding.noteTextField;
 
         lastModified = findViewById(R.id.lastModifiedCaption);
 
