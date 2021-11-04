@@ -57,7 +57,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
         super.onCreate(savedInstanceState);
 
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-        this.saveKeyTask = new SaveKeyTask(this, appContainer.executorService, appContainer.mainThreadHandler);
+        this.saveKeyTask = new SaveKeyTask(appContainer.executorService, appContainer.mainThreadHandler);
 
         ActivityKeyDetailBinding binding = ActivityKeyDetailBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();

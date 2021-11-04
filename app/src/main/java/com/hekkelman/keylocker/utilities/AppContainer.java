@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.KeyDbFactory;
 import com.hekkelman.keylocker.datamodel.KeyLockerFile;
 
 import androidx.core.os.HandlerCompat;
@@ -20,9 +18,8 @@ public class AppContainer {
 
     public KeyLockerFile keyDb;
     public MutableLiveData<Boolean> locked = new MutableLiveData<>(true);
-    public final KeyDbFactory keyDbFactory;
 
     public AppContainer(Context context) {
-        keyDbFactory = new KeyDbFactory(context.getFilesDir());
+        KeyLockerFile.mFilesDir = context.getFilesDir();
     }
 }

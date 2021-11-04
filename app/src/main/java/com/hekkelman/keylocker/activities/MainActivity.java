@@ -72,7 +72,7 @@ public class MainActivity extends KeyDbBaseActivity
         super.onCreate(savedInstanceState);
 
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-        this.mSyncSDTask = new SyncSDTask(this, appContainer.executorService, appContainer.mainThreadHandler);
+        this.mSyncSDTask = new SyncSDTask(appContainer.executorService, appContainer.mainThreadHandler);
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
@@ -286,16 +286,16 @@ public class MainActivity extends KeyDbBaseActivity
 
         try {
             Uri backupDirUri = Uri.parse(backupDir);
-            mSyncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
+            AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, null, this::onSyncTaskResult);
         } catch (Exception e) {
             syncFailed(e.getMessage());
         }
     }
 
-    void onTaskResult(TaskResult<Void> result) {
+    void onSyncTaskResult(TaskResult<Void> result) {
         if (result instanceof TaskResult.Success) {
             Snackbar.make(mRecyclerView, R.string.sync_successful, BaseTransientBottomBar.LENGTH_SHORT).show();
-//            mAdapter.loadEntries(mViewModel.keyDb);
             loadData();
         } else {
             Exception e = ((TaskResult.Error<Void>) result).exception;
@@ -316,7 +316,8 @@ public class MainActivity extends KeyDbBaseActivity
                             String backupDir = mSettings.getLocalBackupDir();
 
                             Uri backupDirUri = Uri.parse(backupDir);
-                            mSyncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
+                            AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+                            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, pw.getText().toString(), this::onSyncTaskResult);
                         })
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                         })

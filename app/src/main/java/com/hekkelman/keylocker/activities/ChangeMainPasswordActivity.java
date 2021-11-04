@@ -82,6 +82,7 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
                 new AlertDialog.Builder(ChangeMainPasswordActivity.this)
                         .setTitle(R.string.change_password_failed_title)
                         .setMessage(getString(R.string.change_password_failed_message) + e.getMessage())
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }

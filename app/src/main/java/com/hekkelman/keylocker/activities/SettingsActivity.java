@@ -87,7 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
             Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
 
             if (backupLocation != null) {
-                if (! settings.getLocalBackupDir().isEmpty())
+                if (!settings.getLocalBackupDir().isEmpty())
                     backupLocation.setSummary(R.string.settings_desc_backup_location_set);
                 else
                     backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
@@ -105,18 +105,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private void onChangeMainPasswordResult(ActivityResult result) {
-            ;
-//            if (result.getResultCode() == RESULT_OK) {
-//                Intent data = result.getData();
-//                char[] password = data.getCharArrayExtra("new-password");
-//                if (password != null) {
-//                    try {
-//                        KeyDb.changePassword(password);
-//                    } catch (KeyDbException exception) {
-//                        Toast.makeText(getActivity(), R.string.change_password_failed, Toast.LENGTH_LONG).show();
-//                    }
-//                }
-//            }
         }
 
         public void requestBackupAccess() {

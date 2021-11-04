@@ -42,7 +42,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
         setContentView(view);
 
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-        this.saveNoteTask = new SaveNoteTask(this, appContainer.executorService, appContainer.mainThreadHandler);
+        this.saveNoteTask = new SaveNoteTask(appContainer.executorService, appContainer.mainThreadHandler);
 
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);

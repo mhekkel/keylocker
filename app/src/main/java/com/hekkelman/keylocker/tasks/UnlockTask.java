@@ -2,14 +2,10 @@ package com.hekkelman.keylocker.tasks;
 
 import android.os.Handler;
 
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.datamodel.KeyDbFactory;
+import com.hekkelman.keylocker.datamodel.KeyLockerFile;
 import com.hekkelman.keylocker.utilities.AppContainer;
 
-import java.io.File;
 import java.util.concurrent.Executor;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class UnlockTask {
     private final Executor executor;
@@ -24,7 +20,7 @@ public class UnlockTask {
                        final TaskCallback<Void> callback) {
         executor.execute(() -> {
             if (appContainer.keyDb == null) {
-                appContainer.keyDb = appContainer.keyDbFactory.create(plainPassword);
+                appContainer.keyDb = KeyLockerFile.create(plainPassword);
                 if (appContainer.keyDb != null)
                     notifyResult(new TaskResult.Success<>(null), callback);
                 else

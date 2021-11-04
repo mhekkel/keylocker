@@ -1,6 +1,13 @@
 package com.hekkelman.keylocker.datamodel;
 
+import android.content.Context;
+import android.net.Uri;
+
+import androidx.documentfile.provider.DocumentFile;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -13,8 +20,29 @@ public class KeyLockerFile extends KeyDb {
 
     public static final String KEY_DB_NAME = "keylockerfile.txt";
     private static final int PRIVATE_KEY_HASH_SIZE = 16;
+    public static File mFilesDir;
     private byte[] passwordHash;
     private final byte[] passwordKey;
+
+    public static KeyLockerFile initialize(String password) throws KeyDbException {
+        File file = new File(mFilesDir, KEY_DB_NAME);
+        if (file.exists())
+            file.delete();
+
+        KeyLockerFile keyDb = new KeyLockerFile(file, password);
+        keyDb.write();
+        return keyDb;
+    }
+
+    public static KeyLockerFile create(String password) {
+        File keyFile = new File(mFilesDir, KEY_DB_NAME);
+
+        try {
+            return new KeyLockerFile(keyFile, password);
+        } catch (KeyDbException e) {
+            return null;
+        }
+    }
 
     public KeyLockerFile(File file, String password) throws KeyDbException {
         super(file, password.toCharArray());
@@ -54,5 +82,4 @@ public class KeyLockerFile extends KeyDb {
             throw new KeyDbException.KeyDbRuntimeException(e);
         }
     }
-
 }

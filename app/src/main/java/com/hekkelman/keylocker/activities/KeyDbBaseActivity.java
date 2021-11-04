@@ -53,7 +53,6 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
                 AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
                 mViewModel.keyDb = appContainer.keyDb;
             }
-
             loadData();
         }
     }
@@ -63,8 +62,15 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
     public void onUnlockedResult(ActivityResult result) {
         if (result.getResultCode() == Activity.RESULT_CANCELED)
             finish();
-        else
+        else if (result.getResultCode() == Activity.RESULT_FIRST_USER) {
+            Intent intent = new Intent(this, InitActivity.class);
+            mUnlockResult.launch(intent);
+        }
+        else if (result.getResultCode() == Activity.RESULT_OK) {
+            AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
+            mViewModel.keyDb = appContainer.keyDb;
             mViewModel.locked.setValue(false);
+        }
     }
 
     @Override
@@ -82,16 +88,6 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
 
         super.onPause();
     }
-
-//    public void authenticate() {
-//        mViewModel.locked.setValue(false);
-//
-//        if (!mAppContainer.keyDbFactory.exists()) {
-//            Intent authIntent = new Intent(this, InitActivity.class);
-//            mInitResult.launch(authIntent);
-//        } else {
-//        }
-//    }
 
     private boolean setCountDownTimerNow() {
         try {

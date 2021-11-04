@@ -1,5 +1,10 @@
 package com.hekkelman.keylocker.datamodel;
 
+import android.content.Context;
+import android.net.Uri;
+
+import androidx.documentfile.provider.DocumentFile;
+
 import com.hekkelman.keylocker.xmlenc.EncryptedData;
 
 import org.simpleframework.xml.Serializer;
@@ -11,13 +16,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class KeyDb implements KeyDbDao {
+public class KeyDb {
 
     // fields
     private final File file;
@@ -26,12 +33,22 @@ public class KeyDb implements KeyDbDao {
     private KeyChain keyChain;
     protected boolean backup = false;
 
+    // constructor for empty keydb
+    protected KeyDb(char[] password) {
+        this.file = null;
+        this.password = password;
+        this.keyChain = new KeyChain();
+    }
+
     // constructor, regular key db file
     public KeyDb(File file, char[] password) throws KeyDbException {
         this.file = file;
         this.password = password;
 
-        read();
+        if (file.exists())
+            read();
+        else
+            keyChain = new KeyChain();
     }
 
     public void changePassword(String password) throws KeyDbException {
@@ -47,19 +64,16 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
     public KeyNote.Key createKey() {
         return new KeyNote.Key();
     }
 
-    @Override
     public Optional<KeyNote.Key> getKey(String id) {
         synchronized (lock) {
             return Optional.ofNullable(keyChain.getKeyByID(id));
         }
     }
 
-    @Override
     public List<KeyNote.Key> getAllKeys() {
         synchronized (lock) {
             return keyChain.getKeys()
@@ -70,15 +84,6 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
-    public void saveKey(KeyNote.Key key) throws KeyDbException {
-        synchronized (lock) {
-            keyChain.addKey(key);
-            write();
-        }
-    }
-
-    @Override
     public void updateKey(KeyNote.Key key, String name, String user, String password, String url) throws KeyDbException {
         synchronized (lock) {
             KeyNote.Key savedCopy = new KeyNote.Key(key);
@@ -104,7 +109,6 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
     public void deleteKey(KeyNote.Key key) throws KeyDbException {
         synchronized (lock) {
             key.setDeleted(true);
@@ -112,7 +116,6 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
     public void undoDeleteKey(String keyID) {
         synchronized (lock) {
             KeyNote.Key key = keyChain.getKeyByID(keyID);
@@ -127,19 +130,12 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
-    public KeyNote.Note createNote() {
-        return new KeyNote.Note();
-    }
-
-    @Override
     public Optional<KeyNote.Note> getNote(String id) {
         synchronized (lock) {
             return Optional.ofNullable(keyChain.getNoteByID(id));
         }
     }
 
-    @Override
     public List<KeyNote.Note> getAllNotes() {
         synchronized (lock) {
             return keyChain.getNotes()
@@ -150,15 +146,6 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
-    public void saveNote(KeyNote.Note note) throws KeyDbException {
-        synchronized (lock) {
-            keyChain.addNote(note);
-            write();
-        }
-    }
-
-    @Override
     public void updateNote(KeyNote.Note note, String name, String text) throws KeyDbException {
         synchronized (lock) {
             KeyNote.Note savedCopy = new KeyNote.Note(note);
@@ -179,7 +166,6 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
     public void deleteNote(KeyNote.Note note) throws KeyDbException {
         synchronized (lock) {
             note.setDeleted(true);
@@ -187,7 +173,6 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-    @Override
     public void undoDeleteNote(String noteID) {
         synchronized (lock) {
             KeyNote.Note note = keyChain.getNoteByID(noteID);
@@ -202,43 +187,42 @@ public class KeyDb implements KeyDbDao {
         }
     }
 
-//    public static void synchronize(Context context, Uri backupDir, char[] password) throws KeyDbException {
-//        synchronized (keyDbLock) {
-//            if (password == null)
-//                password = sInstance.password;
-//
-//            DocumentFile dir = DocumentFile.fromTreeUri(context, backupDir);
-//            if (dir == null)
-//                throw new MissingFileException();
-//
-//            KeyDb backup = new KeyDb(password);
-//
-//            DocumentFile file = dir.findFile(KEY_DB_NAME);
-//            if (file != null) {
-//                try (InputStream is = context.getContentResolver().openInputStream(file.getUri())) {
-//                    backup.read(is);
-//                } catch (IOException e) {
-//                    throw new KeyDbRuntimeException(e);
-//                }
-//            }
-//
-//            boolean changed = sInstance.synchronize(backup);
-//            sInstance.write();
-//
-//            if (changed) {
-//                if (file == null)
-//                    file = dir.createFile("application/x-keylocker", KEY_DB_NAME);
-//                if (file == null)
-//                    throw new MissingFileException();
-//
-//                try (OutputStream os = context.getContentResolver().openOutputStream(file.getUri())) {
-//                    backup.write(os);
-//                } catch (IOException e) {
-//                    throw new KeyDbRuntimeException(e);
-//                }
-//            }
-//        }
-//    }
+    public void synchronize(Context context, Uri backupDir, String password) throws KeyDbException {
+        synchronized (lock) {
+            char[] pw = password != null ? password.toCharArray() : this.password;
+
+            DocumentFile dir = DocumentFile.fromTreeUri(context, backupDir);
+            if (dir == null)
+                throw new KeyDbException.MissingFileException();
+
+            KeyDb backup = new KeyDb(pw);
+
+            DocumentFile file = dir.findFile(KeyLockerFile.KEY_DB_NAME);
+            if (file != null) {
+                try (InputStream is = context.getContentResolver().openInputStream(file.getUri())) {
+                    backup.read(is);
+                } catch (IOException e) {
+                    throw new KeyDbException.KeyDbRuntimeException(e);
+                }
+            }
+
+            boolean changed = synchronize(backup);
+            write();
+
+            if (changed) {
+                if (file == null)
+                    file = dir.createFile("application/x-keylocker", KeyLockerFile.KEY_DB_NAME);
+                if (file == null)
+                    throw new KeyDbException.MissingFileException();
+
+                try (OutputStream os = context.getContentResolver().openOutputStream(file.getUri())) {
+                    backup.write(os);
+                } catch (IOException e) {
+                    throw new KeyDbException.KeyDbRuntimeException(e);
+                }
+            }
+        }
+    }
 
     private void read() throws KeyDbException {
         try {
@@ -292,48 +276,9 @@ public class KeyDb implements KeyDbDao {
         else if (keyNote instanceof KeyNote.Note)
             undoDeleteNote(keyNote.getId());
     }
-
-//    private void synchronize(File file) throws KeyDbException {
-//        KeyDb db = new KeyDb(this.password, file);
-//        if (synchronize(db))
-//            db.write();
-//    }
-//
-//    // synchronisation
-//
-//    private void synchronize(File file, char[] password) throws KeyDbException {
-//        KeyDb db = new KeyDb(password, file);
-//        if (synchronize(db))
-//            db.write();
-//    }
-//
-//    private boolean synchronize(InputStream file) throws KeyDbException {
-//        KeyDb db = new KeyDb(this.password, null);
-//        db.read(file);
-//        return synchronize(db);
-//    }
-//
-//    private boolean synchronize(InputStream file, char[] password) throws KeyDbException {
-//        KeyDb db = new KeyDb(password, null);
-//        db.read(file);
-//        return synchronize(db);
-//    }
-//
-//    private boolean synchronize(KeyDb db) throws KeyDbException {
-//        boolean result = this.keyChain.synchronize(db.keyChain);
-//        write();
-//        return result;
-//    }
-//
-//	public KeyDb undeleteAll() throws KeyDbException {
-//		for (Key k : keyChain.getKeys()) {
-//			if (k.isDeleted()) {
-//				k.setDeleted(false);
-//			}
-//		}
-//
-//		write();
-//
-//		return this;
-//	}
+    private boolean synchronize(KeyDb db) throws KeyDbException {
+        boolean result = this.keyChain.synchronize(db.keyChain);
+        write();
+        return result;
+    }
 }

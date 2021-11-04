@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.databinding.ActivityInitBinding;
+import com.hekkelman.keylocker.datamodel.KeyLockerFile;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
@@ -37,18 +39,21 @@ public class InitActivity extends AppCompatActivity
         this.mSettings = new Settings(this);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_init);
+
+        ActivityInitBinding binding = ActivityInitBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
         mAppContainer = ((KeyLockerApp) getApplication()).mAppContainer;
 
-        mPassword1 = findViewById(R.id.password_one);
-        mPassword2 = findViewById(R.id.password_two);
+        mPassword1 = binding.passwordOne;
+        mPassword2 = binding.passwordTwo;
 
-        mPINSwitch = findViewById(R.id.numeric_check_box);
+        mPINSwitch = binding.numericCheckBox;
 
         mPINSwitch.setOnCheckedChangeListener(this);
 
-        Button btn = findViewById(R.id.create_btn);
+        Button btn = binding.createBtn;
         btn.setOnClickListener(this);
     }
 
@@ -63,14 +68,15 @@ public class InitActivity extends AppCompatActivity
             mPassword2.setError(getString(R.string.passwords_do_not_match));
         else {
             try {
-                mAppContainer.keyDb = mAppContainer.keyDbFactory.initialize(password_1);
+                mAppContainer.keyDb = KeyLockerFile.initialize(password_1);
                 mAppContainer.locked.setValue(false);
                 mSettings.setUsePin(mPINSwitch.isChecked());
-                finishWithResult();
+                finishWithResult(true);
             } catch (Exception e) {
                 new AlertDialog.Builder(InitActivity.this)
                         .setTitle(R.string.dlog_creating_locker_failed)
                         .setMessage(getString(R.string.dlog_creating_locker_failed_body) + e.getMessage())
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }
@@ -98,12 +104,13 @@ public class InitActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        finishWithResult();
+        finishWithResult(false);
     }
 
-    private void finishWithResult() {
+    private void finishWithResult(boolean success) {
         Intent data = new Intent();
-        setResult(RESULT_OK, data);
+        if (success)
+            setResult(RESULT_OK, data);
         finish();
     }
 }
