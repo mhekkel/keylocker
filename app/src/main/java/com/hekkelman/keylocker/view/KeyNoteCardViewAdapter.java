@@ -1,7 +1,6 @@
 package com.hekkelman.keylocker.view;
 
 import android.content.Context;
-import android.graphics.ColorFilter;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -13,6 +12,7 @@ import android.widget.TextView;
 
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.activities.MainActivity;
+import com.hekkelman.keylocker.databinding.CardviewKeyItemBinding;
 import com.hekkelman.keylocker.datamodel.KeyDb;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
@@ -45,9 +45,11 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
     @NonNull
     @Override
     public KeyNoteCardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_key_item, parent, false);
 
-        KeyNoteCardHolder holder = new KeyNoteCardHolder(context, v);
+        CardviewKeyItemBinding binding =
+                CardviewKeyItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+
+        KeyNoteCardHolder holder = new KeyNoteCardHolder(binding);
         holder.setCallback(new KeyNoteCardHolder.KeyNoteCardHolderCallback() {
             @Override
             public void onMenuButtonClicked(View view, int position) {
@@ -155,7 +157,6 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
 
     static class KeyNoteCardHolder extends RecyclerView.ViewHolder {
         protected KeyNote item;
-        protected CardView card;
         protected TextView nameView;
         protected TextView infoView;
         protected ImageButton copyButton;
@@ -163,20 +164,13 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
 
         private KeyNoteCardHolderCallback keyNoteCardHolderCallback;
 
-        public KeyNoteCardHolder(Context context, View itemView) {
-            super(itemView);
+        public KeyNoteCardHolder(CardviewKeyItemBinding binding) {
+            super(binding.getRoot());
 
-            // Style the buttons in the current theme colors
-            ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);
-
-            card = (CardView) itemView;
-            nameView = itemView.findViewById(R.id.itemCaption);
-            infoView = itemView.findViewById(R.id.itemUser);
-            menuButton = itemView.findViewById(R.id.menuButton);
-            copyButton = itemView.findViewById(R.id.copyButton);
-
-            menuButton.getDrawable().setColorFilter(colorFilter);
-            copyButton.getDrawable().setColorFilter(colorFilter);
+            nameView = binding.itemCaption;
+            infoView = binding.itemUser;
+            menuButton = binding.menuButton;
+            copyButton = binding.copyButton;
 
             menuButton.setOnClickListener(view ->
                     adapterPositionSafeCallback((callback, adapterPosition) ->
@@ -190,7 +184,7 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
                     )
             );
 
-            card.setOnClickListener(new SimpleDoubleClickListener() {
+            itemView.setOnClickListener(new SimpleDoubleClickListener() {
                 @Override
                 public void onSingleClick(View v) {
                     adapterPositionSafeCallback((callback, adapterPosition) ->
