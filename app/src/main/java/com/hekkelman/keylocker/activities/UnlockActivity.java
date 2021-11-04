@@ -85,8 +85,6 @@ public class UnlockActivity extends AppCompatActivity
 	}
 
 	private void initPasswordPinSwitch() {
-		boolean usePin = mSettings.getUsePin();
-
 		mPINSwitch.setOnCheckedChangeListener(
 				(buttonView, isChecked) -> {
 					mPasswordInput.setText("");
@@ -101,6 +99,7 @@ public class UnlockActivity extends AppCompatActivity
 				}
 		);
 
+		boolean usePin = mSettings.getUnlockKeyboard() == Settings.UnlockKeyboardMode.DIGITS;
 		mPINSwitch.setChecked(usePin);
 	}
 

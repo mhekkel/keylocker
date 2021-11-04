@@ -113,5 +113,6 @@
     <string name="settings_key_password_include_capitals" translatable="false">pref_password_include_capitals</string>
     <string name="settings_key_password_include_digits" translatable="false">prefs_password_include_digits</string>
     <string name="settings_key_password_include_symbols" translatable="false">pref_password_include_symbols</string>
+    <string name="settings_default_unlock_keyboard" translatable="false">text</string>
 
 </resources>

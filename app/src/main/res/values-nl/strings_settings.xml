@@ -9,4 +9,9 @@
         <item>Deel als toetsaanslagen</item>
     </string-array>
 
+    <string-array name="settings_entries_keyboard">
+        <item>Normaal</item>
+        <item>Numeriek</item>
+    </string-array>
+
 </resources>

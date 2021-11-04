@@ -108,5 +108,6 @@
     <string name="settings_title_auth_inactivity">Lock the application after being inactive for a specified time</string>
     <string name="settings_title_auth_inactivity_delay">Lock after this many seconds of inactivity</string>
     <string name="settings_activity_title">Instellingen</string>
+    <string name="settings_title_unlock_keyboard">Ontgrendeling toetsenbord</string>
 
 </resources>

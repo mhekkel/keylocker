@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="settings_key_relock_background" translatable="false">pref_relock_background</string>
+    <string name="settings_key_unlock_keyboard" translatable="false">pref_unlock_keyboard</string>
     <string name="settings_key_tap_single" translatable="false">pref_tap_single</string>
     <string name="settings_key_tap_double" translatable="false">pref_tap_double</string>
     <string name="settings_key_auth_inactivity" translatable="false">pref_auth_inactivity</string>
     <string name="settings_key_auth_inactivity_delay" translatable="false">pref_auth_inactivity_delay</string>
-    <string name="settings_key_use_pin" translatable="false">pref_use_pin</string>
     <string name="settings_key_block_accessibility" translatable="false">pref_block_accessibility</string>
     <string name="settings_key_block_autofill" translatable="false">pref_block_autofill</string>
     <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
@@ -26,6 +26,11 @@
         <item>copy</item>
         <item>copy_background</item>
         <item>share_keystrokes</item>
+    </string-array>
+
+    <string-array name="settings_values_keyboard">
+        <item>text</item>
+        <item>digits</item>
     </string-array>
 
 </resources>

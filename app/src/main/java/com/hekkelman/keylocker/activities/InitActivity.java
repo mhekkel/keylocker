@@ -70,7 +70,7 @@ public class InitActivity extends AppCompatActivity
             try {
                 mAppContainer.keyDb = KeyLockerFile.initialize(password_1);
                 mAppContainer.locked.setValue(false);
-                mSettings.setUsePin(mPINSwitch.isChecked());
+                mSettings.setUnlockKeyboard(mPINSwitch.isChecked() ? Settings.UnlockKeyboardMode.DIGITS : Settings.UnlockKeyboardMode.TEXT);
                 finishWithResult(true);
             } catch (Exception e) {
                 new AlertDialog.Builder(InitActivity.this)

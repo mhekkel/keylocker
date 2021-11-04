@@ -15,6 +15,7 @@ public class Settings {
     private final SharedPreferences settings;
 
     public enum TapMode {NOTHING, EDIT, COPY, COPY_BACKGROUND, SEND_KEYSTROKES}
+    public enum UnlockKeyboardMode { TEXT, DIGITS }
 
     public Settings(Context context) {
         this.context = context;
@@ -89,8 +90,13 @@ public class Settings {
         return TapMode.valueOf(doubleTap.toUpperCase(Locale.ENGLISH));
     }
 
-    public boolean getTapToReveal() {
-        return getTapSingle() == TapMode.EDIT || getTapDouble() == TapMode.EDIT;
+    public UnlockKeyboardMode getUnlockKeyboard() {
+        String unlockKeyboard = getString(R.string.settings_key_unlock_keyboard, R.string.settings_default_unlock_keyboard);
+        return UnlockKeyboardMode.valueOf(unlockKeyboard.toUpperCase(Locale.ENGLISH));
+    }
+
+    public void setUnlockKeyboard(UnlockKeyboardMode mode) {
+        setString(R.string.settings_key_unlock_keyboard, mode.toString());
     }
 
     public int getAuthInactivityDelay() {
@@ -99,13 +105,6 @@ public class Settings {
 
     public boolean getAuthInactivity() {
         return getBoolean(R.string.settings_key_auth_inactivity, false);
-    }
-
-    public boolean getUsePin() {
-        return getBoolean(R.string.settings_key_use_pin, false);
-    }
-    public void setUsePin(boolean usePin) {
-        setBoolean(R.string.settings_key_use_pin, usePin);
     }
 
     public boolean getBlockAccessibility() {
