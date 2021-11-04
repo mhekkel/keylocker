@@ -170,8 +170,8 @@ public abstract class KeyNoteCardViewAdapter<KeyOrNote extends KeyNote> extends 
             ColorFilter colorFilter = Tools.getThemeColorFilter(context, android.R.attr.textColorSecondary);
 
             card = (CardView) itemView;
-            nameView = itemView.findViewById(R.id.itemCaption);
-            infoView = itemView.findViewById(R.id.itemUser);
+            nameView = itemView.findViewById(R.id.itemName);
+            infoView = itemView.findViewById(R.id.itemDetail);
             menuButton = itemView.findViewById(R.id.menuButton);
             copyButton = itemView.findViewById(R.id.copyButton);
 
