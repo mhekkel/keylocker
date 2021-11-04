@@ -12,44 +12,55 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.databinding.ActivityInitBinding;
+import com.hekkelman.keylocker.datamodel.KeyLockerFile;
+import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
+import java.util.Objects;
+
 public class InitActivity extends AppCompatActivity
         implements EditText.OnEditorActionListener, View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
 
-    private Settings settings;
+    private Settings mSettings;
+    private AppContainer mAppContainer;
     private TextInputEditText mPassword1;
     private TextInputEditText mPassword2;
     private SwitchCompat mPINSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.settings = new Settings(this);
+        this.mSettings = new Settings(this);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_init);
 
-        mPassword1 = findViewById(R.id.password_1);
-        mPassword2 = findViewById(R.id.password_2);
+        ActivityInitBinding binding = ActivityInitBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        mPINSwitch = findViewById(R.id.numeric_cb);
+        mAppContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+
+        mPassword1 = binding.passwordOne;
+        mPassword2 = binding.passwordTwo;
+
+        mPINSwitch = binding.numericCheckBox;
 
         mPINSwitch.setOnCheckedChangeListener(this);
 
-        Button btn = findViewById(R.id.create_btn);
+        Button btn = binding.createBtn;
         btn.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
-        String password_1 = mPassword1.getText().toString();
-        String password_2 = mPassword2.getText().toString();
+        String password_1 = Objects.requireNonNull(mPassword1.getText()).toString();
+        String password_2 = Objects.requireNonNull(mPassword2.getText()).toString();
 
         if (password_1.length() < 5)
             mPassword1.setError(getString(R.string.password_too_short));
@@ -57,14 +68,15 @@ public class InitActivity extends AppCompatActivity
             mPassword2.setError(getString(R.string.passwords_do_not_match));
         else {
             try {
-                char[] password = password_1.toCharArray();
-                KeyDb.initialize(password, getFilesDir());
-                settings.setUsePin(mPINSwitch.isChecked());
-                finishWithResult(password);
+                mAppContainer.keyDb = KeyLockerFile.initialize(password_1);
+                mAppContainer.locked.setValue(false);
+                mSettings.setUsePin(mPINSwitch.isChecked());
+                finishWithResult(true);
             } catch (Exception e) {
                 new AlertDialog.Builder(InitActivity.this)
                         .setTitle(R.string.dlog_creating_locker_failed)
                         .setMessage(getString(R.string.dlog_creating_locker_failed_body) + e.getMessage())
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }
@@ -92,14 +104,13 @@ public class InitActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        finishWithResult(null);
+        finishWithResult(false);
     }
 
-    private void finishWithResult(char[] encryptionKey) {
+    private void finishWithResult(boolean success) {
         Intent data = new Intent();
-        if (encryptionKey != null)
-            data.putExtra(UnlockActivity.EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
-        setResult(RESULT_OK, data);
+        if (success)
+            setResult(RESULT_OK, data);
         finish();
     }
 }

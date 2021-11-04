@@ -9,43 +9,43 @@ import java.util.Vector;
 
 @Root
 public class KeyChain {
-    @ElementList(type = Key.class)
-    private List<Key> keys;
+    @ElementList(type = KeyNote.Key.class)
+    private List<KeyNote.Key> keys;
 
-    @ElementList(type = Note.class)
-    private List<Note> notes;
+    @ElementList(type = KeyNote.Note.class)
+    private List<KeyNote.Note> notes;
 
     public KeyChain() {
         this.keys = new Vector<>();
         this.notes = new Vector<>();
     }
 
-    public List<Key> getKeys() {
+    public List<KeyNote.Key> getKeys() {
         return keys;
     }
 
-    public void addKey(Key key) {
+    public void addKey(KeyNote.Key key) {
         if (!this.keys.contains(key)) this.keys.add(key);
     }
 
-    public List<Note> getNotes() {
+    public List<KeyNote.Note> getNotes() {
         return notes;
     }
 
-    public void addNote(Note note) {
+    public void addNote(KeyNote.Note note) {
         if (!this.notes.contains(note)) this.notes.add(note);
     }
 
     // more accessors
-    Key getKeyByID(String id) {
-        for (Key k : this.keys)
+    KeyNote.Key getKeyByID(String id) {
+        for (KeyNote.Key k : this.keys)
             if (k.getId().equals(id))
                 return k;
         return null;
     }
 
-    Note getNoteByID(String id) {
-        for (Note n : this.notes) {
+    KeyNote.Note getNoteByID(String id) {
+        for (KeyNote.Note n : this.notes) {
             if (n.getId().equals(id))
                 return n;
         }
@@ -55,36 +55,36 @@ public class KeyChain {
     public boolean synchronize(KeyChain kc) {
         boolean changed = false;
 
-        for (Key key : this.keys) {
-            Key kcKey = kc.getKeyByID(key.getId());
+        for (KeyNote.Key key : this.keys) {
+            KeyNote.Key kcKey = kc.getKeyByID(key.getId());
             if (kcKey == null) {
-                kc.keys.add(new Key(key));
+                kc.keys.add(new KeyNote.Key(key));
                 changed = true;
             } else if (kcKey.synchronize(key) != 0)
                 changed = true;
         }
 
-        for (Key key : kc.keys) {
-            Key tKey = this.getKeyByID(key.getId());
+        for (KeyNote.Key key : kc.keys) {
+            KeyNote.Key tKey = this.getKeyByID(key.getId());
             if (tKey == null)
-                this.keys.add(new Key(key));
+                this.keys.add(new KeyNote.Key(key));
             else
                 tKey.synchronize(key);
         }
 
-        for (Note note : this.notes) {
-            Note kcNote = kc.getNoteByID(note.getId());
+        for (KeyNote.Note note : this.notes) {
+            KeyNote.Note kcNote = kc.getNoteByID(note.getId());
             if (kcNote == null) {
-                kc.notes.add(new Note(note));
+                kc.notes.add(new KeyNote.Note(note));
                 changed = true;
             } else if (kcNote.synchronize(note) != 0)
                 changed = true;
         }
 
-        for (Note Note : kc.notes) {
-            Note tNote = this.getNoteByID(Note.getId());
+        for (KeyNote.Note Note : kc.notes) {
+            KeyNote.Note tNote = this.getNoteByID(Note.getId());
             if (tNote == null)
-                this.notes.add(new Note(Note));
+                this.notes.add(new KeyNote.Note(Note));
             else
                 tNote.synchronize(Note);
         }
@@ -93,12 +93,12 @@ public class KeyChain {
     }
 
     private void purge() {
-        this.keys.removeIf(Key::isDeleted);
-        this.notes.removeIf(Note::isDeleted);
+        this.keys.removeIf(KeyNote.Key::isDeleted);
+        this.notes.removeIf(KeyNote.Note::isDeleted);
     }
 
-    public Key createKey() {
-        Key key = new Key();
+    public KeyNote.Key createKey() {
+        KeyNote.Key key = new KeyNote.Key();
         this.keys.add(key);
         return key;
     }

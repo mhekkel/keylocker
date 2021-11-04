@@ -1,4 +1,4 @@
-package com.hekkelman.keylocker.view;
+package com.hekkelman.keylocker.utilities;
 
 import android.view.View;
 
@@ -15,7 +15,7 @@ public abstract class SimpleDoubleClickListener implements View.OnClickListener 
 
         if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
             if (firstTap)
-                onDoubleClick(v);
+                onClick(v, true);
 
             firstTap = false;
         } else {
@@ -23,14 +23,12 @@ public abstract class SimpleDoubleClickListener implements View.OnClickListener 
 
             v.postDelayed(() -> {
                 if (firstTap)
-                    onSingleClick(v);
+                    onClick(v, false);
             }, DOUBLE_CLICK_TIME_DELTA);
         }
 
         lastClickTime = clickTime;
     }
 
-    public abstract void onSingleClick(View v);
-
-    public abstract void onDoubleClick(View v);
+    public abstract void onClick(View v, boolean doubleClick);
 }

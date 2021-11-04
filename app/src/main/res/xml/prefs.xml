@@ -78,17 +78,17 @@
 
         <SwitchPreference
             app:defaultValue="true"
-            app:key="password-include-capitals"
+            app:key="@string/settings_key_password_include_capitals"
             app:title="@string/settings_title_password_include_capitals" />
 
         <SwitchPreference
             app:defaultValue="true"
-            app:key="password-include-digits"
+            app:key="@string/settings_key_password_include_digits"
             app:title="@string/settings_title_password_include_digits" />
 
         <SwitchPreference
             app:defaultValue="true"
-            app:key="password-include-symbols"
+            app:key="@string/settings_key_password_include_symbols"
             app:title="@string/settings_title_password_include_symbols" />
 
     </PreferenceCategory>

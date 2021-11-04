@@ -4,20 +4,22 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.hekkelman.keylocker.datamodel.KeyLockerFile;
+
 import androidx.core.os.HandlerCompat;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AppContainer {
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private Handler mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper());
+    public ExecutorService executorService = Executors.newSingleThreadExecutor();
+    public Handler mainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper());
 
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
+    public KeyLockerFile keyDb;
+    public MutableLiveData<Boolean> locked = new MutableLiveData<>(true);
 
-    public Handler getMainThreadHandler() {
-        return mainThreadHandler;
+    public AppContainer(Context context) {
+        KeyLockerFile.mFilesDir = context.getFilesDir();
     }
 }

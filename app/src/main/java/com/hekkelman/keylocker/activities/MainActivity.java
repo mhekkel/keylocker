@@ -1,33 +1,35 @@
 package com.hekkelman.keylocker.activities;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,78 +40,61 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.InvalidPasswordException;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.tasks.SaveNoteTask;
+import com.hekkelman.keylocker.databinding.ActivityMainBinding;
+import com.hekkelman.keylocker.databinding.CardviewKeyItemBinding;
+import com.hekkelman.keylocker.databinding.DialogAskPasswordBinding;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
+import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.tasks.SyncSDTask;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
-import com.hekkelman.keylocker.view.KeyCardViewAdapter;
-import com.hekkelman.keylocker.view.KeyNoteCardViewAdapter;
-import com.hekkelman.keylocker.view.NoteCardViewAdapter;
+import com.hekkelman.keylocker.utilities.Tools;
+import com.hekkelman.keylocker.utilities.SimpleDoubleClickListener;
 
-import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends KeyDbBaseActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    public Settings settings;
-    private ScreenOffReceiver screenOffReceiver;
     private KeyNoteCardViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
-    private String query;
-    private CountDownTimer countDownTimer;
-    private ActivityResultLauncher<Intent> unlockResult;
-    private ActivityResultLauncher<Intent> initResult;
-    private ActivityResultLauncher<Intent> newKeyResult;
-    private ActivityResultLauncher<Intent> editKeyResult;
-    private SHOW_KEYNOTE mType = SHOW_KEYNOTE.KEY;
-    private SyncSDTask syncSDTask;
+    private String mQuery;
+    private ActivityResultLauncher<Intent> mNewKeyResult;
+    private ActivityResultLauncher<Intent> mEditKeyResult;
+    private KEY_OR_NOTE_TYPE mType = KEY_OR_NOTE_TYPE.KEY;
+    private SyncSDTask mSyncSDTask;
+    private ActivityMainBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        settings = new Settings(this);
-
         super.onCreate(savedInstanceState);
 
-        AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
-        this.syncSDTask = new SyncSDTask(this, appContainer.getExecutorService(), appContainer.getMainThreadHandler());
+        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+        this.mSyncSDTask = new SyncSDTask(appContainer.executorService, appContainer.mainThreadHandler);
 
-        if (settings.getRelockOnBackground()) {
-            screenOffReceiver = new ScreenOffReceiver();
-            registerReceiver(screenOffReceiver, screenOffReceiver.filter);
-        }
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = mBinding.getRoot();
+        setContentView(view);
 
-        setContentView(R.layout.activity_main);
-        mRecyclerView = findViewById(R.id.recycler_view);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        FloatingActionButton fabView = findViewById(R.id.fab);
+        mRecyclerView = mBinding.recyclerView;
+        NavigationView navigationView = mBinding.navView;
+        FloatingActionButton fabView = mBinding.fab;
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
 
-        PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
-        settings.registerPreferenceChangeListener(this);
-
-        KeyDb.init(settings);
-
-        unlockResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
-
-        initResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
-
-        newKeyResult = registerForActivityResult(
+        mNewKeyResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
-        editKeyResult = registerForActivityResult(
+        mEditKeyResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = mBinding.drawerLayout;
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -122,58 +107,59 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        swapAdapter(SHOW_KEYNOTE.KEY);
+        mAdapter = new KeyNoteCardViewAdapter(this::onCardTapped, this::onCardCopy, this::onCardEdit, this::onCardRemove);
+        mRecyclerView.setAdapter(mAdapter);
 
         fabView.setOnClickListener(this::onClickFab);
 
         Intent intent = getIntent();
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction()))
-            query = intent.getStringExtra(SearchManager.QUERY);
+            mQuery = intent.getStringExtra(SearchManager.QUERY);
     }
+
+    private void onCardCopy(KeyNote keyNote) {
+        Tools.copyToClipboard(this, keyNote.getText());
+    }
+
+    private void onCardEdit(KeyNote keyNote) {
+        Intent intent;
+        if (keyNote instanceof KeyNote.Key) {
+            intent = new Intent(MainActivity.this, KeyDetailActivity.class);
+            intent.putExtra("key-id", keyNote.getId());
+        } else {
+            intent = new Intent(MainActivity.this, NoteDetailActivity.class);
+            intent.putExtra("note-id", keyNote.getId());
+        }
+        mEditKeyResult.launch(intent);
+    }
+
+    private void onCardRemove(KeyNote keyNote) {
+        try {
+            mViewModel.keyDb.delete(keyNote);
+            loadData();
+
+            Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
+                    .setAction(R.string.undo_remove, view -> {
+                        mViewModel.keyDb.undoDelete(keyNote);
+                        loadData();
+                    })
+                    .show();
+
+        } catch (KeyDbException exception) {
+            exception.printStackTrace();
+        }
+    }
+
 
     private void onEditKeyResult(ActivityResult result) {
-//        this.requireAuthentication = false;
-    }
-
-    public void onUnlockedResult(ActivityResult result) {
-        if (result.getResultCode() == Activity.RESULT_CANCELED)
-            finish();
+        loadData();
     }
 
     public void onClickFab(View view) {
         Intent intent = new Intent(MainActivity.this,
-                mType == SHOW_KEYNOTE.KEY ?  KeyDetailActivity.class : NoteDetailActivity.class);
-        newKeyResult.launch(intent);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        if (key.equals(getString(R.string.settings_key_relock_background)))
-            KeyDb.setRelockOnBackground(settings.getRelockOnBackground());
-
-//		if (key.equals(getString(R.string.settings_key_label_size)) ||
-//				key.equals(getString(R.string.settings_key_label_display)) ||
-//				key.equals(getString(R.string.settings_key_split_group_size)) ||
-//				key.equals(getString(R.string.settings_key_thumbnail_size))) {
-//			adapter.notifyDataSetChanged();
-//		} else if (key.equals(getString(R.string.settings_key_search_includes))) {
-//			adapter.clearFilter();
-//		} else if (key.equals(getString(R.string.settings_key_tap_single)) ||
-//				key.equals(getString(R.string.settings_key_tap_double)) ||
-//				key.equals(getString(R.string.settings_key_theme)) ||
-//				key.equals(getString(R.string.settings_key_lang)) ||
-//				key.equals(getString(R.string.settings_key_enable_screenshot)) ||
-//				key.equals(getString(R.string.settings_key_tag_functionality)) ||
-//				key.equals(getString(R.string.settings_key_label_highlight_token)) ||
-//				key.equals(getString(R.string.settings_key_card_layout)) ||
-//				key.equals(getString(R.string.settings_key_theme_mode)) ||
-//				key.equals(getString(R.string.settings_key_theme_black_auto)) ||
-//				key.equals(getString(R.string.settings_key_hide_global_timeout)) ||
-//				key.equals(getString(R.string.settings_key_hide_issuer)) ||
-//				key.equals(getString(R.string.settings_key_show_prev_token))) {
-//			recreateActivity = true;
-//		}
+                mType == KEY_OR_NOTE_TYPE.KEY ? KeyDetailActivity.class : NoteDetailActivity.class);
+        mNewKeyResult.launch(intent);
     }
 
     @Override
@@ -185,60 +171,38 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        if (!KeyDb.isUnlocked()) {
-            authenticate();
-        } else {
-            mAdapter.loadEntries();
-
-            if (setCountDownTimerNow())
-                countDownTimer.start();
-        }
+    public void loadData() {
+        loadData(mType);
     }
 
-    @Override
-    protected void onPause() {
-        if (countDownTimer != null)
-            countDownTimer.cancel();
+    public void loadData(KEY_OR_NOTE_TYPE type) {
+        if (mViewModel.keyDb != null) {
+            List<KeyNote> items;
+            if (type == KEY_OR_NOTE_TYPE.KEY)
+                items = mViewModel.keyDb.getAllKeys().stream().map(k -> (KeyNote) k).collect(Collectors.toList());
+            else
+                items = mViewModel.keyDb.getAllNotes().stream().map(k -> (KeyNote) k).collect(Collectors.toList());
 
-        super.onPause();
-    }
-
-    public void authenticate() {
-        File keyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
-        if (!keyFile.exists()) {
-            Intent authIntent = new Intent(this, InitActivity.class);
-            initResult.launch(authIntent);
-        } else {
-            Intent authIntent = new Intent(this, UnlockActivity.class);
-            unlockResult.launch(authIntent);
+            mAdapter.loadEntries(items);
         }
+        mType = type;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (!TextUtils.isEmpty(query))
-            mAdapter.getFilter().filter(query);
+        if (!TextUtils.isEmpty(mQuery))
+            mAdapter.getFilter().filter(mQuery);
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = mBinding.drawerLayout;
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (screenOffReceiver != null)
-            unregisterReceiver(screenOffReceiver);
-        super.onDestroy();
     }
 
     @Override
@@ -269,41 +233,26 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    void swapAdapter(SHOW_KEYNOTE type) {
-        mType = type;
-        if (mType == SHOW_KEYNOTE.KEY) {
-            mAdapter = new KeyCardViewAdapter(this);
-            mAdapter.setEditCallback(keyID -> {
-                Intent intent = new Intent(MainActivity.this, KeyDetailActivity.class);
-                intent.putExtra("key-id", keyID);
-                editKeyResult.launch(intent);
-            });
-            mAdapter.setKeyNoteRemovedCallback(keyID -> {
-                 Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
-                         .setAction(R.string.undo_remove, view -> {
-                             KeyDb.undoDeleteKey(keyID);
-                             mAdapter.loadEntries();
-                         })
-                         .show();
-            });
-        } else {
-            mAdapter = new NoteCardViewAdapter(this);
-            mAdapter.setEditCallback(noteID -> {
-                Intent intent = new Intent(MainActivity.this, NoteDetailActivity.class);
-                intent.putExtra("note-id", noteID);
-                editKeyResult.launch(intent);
-            });
-            mAdapter.setKeyNoteRemovedCallback(noteID -> {
-                Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
-                        .setAction(R.string.undo_remove, view -> {
-                            KeyDb.undoDeleteNote(noteID);
-                            mAdapter.loadEntries();
-                        })
-                        .show();
-            });
-        }
+    private void onCardTapped(KeyNote keyNote, boolean doubleTap) {
+        Settings.TapMode tapMode = doubleTap ? mSettings.getTapDouble() : mSettings.getTapSingle();
 
-        mRecyclerView.setAdapter(mAdapter);
+        switch (tapMode) {
+            case EDIT:
+                onCardEdit(keyNote);
+                break;
+            case COPY:
+                onCardCopy(keyNote);
+                break;
+            case COPY_BACKGROUND:
+                onCardCopy(keyNote);
+                moveTaskToBack(true);
+                break;
+            case SEND_KEYSTROKES:
+//						sendKeystrokes(position);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -312,15 +261,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_keys) {
-            if (mType != SHOW_KEYNOTE.KEY) {
-                swapAdapter(SHOW_KEYNOTE.KEY);
-                mAdapter.loadEntries();
-            }
+            if (mType != KEY_OR_NOTE_TYPE.KEY) loadData(KEY_OR_NOTE_TYPE.KEY);
         } else if (id == R.id.nav_notes) {
-            if (mType != SHOW_KEYNOTE.NOTE) {
-                swapAdapter(SHOW_KEYNOTE.NOTE);
-                mAdapter.loadEntries();
-            }
+            if (mType != KEY_OR_NOTE_TYPE.NOTE) loadData(KEY_OR_NOTE_TYPE.NOTE);
         } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard();
         } else if (id == R.id.action_settings) {
@@ -328,13 +271,13 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = mBinding.drawerLayout;
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     private void syncWithSDCard() {
-        String backupDir = settings.getLocalBackupDir();
+        String backupDir = mSettings.getLocalBackupDir();
 
         if (TextUtils.isEmpty(backupDir)) {
             Snackbar.make(mRecyclerView, R.string.backup_toast_no_location, BaseTransientBottomBar.LENGTH_SHORT).show();
@@ -343,36 +286,38 @@ public class MainActivity extends AppCompatActivity
 
         try {
             Uri backupDirUri = Uri.parse(backupDir);
-            syncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
+            AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, null, this::onSyncTaskResult);
         } catch (Exception e) {
             syncFailed(e.getMessage());
         }
     }
 
-    void onTaskResult(TaskResult<Void> result) {
+    void onSyncTaskResult(TaskResult<Void> result) {
         if (result instanceof TaskResult.Success) {
             Snackbar.make(mRecyclerView, R.string.sync_successful, BaseTransientBottomBar.LENGTH_SHORT).show();
-            mAdapter.loadEntries();
+            loadData();
         } else {
-            Exception e = ((TaskResult.Error<Void>)result).exception;
+            Exception e = ((TaskResult.Error<Void>) result).exception;
 
-            if (e instanceof InvalidPasswordException) {
-                final View view = getLayoutInflater().inflate(R.layout.dialog_ask_password, null);
-
-                final EditText pw = view.findViewById(R.id.dlog_password);
-                if (settings.getBlockAccessibility())
+            if (e instanceof KeyDbException.InvalidPasswordException) {
+                DialogAskPasswordBinding binding = DialogAskPasswordBinding.inflate(getLayoutInflater());
+                final View view = binding.getRoot();
+                final EditText pw = binding.dlogPassword;
+                if (mSettings.getBlockAccessibility())
                     pw.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
 
-                if (settings.getBlockAutofill())
+                if (mSettings.getBlockAutofill())
                     pw.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
 
                 new AlertDialog.Builder(MainActivity.this)
                         .setView(view)
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            String backupDir = settings.getLocalBackupDir();
+                            String backupDir = mSettings.getLocalBackupDir();
 
                             Uri backupDirUri = Uri.parse(backupDir);
-                            syncSDTask.syncToSD(this, backupDirUri, null, this::onTaskResult);
+                            AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+                            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, pw.getText().toString(), this::onSyncTaskResult);
                         })
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                         })
@@ -393,43 +338,162 @@ public class MainActivity extends AppCompatActivity
                 .show();
     }
 
-    private boolean setCountDownTimerNow() {
-        try {
-            int secondsToBlackout = 1000 * settings.getAuthInactivityDelay();
 
-            if (!settings.getAuthInactivity() || secondsToBlackout == 0)
-                return false;
+    private enum KEY_OR_NOTE_TYPE {KEY, NOTE}
 
-            countDownTimer = new CountDownTimer(secondsToBlackout, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                }
+    public static class KeyNoteCardViewAdapter extends RecyclerView.Adapter<KeyNoteCardViewAdapter.KeyNoteCardHolder>
+            implements Filterable {
 
-                @Override
-                public void onFinish() {
-                    authenticate();
-                    this.cancel();
-                }
-            };
+        private final CardActionCallback editCallback;
+        private final CardActionCallback removeCallback;
+        protected List<KeyNote> items, allItems;
+        protected CardTappedCallback tappedCallback;
+        protected SimpleDoubleClickListener clickCallback;
+        protected CardActionCallback copyCallback;
 
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    private enum SHOW_KEYNOTE {KEY, NOTE}
-
-    public static class ScreenOffReceiver extends BroadcastReceiver {
-        public IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
-                KeyDb.onReceivedScreenOff();
+        public Filter getFilter() {
+            return new KeyNoteFilter();
         }
+
+        public interface CardTappedCallback {
+            void onCardTapped(KeyNote item, boolean doubleTap);
+        }
+
+        public interface CardActionCallback {
+            void action(KeyNote item);
+        }
+
+        public KeyNoteCardViewAdapter(CardTappedCallback tappedCallback, CardActionCallback copyCallback,
+                                      CardActionCallback editCallback, CardActionCallback removeCallback) {
+            this.tappedCallback = tappedCallback;
+            this.copyCallback = copyCallback;
+            this.editCallback = editCallback;
+            this.removeCallback = removeCallback;
+
+            this.clickCallback = new SimpleDoubleClickListener() {
+                @Override
+                public void onClick(View v, boolean doubleClick) {
+                    tappedCallback.onCardTapped((KeyNote) v.getTag(), doubleClick);
+                }
+            };
+        }
+
+        public void loadEntries(List<KeyNote> items) {
+            allItems = items;
+            this.items = items;
+            notifyDataSetChanged();;
+        }
+
+        @NonNull
+        @Override
+        public KeyNoteCardHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+            CardviewKeyItemBinding binding =
+                    CardviewKeyItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+
+            return new KeyNoteCardHolder(binding, clickCallback, this::onCopyButtonClicked, this::onMenuButtonClicked);
+        }
+
+        private void onCopyButtonClicked(View view) {
+            KeyNote item = (KeyNote) view.getTag();
+            if (item != null && copyCallback != null)
+                copyCallback.action(item);
+        }
+
+        protected void onMenuButtonClicked(View view) {
+            View menuItemView = view.findViewById(R.id.menuButton);
+            PopupMenu popup = new PopupMenu(view.getContext(), menuItemView);
+            MenuInflater inflate = popup.getMenuInflater();
+            inflate.inflate(R.menu.menu_popup, popup.getMenu());
+
+            KeyNote keyNote = (KeyNote)view.getTag();
+
+            popup.setOnMenuItemClickListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.menu_popup_edit) {
+                    editCallback.action(keyNote);
+                    return true;
+                } else if (id == R.id.menu_popup_remove) {
+                    removeCallback.action(keyNote);
+                    return true;
+                } else return false;
+            });
+            popup.show();
+        }
+
+        @Override
+        public void onBindViewHolder(KeyNoteCardHolder holder, int position) {
+            holder.setItem(items.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return items != null ? items.size() : 0;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return items.get(position).getListID();
+        }
+
+        static class KeyNoteCardHolder extends RecyclerView.ViewHolder {
+            protected TextView nameView;
+            protected TextView infoView;
+            protected ImageButton copyButton;
+            protected ImageButton menuButton;
+
+            public KeyNoteCardHolder(CardviewKeyItemBinding binding, View.OnClickListener onClickListener,
+                                     View.OnClickListener onCopyClick, View.OnClickListener onMenuClick) {
+                super(binding.getRoot());
+
+                itemView.setOnClickListener(onClickListener);
+
+                nameView = binding.itemCaption;
+                infoView = binding.itemUser;
+                copyButton = binding.copyButton;
+                menuButton = binding.menuButton;
+
+                copyButton.setOnClickListener(onCopyClick);
+                menuButton.setOnClickListener(onMenuClick);
+            }
+
+            protected void setItem(KeyNote keyNote) {
+                itemView.setTag(keyNote);
+                copyButton.setTag(keyNote);
+                menuButton.setTag(keyNote);
+
+                nameView.setText(keyNote.getName());
+                infoView.setText(keyNote.getDescription());
+            }
+        }
+
+        public class KeyNoteFilter extends Filter {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                List<KeyNote> filtered = allItems;
+
+                if (!TextUtils.isEmpty(constraint)) {
+                    String finalConstraint = constraint.toString();
+                    filtered = filtered.stream()
+                            .filter(key -> key.match(finalConstraint))
+                            .collect(Collectors.toList());
+                }
+
+                results.values = filtered;
+                return results;
+            }
+
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                items = (List<KeyNote>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        }
+
     }
 
 }

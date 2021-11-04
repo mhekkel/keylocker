@@ -124,5 +124,23 @@ public class Settings {
         setString(R.string.settings_key_backup_dir, localBackupDir);
     }
 
+    public int getGeneratedPasswordLength() {
+        return getIntValue(R.string.settings_key_password_length, 12);
+    }
 
+    public boolean getGeneratedPasswordNoAmbiguous() {
+        return getBoolean(R.string.settings_key_password_not_ambiguous, true);
+    }
+
+    public boolean getGeneratedPasswordIncludeCapitals() {
+        return getBoolean(R.string.settings_key_password_include_capitals, true);
+    }
+
+    public boolean getGeneratedPasswordIncludeDigits() {
+        return getBoolean(R.string.settings_key_password_include_digits, true);
+    }
+
+    public boolean getGeneratedPasswordIncludeSymbols() {
+        return getBoolean(R.string.settings_key_password_include_symbols, true);
+    }
 }

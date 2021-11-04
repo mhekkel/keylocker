@@ -22,13 +22,13 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
+import com.hekkelman.keylocker.databinding.ActivityUnlockBinding;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.tasks.UnlockTask;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
-import java.io.File;
+import java.util.Objects;
 
 /**
  * A login screen that offers login via pin/password.
@@ -36,18 +36,17 @@ import java.io.File;
 public class UnlockActivity extends AppCompatActivity
 		implements EditText.OnEditorActionListener, View.OnClickListener {
 
-	public final static String EXTRA_AUTH_PASSWORD_KEY	= "password_key";
 	public final static int SHOW_RESET_AT_RETRY_COUNT	= 3;
 
 	private UnlockTask unlockTask;
 
 	// UI references.
-	public Settings mSettings;
+	private Settings mSettings;
+	private AppContainer mAppContainer;
 	private TextInputLayout mPasswordLayout;
 	private TextInputEditText mPasswordInput;
 	private SwitchCompat mPINSwitch;
 	private Button mUnlockButton;
-	private File mKeyFile;
 	private Button mResetButton;
 	private int mRetryCount = 0;
 
@@ -57,41 +56,35 @@ public class UnlockActivity extends AppCompatActivity
 
 		super.onCreate(savedInstanceState);
 
-		AppContainer appContainer = ((KeyLockerApp) getApplication()).appContainer;
-		this.unlockTask = new UnlockTask(appContainer.getExecutorService(), appContainer.getMainThreadHandler());
-
-		mKeyFile = new File(getFilesDir(), KeyDb.KEY_DB_NAME);
+		mAppContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+		this.unlockTask = new UnlockTask(mAppContainer.executorService, mAppContainer.mainThreadHandler);
 
 		setTitle(R.string.activity_unlock_title);
 
-		setContentView(R.layout.activity_container);
-		initToolbar();
-		initPasswordViews();
-	}
+		ActivityUnlockBinding binding = ActivityUnlockBinding.inflate(getLayoutInflater());
+		View view = binding.getRoot();
 
-	private void initToolbar() {
-		Toolbar toolbar = findViewById(R.id.container_toolbar);
+		setContentView(view);
+
+		Toolbar toolbar = binding.containerToolbar;
 		toolbar.setNavigationIcon(null);
 		setSupportActionBar(toolbar);
+
+		initPasswordViews(binding);
 	}
 
-	private void initPasswordViews() {
-		ViewStub stub = findViewById(R.id.container_stub);
-		stub.setLayoutResource(R.layout.content_unlock);
-		View v = stub.inflate();
+	private void initPasswordViews(ActivityUnlockBinding binding) {
+		mPINSwitch = binding.numericCheckBox;
+		mPasswordLayout = binding.passwordLayout;
+		mPasswordInput = binding.password;
 
-		mPINSwitch = v.findViewById(R.id.numeric_cb);
-		mPasswordLayout = v.findViewById(R.id.passwordLayout);
-		mPasswordInput = v.findViewById(R.id.password);
-
-		initPasswordLabelView(v);
-		initPasswordPinSwitch(v);
-		initPasswordLayoutView(v);
-		initPasswordInputView(v);
-		initButtonViews(v);
+		initPasswordPinSwitch();
+		initPasswordLayoutView();
+		initPasswordInputView();
+		initButtonViews(binding);
 	}
 
-	private void initPasswordPinSwitch(View v) {
+	private void initPasswordPinSwitch() {
 		boolean usePin = mSettings.getUsePin();
 
 		mPINSwitch.setOnCheckedChangeListener(
@@ -111,13 +104,7 @@ public class UnlockActivity extends AppCompatActivity
 		mPINSwitch.setChecked(usePin);
 	}
 
-	private void initPasswordLabelView(View v) {
-//		int labelMsg = getIntent().getIntExtra(Constants.EXTRA_AUTH_MESSAGE, R.string.auth_msg_authenticate);
-//		TextView passwordLabel = v.findViewById(R.id.passwordLabel);
-//		passwordLabel.setText(labelMsg);
-	}
-
-	private void initPasswordLayoutView(View v) {
+	private void initPasswordLayoutView() {
 		int hintResId = (mPINSwitch.isChecked()) ? R.string.unlock_hint_pin :  R.string.unlock_hint_password;
 		mPasswordLayout.setHint(getString(hintResId));
 		if (mSettings.getBlockAccessibility()) {
@@ -128,7 +115,7 @@ public class UnlockActivity extends AppCompatActivity
 		}
 	}
 
-	private void initPasswordInputView(View v) {
+	private void initPasswordInputView() {
 		int inputType = (mPINSwitch.isChecked())
 				? (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD)
 				: (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -137,11 +124,11 @@ public class UnlockActivity extends AppCompatActivity
 		mPasswordInput.setOnEditorActionListener(this);
 	}
 
-	private void initButtonViews(View v) {
-		mUnlockButton = v.findViewById(R.id.sign_in_button);
+	private void initButtonViews(ActivityUnlockBinding binding) {
+		mUnlockButton = binding.signInButton;
 		mUnlockButton.setOnClickListener(this);
 
-		mResetButton = v.findViewById(R.id.replace_locker);
+		mResetButton = binding.replaceLocker;
 		mResetButton.setOnClickListener(this);
 	}
 
@@ -165,9 +152,7 @@ public class UnlockActivity extends AppCompatActivity
 	}
 
 	private void resetLocker() {
-		if (mKeyFile.exists())
-			mKeyFile.delete();
-		finishWithResult(false, null);
+		finishWithReset();
 	}
 
 	/**
@@ -180,7 +165,7 @@ public class UnlockActivity extends AppCompatActivity
 		mPasswordInput.setError(null);
 
 		// Store values at the time of the login attempt.
-		String password = mPasswordInput.getText().toString();
+		String password = Objects.requireNonNull(mPasswordInput.getText()).toString();
 
 		boolean cancel = false;
 		View focusView = null;
@@ -199,9 +184,9 @@ public class UnlockActivity extends AppCompatActivity
 		} else {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
-			unlockTask.unlock(mKeyFile, password.toCharArray(), result -> {
+			unlockTask.unlock(mAppContainer, password, result -> {
 				if (result instanceof TaskResult.Success)
-					finishWithResult(true, password.toCharArray());
+					finishWithResult(true);
 				else {
 					mPasswordInput.setText("");
 					if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT) {
@@ -228,10 +213,14 @@ public class UnlockActivity extends AppCompatActivity
 		return false;
 	}
 
-	private void finishWithResult(boolean success, char[] encryptionKey) {
+	private void finishWithReset() {
 		Intent data = new Intent();
-		if (encryptionKey != null)
-			data.putExtra(EXTRA_AUTH_PASSWORD_KEY, encryptionKey);
+		setResult(RESULT_FIRST_USER, data);
+		finish();
+	}
+
+	private void finishWithResult(boolean success) {
+		Intent data = new Intent();
 		if (success)
 			setResult(RESULT_OK, data);
 		finish();
