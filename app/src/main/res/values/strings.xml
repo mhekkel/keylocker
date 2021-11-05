@@ -64,7 +64,7 @@
     <string name="sync_successful">Sync successful</string>
     <string name="sync_mkdir_exception">could not create directory on SDCard</string>
     <string name="sync_failed">Sync failed</string>
-    <string name="sync_failed_msg">Saving the new data failed with message:</string>
+    <string name="sync_failed_msg">Saving the new data failed with message: </string>
     <string name="sync_cancelled">Sync cancelled</string>
     <string name="save_successful">Stored</string>
     <string name="dlog_save_failed_title">Save Failed</string>

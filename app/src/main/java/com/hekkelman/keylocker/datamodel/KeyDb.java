@@ -3,8 +3,6 @@ package com.hekkelman.keylocker.datamodel;
 import android.content.Context;
 import android.net.Uri;
 
-import androidx.documentfile.provider.DocumentFile;
-
 import com.hekkelman.keylocker.xmlenc.EncryptedData;
 
 import org.simpleframework.xml.Serializer;
@@ -19,10 +17,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import androidx.documentfile.provider.DocumentFile;
 
 public class KeyDb {
 
@@ -115,16 +114,12 @@ public class KeyDb {
         }
     }
 
-    public void undoDeleteKey(String keyID) {
+    public void undoDeleteKey(String keyID) throws KeyDbException {
         synchronized (lock) {
             KeyNote.Key key = keyChain.getKeyByID(keyID);
             if (key != null) {
                 key.setDeleted(false);
-                try {
-                    write();
-                } catch (KeyDbException e) {
-                    e.printStackTrace();
-                }
+                write();
             }
         }
     }
@@ -172,16 +167,12 @@ public class KeyDb {
         }
     }
 
-    public void undoDeleteNote(String noteID) {
+    public void undoDeleteNote(String noteID) throws KeyDbException {
         synchronized (lock) {
             KeyNote.Note note = keyChain.getNoteByID(noteID);
             if (note != null) {
                 note.setDeleted(true);
-                try {
-                    write();
-                } catch (KeyDbException e) {
-                    e.printStackTrace();
-                }
+                write();
             }
         }
     }
@@ -269,15 +260,21 @@ public class KeyDb {
             deleteNote((KeyNote.Note) keyNote);
     }
 
-    public void undoDelete(KeyNote keyNote) {
+    public void undoDelete(KeyNote keyNote) throws KeyDbException {
         if (keyNote instanceof KeyNote.Key)
             undoDeleteKey(keyNote.getId());
         else if (keyNote instanceof KeyNote.Note)
             undoDeleteNote(keyNote.getId());
     }
+
     private boolean synchronize(KeyDb db) throws KeyDbException {
         boolean result = this.keyChain.synchronize(db.keyChain);
         write();
         return result;
+    }
+
+    public void purge() throws KeyDbException {
+        keyChain.purge();
+        write();
     }
 }

@@ -92,14 +92,8 @@ public class KeyChain {
         return changed;
     }
 
-    private void purge() {
+    public void purge() {
         this.keys.removeIf(KeyNote.Key::isDeleted);
         this.notes.removeIf(KeyNote.Note::isDeleted);
-    }
-
-    public KeyNote.Key createKey() {
-        KeyNote.Key key = new KeyNote.Key();
-        this.keys.add(key);
-        return key;
     }
 }

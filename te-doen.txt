@@ -1,15 +1,4 @@
 Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 
-- intro scherm met uitleg
-
-- deleten van items afronden: purge
-
-- voorkeur instellingen nalopen, toevoegen
-
-- Foutafhandeling helemaal nalopen
-- Backup ondersteuning
-
-Volgende versie
-
 - Synchroniseren over netwerk
 

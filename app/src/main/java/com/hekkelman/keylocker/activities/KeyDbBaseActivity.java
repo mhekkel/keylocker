@@ -1,11 +1,13 @@
 package com.hekkelman.keylocker.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
 import com.hekkelman.keylocker.KeyLockerApp;
+import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDbViewModel;
 import com.hekkelman.keylocker.datamodel.KeyLockerFile;
 import com.hekkelman.keylocker.utilities.AppContainer;
@@ -90,6 +92,15 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
         stopHandler();
         startHandler();
         super.onUserInteraction();
+    }
+
+    protected void handleKeyDbException(String title, Exception e) {
+        new AlertDialog.Builder(KeyDbBaseActivity.this)
+                .setTitle(title)
+                .setMessage(getString(R.string.sync_failed_msg) + e.getMessage())
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     private void startHandler() {

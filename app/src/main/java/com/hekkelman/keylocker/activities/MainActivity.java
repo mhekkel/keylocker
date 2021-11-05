@@ -142,13 +142,28 @@ public class MainActivity extends KeyDbBaseActivity
 
             Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
                     .setAction(R.string.undo_remove, view -> {
-                        mViewModel.keyDb.undoDelete(keyNote);
+                        try {
+                            mViewModel.keyDb.undoDelete(keyNote);
+                        } catch (KeyDbException e) {
+                            handleKeyDbException(getString(R.string.dlog_save_failed_title), e);
+                        }
                         loadData();
+                    })
+                    .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                        @Override
+                        public void onDismissed(Snackbar transientBottomBar, int event) {
+                            try {
+                                mViewModel.keyDb.purge();
+                            } catch (KeyDbException e) {
+                                handleKeyDbException(getString(R.string.dlog_save_failed_title), e);
+                            }
+                            super.onDismissed(transientBottomBar, event);
+                        }
                     })
                     .show();
 
         } catch (KeyDbException exception) {
-            exception.printStackTrace();
+            handleKeyDbException(getString(R.string.dlog_save_failed_title), exception);
         }
     }
 
@@ -304,7 +319,7 @@ public class MainActivity extends KeyDbBaseActivity
             AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
             mSyncSDTask.syncToSD(this, appContainer, backupDirUri, null, this::onSyncTaskResult);
         } catch (Exception e) {
-            syncFailed(e.getMessage());
+            handleKeyDbException(getString(R.string.sync_failed_msg), e);
         }
     }
 
@@ -339,20 +354,10 @@ public class MainActivity extends KeyDbBaseActivity
                         .show();
 
             } else {
-                syncFailed(e.getMessage());
+                handleKeyDbException(getString(R.string.sync_failed_msg), e);
             }
         }
     }
-
-    void syncFailed(String errorMessage) {
-        new AlertDialog.Builder(MainActivity.this)
-                .setTitle(R.string.sync_failed)
-                .setMessage(getString(R.string.sync_failed_msg) + errorMessage)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-    }
-
 
     private enum KEY_OR_NOTE_TYPE {KEY, NOTE}
 
