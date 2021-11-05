@@ -184,7 +184,7 @@ public class UnlockActivity extends AppCompatActivity
             unlockTask.unlock(this, mAppContainer, password, result -> {
                 if (result instanceof TaskResult.Success) {
                     mAppContainer.locked.setValue(false);
-                    finishWithResult(true);
+                    finishWithSuccess();
                 } else {
                     mPasswordInput.setText("");
                     if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT)
@@ -216,10 +216,9 @@ public class UnlockActivity extends AppCompatActivity
         finish();
     }
 
-    private void finishWithResult(boolean success) {
+    private void finishWithSuccess() {
         Intent data = new Intent();
-        if (success)
-            setResult(RESULT_OK, data);
+        setResult(RESULT_OK, data);
         finish();
     }
 }

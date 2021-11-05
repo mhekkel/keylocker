@@ -39,7 +39,6 @@
     <string name="init_hint_2_nr">Pin Code or Password (validation)</string>
 
     <string name="sync_with_sdcard">SDCard</string>
-    <string name="sync_with_onedrive" translatable="false">OneDrive</string>
 
     <string name="action_replace">Replace Key Locker File</string>
     <string name="key_name_is_required">Key name is a required field</string>
@@ -115,5 +114,6 @@
     <string name="settings_key_password_include_symbols" translatable="false">pref_password_include_symbols</string>
     <string name="settings_default_unlock_keyboard" translatable="false">text</string>
     <string name="change_pw_hint_current">Current password</string>
+<!--    <string name="wifi_unavailable_error_message">No network connection available</string>-->
 
 </resources>

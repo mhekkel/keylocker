@@ -6,13 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.hekkelman.keylocker.utilities.AppContainer;
-import com.hekkelman.keylocker.utilities.Settings;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
+import com.hekkelman.keylocker.utilities.AppContainer;
+import com.hekkelman.keylocker.utilities.Settings;
 
 public class KeyLockerApp extends Application {
     public AppContainer mAppContainer;
@@ -63,5 +63,4 @@ public class KeyLockerApp extends Application {
             }
         }
     }
-
 }

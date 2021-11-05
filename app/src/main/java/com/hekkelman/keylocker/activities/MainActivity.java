@@ -20,28 +20,6 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.hekkelman.keylocker.KeyLockerApp;
-import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.databinding.ActivityMainBinding;
-import com.hekkelman.keylocker.databinding.CardviewKeyItemBinding;
-import com.hekkelman.keylocker.databinding.DialogAskPasswordBinding;
-import com.hekkelman.keylocker.datamodel.KeyDbException;
-import com.hekkelman.keylocker.datamodel.KeyLockerFile;
-import com.hekkelman.keylocker.datamodel.KeyNote;
-import com.hekkelman.keylocker.tasks.SyncSDTask;
-import com.hekkelman.keylocker.tasks.TaskResult;
-import com.hekkelman.keylocker.utilities.AppContainer;
-import com.hekkelman.keylocker.utilities.Settings;
-import com.hekkelman.keylocker.utilities.SimpleDoubleClickListener;
-import com.hekkelman.keylocker.utilities.Tools;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -55,6 +33,27 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.hekkelman.keylocker.KeyLockerApp;
+import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.databinding.ActivityMainBinding;
+import com.hekkelman.keylocker.databinding.CardviewKeyItemBinding;
+import com.hekkelman.keylocker.databinding.DialogAskPasswordBinding;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
+import com.hekkelman.keylocker.datamodel.KeyNote;
+import com.hekkelman.keylocker.tasks.SyncSDTask;
+import com.hekkelman.keylocker.tasks.TaskResult;
+import com.hekkelman.keylocker.utilities.AppContainer;
+import com.hekkelman.keylocker.utilities.Settings;
+import com.hekkelman.keylocker.utilities.SimpleDoubleClickListener;
+import com.hekkelman.keylocker.utilities.Tools;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainActivity extends KeyDbBaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -281,21 +280,6 @@ public class MainActivity extends KeyDbBaseActivity
             if (mType != KEY_OR_NOTE_TYPE.NOTE) loadData(KEY_OR_NOTE_TYPE.NOTE);
         } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard();
-        } else if (id == R.id.nav_sync_webdav) {
-
-//            Sardine sardine = new OkHttpSardine();
-//            sardine.setCredentials("username", "password");
-//
-//            try {
-//                List<DavResource> resources = sardine.list("https://s4.hekkelman.net/~maarten/webdav/KeyLocker");
-//                for (DavResource res : resources) {
-//
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-
-
         } else if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
@@ -392,11 +376,11 @@ public class MainActivity extends KeyDbBaseActivity
             return new KeyNoteFilter();
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         public void loadEntries(List<KeyNote> items) {
             allItems = items;
             this.items = items;
             notifyDataSetChanged();
-            ;
         }
 
         @NonNull
@@ -508,13 +492,12 @@ public class MainActivity extends KeyDbBaseActivity
             }
 
             @SuppressLint("NotifyDataSetChanged")
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 items = (List<KeyNote>) filterResults.values;
                 notifyDataSetChanged();
             }
         }
-
     }
-
 }

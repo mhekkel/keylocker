@@ -40,7 +40,9 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
         mUnlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
 
-        mHandler = new Handler();
+        AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
+
+        mHandler = appContainer.mainThreadHandler;
         mRunnable = () -> mViewModel.locked.setValue(true);
     }
 

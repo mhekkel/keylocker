@@ -229,11 +229,8 @@ public abstract class KeyNote {
             } else if (!url.equals(other.url))
                 return false;
             if (user == null) {
-                if (other.user != null)
-                    return false;
-            } else if (!user.equals(other.user))
-                return false;
-            return true;
+                return other.user == null;
+            } else return user.equals(other.user);
         }
 
         public String getUser() {
@@ -373,11 +370,8 @@ public abstract class KeyNote {
             } else if (!text.equals(other.text))
                 return false;
             if (timestamp == null) {
-                if (other.timestamp != null)
-                    return false;
-            } else if (!timestamp.equals(other.timestamp))
-                return false;
-            return true;
+                return other.timestamp == null;
+            } else return timestamp.equals(other.timestamp);
         }
 
         public int synchronize(Note note) {

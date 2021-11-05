@@ -21,10 +21,10 @@
                     android:id="@+id/nav_sync_sdcard"
                     android:icon="@drawable/ic_sd_storage"
                     android:title="@string/sync_with_sdcard" />
-                <item
-                    android:id="@+id/nav_sync_webdav"
-                    android:icon="@drawable/ic_cloud"
-                    android:title="@string/sync_with_onedrive" />
+<!--                <item-->
+<!--                    android:id="@+id/nav_sync_webdav"-->
+<!--                    android:icon="@drawable/ic_cloud"-->
+<!--                    android:title="@string/sync_with_onedrive" />-->
             </menu>
         </item>
     </group>
