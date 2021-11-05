@@ -12,6 +12,7 @@
     <string name="settings_title_relock_background">Lock the application when it goes into the background</string>
     <string name="settings_title_auth_inactivity">Lock the application after being inactive for a specified time</string>
     <string name="settings_title_auth_inactivity_delay">Lock after this many seconds of inactivity</string>
+    <string name="settings_title_enable_android_backup_service">Enable Android Sync</string>
 
     <string name="settings_title_tap_single">Single tap</string>
     <string name="settings_title_tap_double">Double tap</string>

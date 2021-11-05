@@ -80,6 +80,10 @@ public class Settings {
         return getBoolean(R.string.settings_key_relock_background, true);
     }
 
+    public boolean getAndroidBackupServiceEnabled() {
+        return getBoolean(R.string.settings_key_enable_android_backup_service, true);
+    }
+
     public TapMode getTapSingle() {
         String singleTap = getString(R.string.settings_key_tap_single, R.string.settings_default_tap_single);
         return TapMode.valueOf(singleTap.toUpperCase(Locale.ENGLISH));

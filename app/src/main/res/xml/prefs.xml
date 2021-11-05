@@ -36,6 +36,11 @@
             app:title="@string/settings_title_auth_inactivity_delay"
             app:dependency="@string/settings_key_auth_inactivity"/>
 
+        <SwitchPreference
+            app:title="@string/settings_title_enable_android_backup_service"
+            android:defaultValue="true"
+            app:key="@string/settings_key_enable_android_backup_service"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/settings_category_user_interface" app:key="@string/settings_key_cat_ui">

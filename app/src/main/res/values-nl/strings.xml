@@ -110,5 +110,6 @@
     <string name="settings_activity_title">Instellingen</string>
     <string name="settings_title_unlock_keyboard">Ontgrendeling toetsenbord</string>
     <string name="change_pw_hint_current">Huidig wachtwoord</string>
+    <string name="settings_title_enable_android_backup_service">Android synchronisatie inschakelen</string>
 
 </resources>

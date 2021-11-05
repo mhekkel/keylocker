@@ -1,6 +1,63 @@
 package com.hekkelman.keylocker.utilities;
 
 import android.app.backup.BackupAgentHelper;
+import android.app.backup.BackupDataInput;
+import android.app.backup.BackupDataOutput;
+import android.app.backup.FileBackupHelper;
+import android.app.backup.SharedPreferencesBackupHelper;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
+
+import com.hekkelman.keylocker.datamodel.KeyLockerFile;
+
+import java.io.IOException;
 
 public class BackupAgent extends BackupAgentHelper {
+    static final String SETTINGS_BACKUP_KEY = "settings";
+    static final String FILE_BACKUP_KEY = "file";
+
+    // PreferenceManager.getDefaultSharedPreferencesName is only available in API > 24, this is its implementation
+    String getDefaultSharedPreferencesName() {
+        return getPackageName() + "_preferences";
+    }
+
+    @Override
+    public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
+        Settings settings = new Settings(this);
+        StringBuilder stringBuilder = new StringBuilder("onBackup called with the backup service set to ");
+        stringBuilder.append(settings.getAndroidBackupServiceEnabled() ? "enabled" : "disabled");
+
+        if (settings.getAndroidBackupServiceEnabled()) {
+
+//            synchronized () {
+                stringBuilder.append(" calling parent onBackup");
+                super.onBackup(oldState, data, newState);
+//            }
+        }
+        Log.d(BackupAgent.class.getSimpleName(), stringBuilder.toString());
+    }
+
+    @Override
+    public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
+        Settings settings = new Settings(this);
+
+        super.onRestore(data, appVersionCode, newState);
+//        }
+        String stringBuilder = "onRestore called with the backup service set to " + (settings.getAndroidBackupServiceEnabled() ? "enabled" : "disabled") +
+
+//        synchronized (DatabaseHelper.DatabaseFileLock) {
+                " but restore happens regardless, calling parent onRestore";
+        Log.d(BackupAgent.class.getSimpleName(), stringBuilder);
+    }
+
+    @Override
+    public void onCreate() {
+        String prefs = getDefaultSharedPreferencesName();
+
+        SharedPreferencesBackupHelper sharedPreferencesBackupHelper = new SharedPreferencesBackupHelper(this, prefs);
+        addHelper(SETTINGS_BACKUP_KEY, sharedPreferencesBackupHelper);
+
+        FileBackupHelper fileBackupHelper = new FileBackupHelper(this, KeyLockerFile.KEY_DB_NAME, KeyLockerFile.KEY_DB_NAME_BACKUP);
+        addHelper(FILE_BACKUP_KEY, fileBackupHelper);
+    }
 }

@@ -7,7 +7,6 @@ Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
 - voorkeur instellingen nalopen, toevoegen
 
 - Foutafhandeling helemaal nalopen
-- Samenvoegen layout Init en ChangePassword
 - Backup ondersteuning
 
 Volgende versie

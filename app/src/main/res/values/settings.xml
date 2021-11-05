@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_key_relock_background" translatable="false">pref_relock_background</string>
     <string name="settings_key_unlock_keyboard" translatable="false">pref_unlock_keyboard</string>
+    <string name="settings_key_enable_android_backup_service" translatable="false">pref_enable_android_backup_service</string>
     <string name="settings_key_tap_single" translatable="false">pref_tap_single</string>
     <string name="settings_key_tap_double" translatable="false">pref_tap_double</string>
     <string name="settings_key_auth_inactivity" translatable="false">pref_auth_inactivity</string>

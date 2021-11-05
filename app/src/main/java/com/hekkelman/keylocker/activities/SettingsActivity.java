@@ -2,11 +2,16 @@ package com.hekkelman.keylocker.activities;
 
 
 import android.annotation.SuppressLint;
+import android.app.backup.BackupManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.text.InputType;
+
+import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,13 +22,8 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.hekkelman.keylocker.R;
-import com.hekkelman.keylocker.datamodel.KeyDb;
-import com.hekkelman.keylocker.utilities.Settings;
-
-import java.util.Objects;
-
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +40,12 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        BackupManager backupManager = new BackupManager(this);
+        backupManager.dataChanged();
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {

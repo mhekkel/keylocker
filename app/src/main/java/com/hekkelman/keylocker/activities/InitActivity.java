@@ -68,7 +68,7 @@ public class InitActivity extends AppCompatActivity
             mPassword2.setError(getString(R.string.passwords_do_not_match));
         else {
             try {
-                mAppContainer.keyDb = KeyLockerFile.initialize(password_1);
+                mAppContainer.keyDb = KeyLockerFile.initialize(this, password_1);
                 mAppContainer.locked.setValue(false);
                 mSettings.setUnlockKeyboard(mPINSwitch.isChecked() ? Settings.UnlockKeyboardMode.DIGITS : Settings.UnlockKeyboardMode.TEXT);
                 finishWithResult(true);
