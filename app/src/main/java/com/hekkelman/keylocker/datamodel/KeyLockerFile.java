@@ -24,6 +24,11 @@ public class KeyLockerFile extends KeyDb {
     private byte[] passwordHash;
     private final byte[] passwordKey;
 
+    public static boolean exists() {
+        File file = new File(mFilesDir, KEY_DB_NAME);
+        return file.exists();
+    }
+
     public static KeyLockerFile initialize(String password) throws KeyDbException {
         File file = new File(mFilesDir, KEY_DB_NAME);
         if (file.exists())

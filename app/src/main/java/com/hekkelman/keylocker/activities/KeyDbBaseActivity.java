@@ -7,6 +7,7 @@ import android.os.CountDownTimer;
 
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.datamodel.KeyDbViewModel;
+import com.hekkelman.keylocker.datamodel.KeyLockerFile;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
@@ -21,7 +22,6 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
 
     protected Settings mSettings;
     protected KeyDbViewModel mViewModel;
-    protected ActivityResultLauncher<Intent> mInitResult;
     protected ActivityResultLauncher<Intent> mUnlockResult;
     private CountDownTimer mCountDownTimer;
 
@@ -35,22 +35,22 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
 
         mSettings = new Settings(this);
 
-        mInitResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
-
         mUnlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
     }
 
     private void onLockedChanged(Boolean locked) {
         if (locked) {
-            Intent authIntent = new Intent(this, UnlockActivity.class);
-            mUnlockResult.launch(authIntent);
-        }
-        else
-        {
+            if (!KeyLockerFile.exists()) {
+                Intent intent = new Intent(this, InitActivity.class);
+                mUnlockResult.launch(intent);
+            } else {
+                Intent authIntent = new Intent(this, UnlockActivity.class);
+                mUnlockResult.launch(authIntent);
+            }
+        } else {
             if (mViewModel.keyDb == null) {
-                AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
+                AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
                 mViewModel.keyDb = appContainer.keyDb;
             }
             loadData();
@@ -62,14 +62,9 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
     public void onUnlockedResult(ActivityResult result) {
         if (result.getResultCode() == Activity.RESULT_CANCELED)
             finish();
-        else if (result.getResultCode() == Activity.RESULT_FIRST_USER) {
+        else if (result.getResultCode() == UnlockActivity.RESET_KEY_LOCKER_FILE_RESULT) {
             Intent intent = new Intent(this, InitActivity.class);
             mUnlockResult.launch(intent);
-        }
-        else if (result.getResultCode() == Activity.RESULT_OK) {
-            AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
-            mViewModel.keyDb = appContainer.keyDb;
-            mViewModel.locked.setValue(false);
         }
     }
 
@@ -114,6 +109,4 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
             return false;
         }
     }
-
-
 }

@@ -23,6 +23,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.databinding.ActivityUnlockBinding;
+import com.hekkelman.keylocker.datamodel.KeyLockerFile;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.tasks.UnlockTask;
 import com.hekkelman.keylocker.utilities.AppContainer;
@@ -37,6 +38,7 @@ public class UnlockActivity extends AppCompatActivity
 		implements EditText.OnEditorActionListener, View.OnClickListener {
 
 	public final static int SHOW_RESET_AT_RETRY_COUNT	= 3;
+	public final static int RESET_KEY_LOCKER_FILE_RESULT = 13;
 
 	private UnlockTask unlockTask;
 
@@ -184,9 +186,10 @@ public class UnlockActivity extends AppCompatActivity
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			unlockTask.unlock(mAppContainer, password, result -> {
-				if (result instanceof TaskResult.Success)
+				if (result instanceof TaskResult.Success) {
+					mAppContainer.locked.setValue(false);
 					finishWithResult(true);
-				else {
+				} else {
 					mPasswordInput.setText("");
 					if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT) {
 						mResetButton.setVisibility(View.VISIBLE);
@@ -214,7 +217,7 @@ public class UnlockActivity extends AppCompatActivity
 
 	private void finishWithReset() {
 		Intent data = new Intent();
-		setResult(RESULT_FIRST_USER, data);
+		setResult(RESET_KEY_LOCKER_FILE_RESULT, data);
 		finish();
 	}
 

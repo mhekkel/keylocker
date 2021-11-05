@@ -16,7 +16,7 @@
     <string name="settings_key_password_length" translatable="false">pref_password_length</string>
     <string name="settings_key_password_not_ambiguous" translatable="false">pref_password_not_ambiguous</string>
 
-    <string name="settings_default_tap_single" translatable="false">nothing</string>
+    <string name="settings_default_tap_single" translatable="false">edit</string>
     <string name="settings_default_tap_double" translatable="false">nothing</string>
     <integer name="settings_default_auth_inactivity_delay" translatable="false">30</integer>
 

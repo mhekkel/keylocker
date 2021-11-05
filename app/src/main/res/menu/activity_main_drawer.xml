@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single" android:id="@+id/group_1">
-        <item android:id="@+id/nav_keys" android:title="@string/nav_keys_str"
-            android:icon="@drawable/ic_key"/>
-        <item android:id="@+id/nav_notes" android:title="@string/nav_notes_str"
-            android:icon="@drawable/ic_insert_comment"/>
+    <group
+        android:id="@+id/group_1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_keys"
+            android:icon="@drawable/ic_key"
+            android:title="@string/nav_keys_str" />
+        <item
+            android:id="@+id/nav_notes"
+            android:icon="@drawable/ic_insert_comment"
+            android:title="@string/nav_notes_str" />
     </group>
 
     <group android:id="@+id/group_2">
         <item android:title="@string/action_synchronize">
             <menu>
-                <item android:id="@+id/nav_sync_sdcard" android:title="@string/sync_with_sdcard"
-                    android:icon="@drawable/ic_sd_storage"/>
                 <item
-                    android:enabled="false"
+                    android:id="@+id/nav_sync_sdcard"
+                    android:icon="@drawable/ic_sd_storage"
+                    android:title="@string/sync_with_sdcard" />
+                <item
+                    android:id="@+id/nav_sync_webdav"
                     android:icon="@drawable/ic_cloud"
                     android:title="@string/sync_with_onedrive" />
             </menu>
@@ -22,11 +30,13 @@
     </group>
 
     <group android:id="@+id/group_3">
-        <item android:id="@+id/action_settings" android:title="@string/action_settings"
-            android:icon="@drawable/ic_settings"/>
         <item
-            android:title="@string/action_help"
-            android:icon="@drawable/ic_feedback"/>
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/action_settings" />
+        <item
+            android:icon="@drawable/ic_feedback"
+            android:title="@string/action_help" />
     </group>
 
 </menu>
