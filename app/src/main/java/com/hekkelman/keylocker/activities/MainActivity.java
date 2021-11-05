@@ -119,7 +119,7 @@ public class MainActivity extends KeyDbBaseActivity
     }
 
     private void onCardCopy(KeyNote keyNote) {
-        Tools.copyToClipboard(this, keyNote.getText());
+        Tools.copyToClipboard(this, mRecyclerView, keyNote.getText());
     }
 
     private void onCardEdit(KeyNote keyNote) {
