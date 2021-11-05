@@ -18,6 +18,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.databinding.ActivityUnlockBinding;
+import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.tasks.UnlockTask;
 import com.hekkelman.keylocker.utilities.AppContainer;
@@ -37,6 +38,7 @@ public class UnlockActivity extends AppCompatActivity
 
     public final static int SHOW_RESET_AT_RETRY_COUNT = 3;
     public final static int RESET_KEY_LOCKER_FILE_RESULT = 13;
+    public final static String KEY_LOCKER_FILE_CORRUPT = "CORRUPT_FILE";
 
     private UnlockTask unlockTask;
 
@@ -149,7 +151,7 @@ public class UnlockActivity extends AppCompatActivity
     }
 
     private void resetLocker() {
-        finishWithReset();
+        finishWithReset(false);
     }
 
     /**
@@ -168,7 +170,7 @@ public class UnlockActivity extends AppCompatActivity
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) || password.length() < 5) {
             mPasswordInput.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordInput;
             cancel = true;
@@ -185,20 +187,18 @@ public class UnlockActivity extends AppCompatActivity
                 if (result instanceof TaskResult.Success) {
                     mAppContainer.locked.setValue(false);
                     finishWithSuccess();
+                } else if (((TaskResult.Error) result).exception instanceof KeyDbException.InvalidKeyDbFileException) {
+                    finishWithReset(true);
                 } else {
                     mPasswordInput.setText("");
                     if (++mRetryCount >= SHOW_RESET_AT_RETRY_COUNT)
-						mResetButton.setVisibility(View.VISIBLE);
+                        mResetButton.setVisibility(View.VISIBLE);
 
                     mPasswordInput.setError(getString(R.string.error_incorrect_password));
                     mPasswordInput.requestFocus();
                 }
             });
         }
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() >= 5;
     }
 
     @Override
@@ -210,8 +210,10 @@ public class UnlockActivity extends AppCompatActivity
         return false;
     }
 
-    private void finishWithReset() {
+    private void finishWithReset(boolean corrupt) {
         Intent data = new Intent();
+        if (corrupt)
+            data.putExtra(KEY_LOCKER_FILE_CORRUPT, true);
         setResult(RESET_KEY_LOCKER_FILE_RESULT, data);
         finish();
     }

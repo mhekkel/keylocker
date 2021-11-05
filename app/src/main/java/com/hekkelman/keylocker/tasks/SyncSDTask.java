@@ -20,12 +20,11 @@ public class SyncSDTask {
 
     public void syncToSD(final Context context,
                          final AppContainer appContainer,
-                         final Uri backupDir,
-                         final String password,
-                         final TaskCallback<Void> callback) {
+                         final Uri backupDir, final String password,
+                         final boolean replacePassword, final TaskCallback<Void> callback) {
         executor.execute(() -> {
             try {
-                appContainer.keyDb.synchronize(context, backupDir, password);
+                appContainer.keyDb.synchronize(context, backupDir, password, replacePassword);
                 notifyResult(new TaskResult.Success<>(null), callback);
             } catch (KeyDbException exception) {
                 notifyResult(new TaskResult.Error<>(exception), callback);

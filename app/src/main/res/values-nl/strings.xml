@@ -111,6 +111,9 @@
     <string name="settings_title_unlock_keyboard">Ontgrendeling toetsenbord</string>
     <string name="change_pw_hint_current">Huidig wachtwoord</string>
     <string name="settings_title_enable_android_backup_service">Android synchronisatie inschakelen</string>
-<!--    <string name="wifi_unavailable_error_message">Geen netwerk beschikbaar</string>-->
+    <string name="title_replace_backup_password_checkbox">Vervang wachtwoord op backup</string>
+    <string name="file_is_corrupt_title">KeyLocker bestand beschadigd</string>
+    <string name="file_is_corrupt">Het KeyLocker bestand is beschadigd en kan niet worden hersteld.</string>
+    <!--    <string name="wifi_unavailable_error_message">Geen netwerk beschikbaar</string>-->
 
 </resources>

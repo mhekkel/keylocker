@@ -72,7 +72,7 @@ public class EncryptedData {
                     new SecretKeySpec(key.getEncoded(), "AES"),
                     new IvParameterSpec(iv));
         } catch (Exception e) {
-            throw new KeyDbException.KeyDbRuntimeException(e);
+            throw new KeyDbException.InvalidKeyDbFileException(e);
         }
 
         return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));

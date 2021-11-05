@@ -22,11 +22,12 @@ public class UnlockTask {
                        final TaskCallback<Void> callback) {
         executor.execute(() -> {
             if (appContainer.keyDb == null) {
-                appContainer.keyDb = KeyLockerFile.create(context, plainPassword);
-                if (appContainer.keyDb != null)
+                try {
+                    appContainer.keyDb = KeyLockerFile.create(context, plainPassword);
                     notifyResult(new TaskResult.Success<>(null), callback);
-                else
-                    notifyResult(new TaskResult.Error<>(null), callback);
+                } catch (Exception e) {
+                    notifyResult(new TaskResult.Error<>(e), callback);
+                }
             } else {
                 if (appContainer.keyDb.checkPassword(plainPassword))
                     notifyResult(new TaskResult.Success<>(null), callback);

@@ -37,14 +37,9 @@ public class KeyLockerFile extends KeyDb {
         return keyDb;
     }
 
-    public static KeyLockerFile create(Context context, String password) {
+    public static KeyLockerFile create(Context context, String password) throws KeyDbException {
         File keyFile = new File(mFilesDir, KEY_DB_NAME);
-
-        try {
-            return new KeyLockerFile(keyFile, context, password);
-        } catch (KeyDbException e) {
-            return null;
-        }
+        return new KeyLockerFile(keyFile, context, password);
     }
 
     public KeyLockerFile(File file, Context context, String password) throws KeyDbException {

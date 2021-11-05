@@ -9,13 +9,13 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 public class KeyDbViewModel extends AndroidViewModel {
-    public KeyDb keyDb = null;
+    public AppContainer appContainer;
     public MutableLiveData<Boolean> locked;
 
     public KeyDbViewModel(Application application) {
         super(application);
 
-        AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
+        appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
         this.locked = appContainer.locked;
     }
 }

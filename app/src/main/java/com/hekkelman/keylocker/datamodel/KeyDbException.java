@@ -22,6 +22,19 @@ public class KeyDbException extends Exception {
         }
     }
 
+    public final static class InvalidKeyDbFileException extends KeyDbException {
+        public InvalidKeyDbFileException(Exception ex) {
+            super();
+            addSuppressed(ex);
+        }
+
+        @Nullable
+        @Override
+        public String getMessage() {
+            return getSuppressed()[0].getMessage();
+        }
+    }
+
     /**
      * Created by maarten on 24-11-15.
      */

@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -136,13 +137,13 @@ public class MainActivity extends KeyDbBaseActivity
 
     private void onCardRemove(KeyNote keyNote) {
         try {
-            mViewModel.keyDb.delete(keyNote);
+            mViewModel.appContainer.keyDb.delete(keyNote);
             loadData();
 
             Snackbar.make(mRecyclerView, R.string.key_was_removed, BaseTransientBottomBar.LENGTH_LONG)
                     .setAction(R.string.undo_remove, view -> {
                         try {
-                            mViewModel.keyDb.undoDelete(keyNote);
+                            mViewModel.appContainer.keyDb.undoDelete(keyNote);
                         } catch (KeyDbException e) {
                             handleKeyDbException(getString(R.string.dlog_save_failed_title), e);
                         }
@@ -152,7 +153,7 @@ public class MainActivity extends KeyDbBaseActivity
                         @Override
                         public void onDismissed(Snackbar transientBottomBar, int event) {
                             try {
-                                mViewModel.keyDb.purge();
+                                mViewModel.appContainer.keyDb.purge();
                             } catch (KeyDbException e) {
                                 handleKeyDbException(getString(R.string.dlog_save_failed_title), e);
                             }
@@ -190,12 +191,12 @@ public class MainActivity extends KeyDbBaseActivity
     }
 
     public void loadData(KEY_OR_NOTE_TYPE type) {
-        if (mViewModel.keyDb != null) {
+        if (mViewModel.appContainer.keyDb != null) {
             List<KeyNote> items;
             if (type == KEY_OR_NOTE_TYPE.KEY)
-                items = mViewModel.keyDb.getAllKeys().stream().map(k -> (KeyNote) k).collect(Collectors.toList());
+                items = mViewModel.appContainer.keyDb.getAllKeys().stream().map(k -> (KeyNote) k).collect(Collectors.toList());
             else
-                items = mViewModel.keyDb.getAllNotes().stream().map(k -> (KeyNote) k).collect(Collectors.toList());
+                items = mViewModel.appContainer.keyDb.getAllNotes().stream().map(k -> (KeyNote) k).collect(Collectors.toList());
 
             mAdapter.loadEntries(items);
         }
@@ -221,16 +222,9 @@ public class MainActivity extends KeyDbBaseActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.mainmenu, menu);
 
-        // Get the SearchView and set the searchable configuration
-//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-//        // Assumes current activity is the searchable activity
-//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-//        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -271,7 +265,6 @@ public class MainActivity extends KeyDbBaseActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_keys) {
@@ -301,7 +294,7 @@ public class MainActivity extends KeyDbBaseActivity
         try {
             Uri backupDirUri = Uri.parse(backupDir);
             AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, null, this::onSyncTaskResult);
+            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, null, false, this::onSyncTaskResult);
         } catch (Exception e) {
             handleKeyDbException(getString(R.string.sync_failed_msg), e);
         }
@@ -318,6 +311,7 @@ public class MainActivity extends KeyDbBaseActivity
                 DialogAskPasswordBinding binding = DialogAskPasswordBinding.inflate(getLayoutInflater());
                 final View view = binding.getRoot();
                 final EditText pw = binding.dlogPassword;
+                final CheckBox cb = binding.replaceBackupPassword;
                 if (mSettings.getBlockAccessibility())
                     pw.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
 
@@ -331,7 +325,7 @@ public class MainActivity extends KeyDbBaseActivity
 
                             Uri backupDirUri = Uri.parse(backupDir);
                             AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-                            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, pw.getText().toString(), this::onSyncTaskResult);
+                            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, pw.getText().toString(), cb.isChecked(), this::onSyncTaskResult);
                         })
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                         })

@@ -138,7 +138,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
         if (TextUtils.isEmpty(name))
             nameField.setError(getString(R.string.note_name_is_required));
         else
-            saveNoteTask.saveNote(mViewModel.keyDb, note, name, textField.getText().toString(), finishOnSaved, this::onTaskResult);
+            saveNoteTask.saveNote(mViewModel.appContainer.keyDb, note, name, textField.getText().toString(), finishOnSaved, this::onTaskResult);
     }
 
     void onTaskResult(TaskResult<Boolean> result) {

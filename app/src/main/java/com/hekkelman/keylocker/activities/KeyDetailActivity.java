@@ -89,11 +89,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
                 new AlertDialog.Builder(KeyDetailActivity.this)
                         .setTitle(R.string.dlog_missing_key_title)
                         .setMessage(R.string.dlog_missing_key_msg)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
                 return;
@@ -168,7 +164,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
         if (TextUtils.isEmpty(name)) {
             nameField.setError(getString(R.string.key_name_is_required));
         } else {
-            saveKeyTask.saveKey(mViewModel.keyDb, key, name, userField.getText().toString(),
+            saveKeyTask.saveKey(mViewModel.appContainer.keyDb, key, name, userField.getText().toString(),
                     passwordField.getText().toString(),
                     urlField.getText().toString(),
                     finishOnSaved, this::onTaskResult);

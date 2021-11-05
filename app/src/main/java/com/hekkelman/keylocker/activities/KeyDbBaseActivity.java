@@ -40,7 +40,7 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
         mUnlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
 
-        AppContainer appContainer = ((KeyLockerApp)getApplication()).mAppContainer;
+        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
 
         mHandler = appContainer.mainThreadHandler;
         mRunnable = () -> mViewModel.locked.setValue(true);
@@ -55,13 +55,7 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
                 Intent authIntent = new Intent(this, UnlockActivity.class);
                 mUnlockResult.launch(authIntent);
             }
-        } else {
-            if (mViewModel.keyDb == null) {
-                AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-                mViewModel.keyDb = appContainer.keyDb;
-            }
-            loadData();
-        }
+        } else loadData();
     }
 
     protected abstract void loadData();
@@ -70,8 +64,23 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
         if (result.getResultCode() == Activity.RESULT_CANCELED)
             finish();
         else if (result.getResultCode() == UnlockActivity.RESET_KEY_LOCKER_FILE_RESULT) {
-            Intent intent = new Intent(this, InitActivity.class);
-            mUnlockResult.launch(intent);
+            Intent data = result.getData();
+            if (data != null && data.hasExtra(UnlockActivity.KEY_LOCKER_FILE_CORRUPT)) {
+                new AlertDialog.Builder(KeyDbBaseActivity.this)
+                        .setTitle(getString(R.string.file_is_corrupt_title))
+                        .setMessage(getString(R.string.file_is_corrupt))
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setOnDismissListener(dialogInterface -> {
+                            Intent intent = new Intent(this, InitActivity.class);
+                            mUnlockResult.launch(intent);
+                        })
+                        .show();
+            }
+            else {
+                Intent intent = new Intent(this, InitActivity.class);
+                mUnlockResult.launch(intent);
+            }
         }
     }
 

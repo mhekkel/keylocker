@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import androidx.core.util.AtomicFile;
 import androidx.documentfile.provider.DocumentFile;
 
 public class KeyDb {
@@ -177,7 +178,7 @@ public class KeyDb {
         }
     }
 
-    public void synchronize(Context context, Uri backupDir, String password) throws KeyDbException {
+    public void synchronize(Context context, Uri backupDir, String password, boolean replacePassword) throws KeyDbException {
         synchronized (lock) {
             char[] pw = password != null ? password.toCharArray() : this.password;
 
@@ -199,14 +200,14 @@ public class KeyDb {
             boolean changed = synchronize(backup);
             write();
 
-            if (changed) {
+            if (changed || replacePassword) {
                 if (file == null)
                     file = dir.createFile("application/x-keylocker", KeyLockerFile.KEY_DB_NAME);
                 if (file == null)
                     throw new KeyDbException.MissingFileException();
 
                 try (OutputStream os = context.getContentResolver().openOutputStream(file.getUri())) {
-                    backup.write(os);
+                    backup.write(os, replacePassword || password == null ? this.password : password.toCharArray());
                 } catch (IOException e) {
                     throw new KeyDbException.KeyDbRuntimeException(e);
                 }
@@ -226,20 +227,27 @@ public class KeyDb {
         try (InputStream is = EncryptedData.decrypt(this.password, input)) {
             Serializer serializer = new Persister();
             keyChain = serializer.read(KeyChain.class, is);
+        } catch (KeyDbException.InvalidKeyDbFileException e) {
+            throw e;
         } catch (Exception e) {
             throw new KeyDbException.InvalidPasswordException();
         }
     }
 
     protected void write() throws KeyDbException {
+        AtomicFile file = new AtomicFile(this.file);
+        FileOutputStream fos = null;
         try {
-            write(new FileOutputStream(this.file));
-        } catch (FileNotFoundException e) {
+            fos = file.startWrite();
+            write(fos, this.password);
+            file.finishWrite(fos);
+        } catch (IOException e) {
+            file.failWrite(fos);
             throw new KeyDbException.KeyDbRuntimeException(e);
         }
     }
 
-    private void write(OutputStream output) throws KeyDbException {
+    private void write(OutputStream output, char[] pw) throws KeyDbException {
         try {
             // intermediate storage of unencrypted data
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -247,7 +255,7 @@ public class KeyDb {
             Serializer serializer = new Persister();
             serializer.write(keyChain, os);
 
-            EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output);
+            EncryptedData.encrypt(pw, new ByteArrayInputStream(os.toByteArray()), output);
         } catch (Exception e) {
             throw new KeyDbException.KeyDbRuntimeException(e);
         }

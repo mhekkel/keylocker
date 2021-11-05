@@ -79,7 +79,7 @@
         app:initialExpandedChildrenCount="1">
 
         <EditTextPreference
-            app:defaultValue="8"
+            app:defaultValue="12"
             app:key="@string/settings_key_password_length"
             app:maxLines="1"
             app:singleLine="true"
