@@ -24,30 +24,7 @@ public class BackupAgent extends BackupAgentHelper {
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
         Settings settings = new Settings(this);
-        StringBuilder stringBuilder = new StringBuilder("onBackup called with the backup service set to ");
-        stringBuilder.append(settings.getAndroidBackupServiceEnabled() ? "enabled" : "disabled");
-
-        if (settings.getAndroidBackupServiceEnabled()) {
-
-//            synchronized () {
-                stringBuilder.append(" calling parent onBackup");
-                super.onBackup(oldState, data, newState);
-//            }
-        }
-        Log.d(BackupAgent.class.getSimpleName(), stringBuilder.toString());
-    }
-
-    @Override
-    public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
-        Settings settings = new Settings(this);
-
-        super.onRestore(data, appVersionCode, newState);
-//        }
-        String stringBuilder = "onRestore called with the backup service set to " + (settings.getAndroidBackupServiceEnabled() ? "enabled" : "disabled") +
-
-//        synchronized (DatabaseHelper.DatabaseFileLock) {
-                " but restore happens regardless, calling parent onRestore";
-        Log.d(BackupAgent.class.getSimpleName(), stringBuilder);
+        if (settings.getAndroidBackupServiceEnabled()) super.onBackup(oldState, data, newState);
     }
 
     @Override
@@ -57,7 +34,7 @@ public class BackupAgent extends BackupAgentHelper {
         SharedPreferencesBackupHelper sharedPreferencesBackupHelper = new SharedPreferencesBackupHelper(this, prefs);
         addHelper(SETTINGS_BACKUP_KEY, sharedPreferencesBackupHelper);
 
-        FileBackupHelper fileBackupHelper = new FileBackupHelper(this, KeyLockerFile.KEY_DB_NAME, KeyLockerFile.KEY_DB_NAME_BACKUP);
+        FileBackupHelper fileBackupHelper = new FileBackupHelper(this, KeyLockerFile.KEY_DB_NAME);
         addHelper(FILE_BACKUP_KEY, fileBackupHelper);
     }
 }

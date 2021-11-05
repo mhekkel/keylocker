@@ -16,7 +16,7 @@ public class KeyInfo {
         this.derivedKey = new DerivedKey();
     }
 
-    public Key getKey(char[] password, boolean isBackup) {
-        return derivedKey.getKey(password, isBackup);
+    public Key getKey(char[] password) {
+        return derivedKey.getKey(password);
     }
 }

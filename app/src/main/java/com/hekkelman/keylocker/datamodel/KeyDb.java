@@ -31,7 +31,6 @@ public class KeyDb {
     private final Object lock = new Object();
     private char[] password;
     private KeyChain keyChain;
-    protected boolean backup = false;
 
     // constructor for empty keydb
     protected KeyDb(char[] password) {
@@ -257,7 +256,7 @@ public class KeyDb {
             Serializer serializer = new Persister();
             serializer.write(keyChain, os);
 
-            EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output, this.backup);
+            EncryptedData.encrypt(this.password, new ByteArrayInputStream(os.toByteArray()), output);
         } catch (Exception e) {
             throw new KeyDbException.KeyDbRuntimeException(e);
         }

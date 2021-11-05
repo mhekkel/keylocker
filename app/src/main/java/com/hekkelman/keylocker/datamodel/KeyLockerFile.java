@@ -15,7 +15,6 @@ import javax.crypto.spec.SecretKeySpec;
 public class KeyLockerFile extends KeyDb {
 
     public static final String KEY_DB_NAME = "keylockerfile.txt";
-    public static final String KEY_DB_NAME_BACKUP = "keylockerfile.txt.bck";
     private static final int PRIVATE_KEY_HASH_SIZE = 16;
     public static File mFilesDir;
     private final Context context;
@@ -30,6 +29,7 @@ public class KeyLockerFile extends KeyDb {
     public static KeyLockerFile initialize(Context context, String password) throws KeyDbException {
         File file = new File(mFilesDir, KEY_DB_NAME);
         if (file.exists())
+            //noinspection ResultOfMethodCallIgnored
             file.delete();
 
         KeyLockerFile keyDb = new KeyLockerFile(file, context, password);

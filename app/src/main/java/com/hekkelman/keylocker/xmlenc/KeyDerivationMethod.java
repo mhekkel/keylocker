@@ -21,7 +21,7 @@ public class KeyDerivationMethod {
         this.params = new PBKDF2Params();
     }
 
-    public Key getKey(char[] password, boolean isBackup) {
-        return params.getKey(password, isBackup);
+    public Key getKey(char[] password) {
+        return params.getKey(password);
     }
 }

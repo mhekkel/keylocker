@@ -60,7 +60,7 @@ public class EncryptedData {
             Serializer serializer = new Persister();
             EncryptedData encData = serializer.read(EncryptedData.class, is);
 
-            Key key = encData.keyInfo.getKey(password, false);
+            Key key = encData.keyInfo.getKey(password);
 
             data = Base64.decode(encData.value, Base64.DEFAULT);
             byte[] iv = new byte[KEY_BYTE_SIZE];
@@ -78,7 +78,7 @@ public class EncryptedData {
         return new BufferedInputStream(new CipherInputStream(new ByteArrayInputStream(data, KEY_BYTE_SIZE, data.length - KEY_BYTE_SIZE), cipher));
     }
 
-    static public void encrypt(char[] password, InputStream data, OutputStream os, boolean isBackup) throws KeyDbException {
+    static public void encrypt(char[] password, InputStream data, OutputStream os) throws KeyDbException {
         try {
             EncryptedData encData = new EncryptedData();
 
@@ -90,7 +90,7 @@ public class EncryptedData {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             bs.write(iv);
 
-            Key key = encData.keyInfo.getKey(password, isBackup);
+            Key key = encData.keyInfo.getKey(password);
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE,
