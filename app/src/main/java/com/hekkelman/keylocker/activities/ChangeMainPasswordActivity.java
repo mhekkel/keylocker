@@ -21,6 +21,7 @@ import androidx.appcompat.widget.Toolbar;
 
 public class ChangeMainPasswordActivity extends AppCompatActivity {
 
+    private TextInputEditText pwc;
     private TextInputEditText pw1;
     private TextInputEditText pw2;
     private AppContainer mAppContainer;
@@ -42,6 +43,7 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
         if (supportActionBar != null)
             supportActionBar.setDisplayHomeAsUpEnabled(true);
 
+        pwc = binding.passwordCurrent;
         pw1 = binding.passwordOne;
         pw2 = binding.passwordTwo;
 
@@ -49,6 +51,7 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
 
         sw.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
+                    pwc.setText("");
                     pw1.setText("");
                     pw2.setText("");
 
@@ -67,10 +70,13 @@ public class ChangeMainPasswordActivity extends AppCompatActivity {
     }
 
     private void onClickChangePassword(View v) {
+        String password_c = pwc.getText().toString();
         String password_1 = pw1.getText().toString();
         String password_2 = pw2.getText().toString();
 
-        if (password_1.length() < 5)
+        if (!mAppContainer.keyDb.checkPassword(password_c))
+            pwc.setError(getString(R.string.error_incorrect_password));
+        else if (password_1.length() < 5)
             pw1.setError(getString(R.string.password_too_short));
         else if (!password_1.equals(password_2))
             pw2.setError(getString(R.string.passwords_do_not_match));

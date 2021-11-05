@@ -3,7 +3,7 @@ package com.hekkelman.keylocker.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.os.Handler;
 
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.datamodel.KeyDbViewModel;
@@ -23,20 +23,23 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
     protected Settings mSettings;
     protected KeyDbViewModel mViewModel;
     protected ActivityResultLauncher<Intent> mUnlockResult;
-    private CountDownTimer mCountDownTimer;
+    protected Handler mHandler;
+    protected Runnable mRunnable = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mViewModel = new ViewModelProvider(this).get(KeyDbViewModel.class);
-
         mViewModel.locked.observe(this, this::onLockedChanged);
 
         mSettings = new Settings(this);
 
         mUnlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
+
+        mHandler = new Handler();
+        mRunnable = () -> mViewModel.locked.setValue(true);
     }
 
     private void onLockedChanged(Boolean locked) {
@@ -72,41 +75,30 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        if (setCountDownTimerNow())
-            mCountDownTimer.start();
+        startHandler();
     }
 
     @Override
     protected void onPause() {
-        if (mCountDownTimer != null)
-            mCountDownTimer.cancel();
+        stopHandler();
 
         super.onPause();
     }
 
-    private boolean setCountDownTimerNow() {
-        try {
-            int secondsToBlackout = 1000 * mSettings.getAuthInactivityDelay();
+    @Override
+    public void onUserInteraction() {
+        stopHandler();
+        startHandler();
+        super.onUserInteraction();
+    }
 
-            if (!mSettings.getAuthInactivity() || secondsToBlackout == 0)
-                return false;
+    private void startHandler() {
+        int secondsToBlackout = 1000 * mSettings.getAuthInactivityDelay();
+        if (mSettings.getAuthInactivity() && secondsToBlackout != 0)
+            mHandler.postDelayed(mRunnable, secondsToBlackout);
+    }
 
-            mCountDownTimer = new CountDownTimer(secondsToBlackout, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                }
-
-                @Override
-                public void onFinish() {
-                    mViewModel.locked.setValue(true);
-                    this.cancel();
-                }
-            };
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    private void stopHandler() {
+        mHandler.removeCallbacks(mRunnable);
     }
 }

@@ -7,15 +7,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import com.hekkelman.keylocker.utilities.AppContainer;
+import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 public class KeyLockerApp extends Application {
     public AppContainer mAppContainer;
+    public Settings mSettings;
     private ScreenOffReceiver mScreenOffReceiver;
 
     @Override
@@ -23,14 +24,16 @@ public class KeyLockerApp extends Application {
         super.onCreate();
 
         mAppContainer = new AppContainer(this);
+        mSettings = new Settings(this);
 
-        mScreenOffReceiver = new ScreenOffReceiver(mAppContainer);
+        mScreenOffReceiver = new ScreenOffReceiver(mAppContainer, mSettings);
         registerReceiver(mScreenOffReceiver, mScreenOffReceiver.filter);
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new DefaultLifecycleObserver() {
             @Override
             public void onStop(@NonNull LifecycleOwner owner) {
-                mAppContainer.locked.setValue(true);
+                if (mSettings.getRelockOnBackground())
+                    mAppContainer.locked.setValue(true);
             }
         });
     }
@@ -43,17 +46,20 @@ public class KeyLockerApp extends Application {
     }
 
     public static class ScreenOffReceiver extends BroadcastReceiver {
+        private final AppContainer mAppContainer;
+        private final Settings mSettings;
         public IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-        private final AppContainer appContainer;
 
-        public ScreenOffReceiver(AppContainer appContainer) {
-            this.appContainer = appContainer;
+        public ScreenOffReceiver(AppContainer appContainer, Settings mSettings) {
+            this.mAppContainer = appContainer;
+            this.mSettings = mSettings;
         }
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                appContainer.locked.setValue(true);
+                if (mSettings.getRelockOnBackground())
+                    mAppContainer.locked.setValue(true);
             }
         }
     }

@@ -114,5 +114,6 @@
     <string name="settings_key_password_include_digits" translatable="false">prefs_password_include_digits</string>
     <string name="settings_key_password_include_symbols" translatable="false">pref_password_include_symbols</string>
     <string name="settings_default_unlock_keyboard" translatable="false">text</string>
+    <string name="change_pw_hint_current">Current password</string>
 
 </resources>
