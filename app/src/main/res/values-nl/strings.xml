@@ -66,7 +66,7 @@
     <string name="username">gebruikersnaam</string>
     <string name="button_keycard_copy">Kopieer wachtwoord</string>
     <string name="button_keycard_options">Wijzig wachtwoord</string>
-    <string name="activity_unlock_title">Unlock KeyLocker</string>
+    <string name="activity_unlock_title">Ontgrendel KeyLocker</string>
     <string name="unlock_hint_pin">Pincode</string>
     <string name="unlock_hint_password">Wachtwoord</string>
     <string name="title_activity_init">Maak een nieuwe sleutelkluis</string>
@@ -88,7 +88,7 @@
     <string name="save_note_task_cancelled">Opslaan is mislukt</string>
     <string name="noteNameCaptionHint">notitie naam</string>
     <string name="title_activity_note_detail">Notitie</string>
-    <string name="key_was_removed">Key removed</string>
+    <string name="key_was_removed">Sleutel verwijderd</string>
     <string name="undo_remove">Herstel</string>
     <string name="backup_toast_no_location">Kies eerst een backup locatie in Instellingen</string>
     <string name="change_password_failed_message">"Het is niet gelukt het wachtwoord te wijzigen, de foutmelding is: "</string>
@@ -100,13 +100,13 @@
     <string name="settings_desc_backup_location_not_set">De backup locatie is nog niet ingesteld</string>
     <string name="sync_failed_msg">"Opslaan van de gegeven is mislukt met melding: "</string>
     <string name="sync_task_cancelled">Synchronisatie afgebroken</string>
-    <string name="dlog_creating_locker_failed">Creating locker failed</string>
-    <string name="dlog_creating_locker_failed_body">Somehow, KeyLocker failed to create a new Locker file, the error is: </string>
-    <string name="dlog_password_title">Enter password</string>
-    <string name="settings_category_security">Security</string>
+    <string name="dlog_creating_locker_failed">Aanmaken sleutelbestand mislukt</string>
+    <string name="dlog_creating_locker_failed_body">"Het aanmaken van een sleutelbestand is mislukt, de foutmelding is: "</string>
+    <string name="dlog_password_title">Voer wachtwoord in</string>
+    <string name="settings_category_security">Beveiliging</string>
     <string name="settings_title_relock_background">Vergrendel programma wanneer het in de achtergrond gaat</string>
-    <string name="settings_title_auth_inactivity">Lock the application after being inactive for a specified time</string>
-    <string name="settings_title_auth_inactivity_delay">Lock after this many seconds of inactivity</string>
+    <string name="settings_title_auth_inactivity">Vergrendel programma als er geen activiteit is in de ingestelde tijd</string>
+    <string name="settings_title_auth_inactivity_delay">Vergrendel na dit aantal seconden</string>
     <string name="settings_activity_title">Instellingen</string>
     <string name="settings_title_unlock_keyboard">Ontgrendeling toetsenbord</string>
     <string name="change_pw_hint_current">Huidig wachtwoord</string>
