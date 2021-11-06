@@ -3,6 +3,7 @@ package com.hekkelman.keylocker.datamodel;
 import android.content.Context;
 import android.net.Uri;
 
+import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.xmlenc.EncryptedData;
 
 import org.simpleframework.xml.Serializer;
@@ -194,7 +195,7 @@ public class KeyDb {
 
         DocumentFile dir = DocumentFile.fromTreeUri(context, backupDir);
         if (dir == null)
-            throw new KeyDbException.MissingFileException();
+            throw new KeyDbException(context.getString(R.string.error_document_dir_missing));
 
         KeyDb backup = new KeyDb(pw);
 
@@ -214,7 +215,7 @@ public class KeyDb {
             if (file == null)
                 file = dir.createFile("application/x-keylocker", KeyLockerFile.KEY_DB_NAME);
             if (file == null)
-                throw new KeyDbException.MissingFileException();
+                throw new KeyDbException.CouldNotCreateFileException();
 
             try (OutputStream os = context.getContentResolver().openOutputStream(file.getUri())) {
                 backup.write(os, replacePassword || password == null ? this.password : password.toCharArray());
@@ -249,7 +250,7 @@ public class KeyDb {
         try {
             read(new FileInputStream(this.file));
         } catch (FileNotFoundException e) {
-            throw new KeyDbException.MissingFileException();
+            throw new KeyDbException.KeyDbRuntimeException(e);
         }
     }
 

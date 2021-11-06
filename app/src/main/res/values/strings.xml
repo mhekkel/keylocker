@@ -122,6 +122,7 @@
     <string name="webdav_key_id" translatable="false">keylocker-webdav-key-id</string>
     <string name="webdav_key_name">WebDAV KeyLocker Backup Location</string>
     <string name="webdav_key_url" translatable="false">https://www.example.com/somedir/keylockerfile.txt</string>
+    <string name="error_document_dir_missing">The backup directory was not found, select a new location.</string>
     <!--    <string name="wifi_unavailable_error_message">No network connection available</string>-->
 
 </resources>

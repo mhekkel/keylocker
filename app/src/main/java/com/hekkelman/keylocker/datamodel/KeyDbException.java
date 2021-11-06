@@ -6,6 +6,15 @@ import androidx.annotation.Nullable;
  * Created by maarten on 24-11-15.
  */
 public class KeyDbException extends Exception {
+
+    public KeyDbException() {
+        super();
+    }
+
+    public KeyDbException(String message) {
+        super(message);
+    }
+
     /**
      * Created by maarten on 24-11-15.
      */
@@ -43,9 +52,11 @@ public class KeyDbException extends Exception {
         }
     }
 
-    /**
-     * Created by maarten on 24-11-15.
-     */
-    public final static class MissingFileException extends KeyDbException {
+    public final static class CouldNotCreateFileException extends KeyDbException {
+        @Nullable
+        @Override
+        public String getMessage() {
+            return "Could not create file";
+        }
     }
 }

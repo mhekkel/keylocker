@@ -272,12 +272,17 @@ public class MainActivity extends KeyDbBaseActivity
         } else if (id == R.id.nav_notes) {
             if (mType != KEY_OR_NOTE_TYPE.NOTE) loadData(KEY_OR_NOTE_TYPE.NOTE);
         } else if (id == R.id.nav_sync_sdcard) {
-            syncWithSDCard();
+            syncWithSDCard(null, false);
         } else if (id == R.id.nav_sync_webdav) {
-            syncWithWebDAV();
+            syncWithWebDAV(null, false);
         } else if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             mLaunchResult.launch(intent);
+        } else if (id == R.id.action_help) {
+            Uri uri = Uri.parse("https://www.hekkelman.com/keylocker");
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uri);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = mBinding.drawerLayout;
@@ -285,7 +290,7 @@ public class MainActivity extends KeyDbBaseActivity
         return true;
     }
 
-    private void syncWithSDCard() {
+    private void syncWithSDCard(String password, boolean replace) {
         String backupDir = mSettings.getLocalBackupDir();
 
         if (TextUtils.isEmpty(backupDir)) {
@@ -296,13 +301,15 @@ public class MainActivity extends KeyDbBaseActivity
         try {
             Uri backupDirUri = Uri.parse(backupDir);
             AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, null, false, this::onSyncTaskResult);
+            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, password, replace, result -> {
+                onSyncTaskResult(result, this::syncWithSDCard);
+            });
         } catch (Exception e) {
             handleKeyDbException(getString(R.string.sync_failed_msg), e);
         }
     }
 
-    private void syncWithWebDAV() {
+    private void syncWithWebDAV(String password, boolean replace) {
         Optional<KeyNote.Key> webdavKey = mViewModel.appContainer.keyDb.getKey(mSettings.getWebDAVBackupKeyID());
         if (!webdavKey.isPresent() || webdavKey.get().isDeleted()) {
             Snackbar.make(mRecyclerView, R.string.backup_toast_no_location, BaseTransientBottomBar.LENGTH_SHORT).show();
@@ -315,13 +322,19 @@ public class MainActivity extends KeyDbBaseActivity
             return;
 
         try {
-            mSyncWebDAVTask.sync(this, mViewModel.appContainer, key, null, false, this::onSyncTaskResult);
+            mSyncWebDAVTask.sync(this, mViewModel.appContainer, key, password, replace, result -> {
+                onSyncTaskResult(result, this::syncWithWebDAV);
+            });
         } catch (Exception e) {
             handleKeyDbException(getString(R.string.sync_failed_msg), e);
         }
     }
 
-    void onSyncTaskResult(TaskResult<Void> result) {
+    interface SynWithPasswordCallback {
+        void retry(String password, boolean replace);
+    }
+
+    void onSyncTaskResult(TaskResult<Void> result, SynWithPasswordCallback callback) {
         if (result instanceof TaskResult.Success) {
             Snackbar.make(mRecyclerView, R.string.sync_successful, BaseTransientBottomBar.LENGTH_SHORT).show();
             loadData();
@@ -341,13 +354,7 @@ public class MainActivity extends KeyDbBaseActivity
 
                 new AlertDialog.Builder(MainActivity.this)
                         .setView(view)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            String backupDir = mSettings.getLocalBackupDir();
-
-                            Uri backupDirUri = Uri.parse(backupDir);
-                            AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-                            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, pw.getText().toString(), cb.isChecked(), this::onSyncTaskResult);
-                        })
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> callback.retry(pw.getText().toString(), cb.isChecked()))
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                         })
                         .show();
