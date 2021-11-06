@@ -72,13 +72,25 @@ public abstract class KeyNote {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof Key))
+            return false;
+        Key other = (Key) obj;
+        if (id == null) {
+            return other.id == null;
+        } else return id.equals(other.id);
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((deleted == null) ? 0 : deleted.hashCode());
+//        result = prime * result + ((deleted == null) ? 0 : deleted.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+//        result = prime * result + ((name == null) ? 0 : name.hashCode());
+//        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
         return result;
     }
 
@@ -150,6 +162,12 @@ public abstract class KeyNote {
 
     public abstract String getText();
 
+    public void purgeData()
+    {
+        assert(isDeleted());
+        this.name= "";
+    }
+
     @Root
     public final static class Key extends KeyNote {
         @Element(name = "user", required = false)
@@ -179,59 +197,59 @@ public abstract class KeyNote {
             this.url = url;
         }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + ((password == null) ? 0 : password.hashCode());
-            result = prime * result + ((url == null) ? 0 : url.hashCode());
-            result = prime * result + ((user == null) ? 0 : user.hashCode());
-            return result;
-        }
+//        @Override
+//        public int hashCode() {
+//            final int prime = 31;
+//            int result = super.hashCode();
+//            result = prime * result + ((password == null) ? 0 : password.hashCode());
+//            result = prime * result + ((url == null) ? 0 : url.hashCode());
+//            result = prime * result + ((user == null) ? 0 : user.hashCode());
+//            return result;
+//        }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (!(obj instanceof Key))
-                return false;
-            Key other = (Key) obj;
-            if (deleted == null) {
-                if (other.deleted != null)
-                    return false;
-            } else if (!deleted.equals(other.deleted))
-                return false;
-            if (id == null) {
-                if (other.id != null)
-                    return false;
-            } else if (!id.equals(other.id))
-                return false;
-            if (name == null) {
-                if (other.name != null)
-                    return false;
-            } else if (!name.equals(other.name))
-                return false;
-            if (password == null) {
-                if (other.password != null)
-                    return false;
-            } else if (!password.equals(other.password))
-                return false;
-            if (timestamp == null) {
-                if (other.timestamp != null)
-                    return false;
-            } else if (!timestamp.equals(other.timestamp))
-                return false;
-            if (url == null) {
-                if (other.url != null)
-                    return false;
-            } else if (!url.equals(other.url))
-                return false;
-            if (user == null) {
-                return other.user == null;
-            } else return user.equals(other.user);
-        }
+//        @Override
+//        public boolean equals(Object obj) {
+//            if (this == obj)
+//                return true;
+//            if (obj == null)
+//                return false;
+//            if (!(obj instanceof Key))
+//                return false;
+//            Key other = (Key) obj;
+//            if (deleted == null) {
+//                if (other.deleted != null)
+//                    return false;
+//            } else if (!deleted.equals(other.deleted))
+//                return false;
+//            if (id == null) {
+//                if (other.id != null)
+//                    return false;
+//            } else if (!id.equals(other.id))
+//                return false;
+//            if (name == null) {
+//                if (other.name != null)
+//                    return false;
+//            } else if (!name.equals(other.name))
+//                return false;
+//            if (password == null) {
+//                if (other.password != null)
+//                    return false;
+//            } else if (!password.equals(other.password))
+//                return false;
+//            if (timestamp == null) {
+//                if (other.timestamp != null)
+//                    return false;
+//            } else if (!timestamp.equals(other.timestamp))
+//                return false;
+//            if (url == null) {
+//                if (other.url != null)
+//                    return false;
+//            } else if (!url.equals(other.url))
+//                return false;
+//            if (user == null) {
+//                return other.user == null;
+//            } else return user.equals(other.user);
+//        }
 
         public String getUser() {
             return user;
@@ -264,7 +282,7 @@ public abstract class KeyNote {
             return id;
         }
 
-        protected void setId(String id) {
+        public void setId(String id) {
             this.id = id;
         }
 
@@ -306,6 +324,13 @@ public abstract class KeyNote {
                     (!TextUtils.isEmpty(url) && url.toLowerCase(Locale.getDefault()).contains(query));
         }
 
+        public void purgeData() {
+            super.purgeData();
+            this.user= "";
+            this.password= "";
+            this.url= "";
+        }
+
         @Override
         public String getDescription() {
             return this.user;
@@ -332,47 +357,47 @@ public abstract class KeyNote {
             this.text = note.text;
         }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + ((text == null) ? 0 : text.hashCode());
-            return result;
-        }
+//        @Override
+//        public int hashCode() {
+//            final int prime = 31;
+//            int result = super.hashCode();
+//            result = prime * result + ((text == null) ? 0 : text.hashCode());
+//            return result;
+//        }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (!(obj instanceof Note))
-                return false;
-            Note other = (Note) obj;
-            if (deleted == null) {
-                if (other.deleted != null)
-                    return false;
-            } else if (!deleted.equals(other.deleted))
-                return false;
-            if (id == null) {
-                if (other.id != null)
-                    return false;
-            } else if (!id.equals(other.id))
-                return false;
-            if (name == null) {
-                if (other.name != null)
-                    return false;
-            } else if (!name.equals(other.name))
-                return false;
-            if (text == null) {
-                if (other.text != null)
-                    return false;
-            } else if (!text.equals(other.text))
-                return false;
-            if (timestamp == null) {
-                return other.timestamp == null;
-            } else return timestamp.equals(other.timestamp);
-        }
+//        @Override
+//        public boolean equals(Object obj) {
+//            if (this == obj)
+//                return true;
+//            if (obj == null)
+//                return false;
+//            if (!(obj instanceof Note))
+//                return false;
+//            Note other = (Note) obj;
+//            if (deleted == null) {
+//                if (other.deleted != null)
+//                    return false;
+//            } else if (!deleted.equals(other.deleted))
+//                return false;
+//            if (id == null) {
+//                if (other.id != null)
+//                    return false;
+//            } else if (!id.equals(other.id))
+//                return false;
+//            if (name == null) {
+//                if (other.name != null)
+//                    return false;
+//            } else if (!name.equals(other.name))
+//                return false;
+//            if (text == null) {
+//                if (other.text != null)
+//                    return false;
+//            } else if (!text.equals(other.text))
+//                return false;
+//            if (timestamp == null) {
+//                return other.timestamp == null;
+//            } else return timestamp.equals(other.timestamp);
+//        }
 
         public int synchronize(Note note) {
             int result = super.synchronize(note);
@@ -381,6 +406,11 @@ public abstract class KeyNote {
             else if (result > 0) note.text = this.text;
 
             return result;
+        }
+
+        public void purgeData() {
+            super.purgeData();
+            this.text= "";
         }
 
         public String getText() {

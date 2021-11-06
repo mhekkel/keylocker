@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,6 +37,7 @@ import java.util.Random;
 
 public class KeyDetailActivity extends KeyDbBaseActivity {
 
+    public static final String RESULT_KEY_ID = "key-id-result";
     private KeyNote.Key key;
 
     protected EditText nameField;
@@ -79,23 +79,25 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
 
         Intent intent = getIntent();
         String keyID = intent.getStringExtra("key-id");
+        Optional<KeyNote.Key> key = appContainer.keyDb.getKey(keyID);
 
-        if (keyID == null) {
+        if (key.isPresent())
+            setKey(key.get());
+        else {
             lastModified.setVisibility(View.INVISIBLE);
-            setKey(appContainer.keyDb.createKey());
-        } else {
-            Optional<KeyNote.Key> key = appContainer.keyDb.getKey(keyID);
-            if (! key.isPresent()) {
+            if (intent.getBooleanExtra("webdav-key", false)) {
+                setKey(appContainer.keyDb.createWebDAVKey(
+                        getString(R.string.webdav_key_id),
+                        getString(R.string.webdav_key_name)));
+                urlField.setText(getString(R.string.webdav_key_url));
+            } else if (keyID != null) {
                 new AlertDialog.Builder(KeyDetailActivity.this)
                         .setTitle(R.string.dlog_missing_key_title)
                         .setMessage(R.string.dlog_missing_key_msg)
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
-                return;
-            }
-
-            setKey(key.get());
+            } else setKey(appContainer.keyDb.createKey());
         }
     }
 
@@ -131,11 +133,12 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
                     .setTitle(R.string.dlog_discard_changes_title)
                     .setMessage(R.string.dlog_discard_changes_msg)
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {})
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                    })
                     .setNeutralButton(R.string.dialog_save_before_close, (dialog, which) -> saveKey(true))
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
-        } else finish();
+        } else finishWithKeyID();
     }
 
     @Override
@@ -280,14 +283,15 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
     public void onTaskResult(TaskResult<Boolean> result) {
         if (result instanceof TaskResult.Success) {
             Toast.makeText(this, R.string.save_successful, Toast.LENGTH_SHORT).show();
-            if (((TaskResult.Success<Boolean>)result).data)
-                finish();
+            if (((TaskResult.Success<Boolean>) result).data)
+                finishWithKeyID();
         } else {
-            Exception exception = ((TaskResult.Error)result).exception;
+            Exception exception = ((TaskResult.Error) result).exception;
             new AlertDialog.Builder(KeyDetailActivity.this)
                     .setTitle(R.string.dlog_save_failed_title)
                     .setMessage(getString(R.string.dlog_save_failed_msg) + exception.getMessage())
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
@@ -300,5 +304,12 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
                 && (TextUtils.isEmpty(urlField.getText()) ? TextUtils.isEmpty(key.getUrl()) : TextUtils.equals(urlField.getText(), key.getUrl()));
 
         return !same;
+    }
+
+    private void finishWithKeyID() {
+        Intent data = new Intent();
+        data.putExtra(RESULT_KEY_ID, key.getId());
+        setResult(RESULT_OK, data);
+        finish();
     }
 }

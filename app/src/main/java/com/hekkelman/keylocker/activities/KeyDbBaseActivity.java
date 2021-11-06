@@ -109,7 +109,7 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
         new AlertDialog.Builder(KeyDbBaseActivity.this)
                 .setTitle(title)
                 .setMessage(getString(R.string.sync_failed_msg) + e.getMessage())
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {})
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }

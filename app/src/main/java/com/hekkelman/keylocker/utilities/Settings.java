@@ -146,4 +146,12 @@ public class Settings {
     public boolean getGeneratedPasswordIncludeSymbols() {
         return getBoolean(R.string.settings_key_password_include_symbols, true);
     }
+
+    public String getWebDAVBackupKeyID() {
+        return getString(R.string.settings_key_backup_webdav_key, R.string.empty_string);
+    }
+
+    public void setWebDAVBackupKeyID(String keyID) {
+        setString(R.string.settings_key_backup_webdav_key, keyID);
+    }
 }

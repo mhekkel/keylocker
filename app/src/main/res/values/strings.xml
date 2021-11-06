@@ -117,6 +117,11 @@
     <string name="title_replace_backup_password_checkbox">Replace password of backup file</string>
     <string name="file_is_corrupt_title">KeyLocker file damaged</string>
     <string name="file_is_corrupt">The keylocker file is corrupt and cannot be restored.</string>
+    <string name="sync_with_webdav">WebDAV</string>
+    <string name="settings_key_backup_webdav_key">WebDAV backup location and info</string>
+    <string name="webdav_key_id" translatable="false">keylocker-webdav-key-id</string>
+    <string name="webdav_key_name">WebDAV KeyLocker Backup Location</string>
+    <string name="webdav_key_url" translatable="false">https://www.example.com/somedir/keylockerfile.txt</string>
     <!--    <string name="wifi_unavailable_error_message">No network connection available</string>-->
 
 </resources>

@@ -3,6 +3,8 @@ package com.hekkelman.keylocker.datamodel;
 import android.app.backup.BackupManager;
 import android.content.Context;
 
+import com.hekkelman.keylocker.R;
+
 import java.io.File;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -88,5 +90,9 @@ public class KeyLockerFile extends KeyDb {
 
         BackupManager backupManager = new BackupManager(context);
         backupManager.dataChanged();
+    }
+
+    public KeyNote.Key createWebDAVKey(String id, String name) {
+        return new KeyNote.Key(id, name, "", "", "");
     }
 }

@@ -25,7 +25,9 @@ public class KeyChain {
     }
 
     public void addKey(KeyNote.Key key) {
-        if (!this.keys.contains(key)) this.keys.add(key);
+        while (this.keys.contains(key))
+            this.keys.remove(key);
+        this.keys.add(key);
     }
 
     public List<KeyNote.Note> getNotes() {
@@ -33,7 +35,9 @@ public class KeyChain {
     }
 
     public void addNote(KeyNote.Note note) {
-        if (!this.notes.contains(note)) this.notes.add(note);
+        while (this.notes.contains(note))
+            this.notes.remove(note);
+        this.notes.add(note);
     }
 
     // more accessors
@@ -93,7 +97,14 @@ public class KeyChain {
     }
 
     public void purge() {
-        this.keys.removeIf(KeyNote.Key::isDeleted);
-        this.notes.removeIf(KeyNote.Note::isDeleted);
+        this.keys.forEach(key -> {
+            if (key.isDeleted())
+                key.purgeData();
+        });
+
+        this.notes.forEach(note -> {
+            if (note.isDeleted())
+                note.purgeData();
+        });
     }
 }

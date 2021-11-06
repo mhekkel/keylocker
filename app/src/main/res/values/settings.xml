@@ -12,6 +12,7 @@
     <string name="settings_key_cat_ui" translatable="false">perf_cat_ui</string>
     <string name="settings_key_backup_dir" translatable="false">pref_backup_dir</string>
     <string name="settings_key_backup_cat" translatable="false">pref_backup_cat</string>
+    <string name="settings_key_backup_webdav" translatable="false">pref_backup_webdav</string>
     <string name="settings_key_password_cat" translatable="false">pref_password_cat</string>
     <string name="settings_key_main_password" translatable="false">pref_main_password</string>
     <string name="settings_key_password_length" translatable="false">pref_password_length</string>

@@ -78,7 +78,17 @@ public class KeyDb {
             return keyChain.getKeys()
                     .stream()
                     .filter(k -> !k.isDeleted())
-                    .sorted((lhs, rhs) -> lhs.getName().compareToIgnoreCase(rhs.getName()))
+                    .sorted((lhs, rhs) -> {
+                        String ln = lhs.name;
+                        String rn = rhs.name;
+                        if (ln == null && rn == null)
+                            return 0;
+                        if (ln == null)
+                            return -1;
+                        if (rn == null)
+                            return 1;
+                        return ln.compareToIgnoreCase(rn);
+                    })
                     .collect(Collectors.toList());
         }
     }
@@ -92,6 +102,7 @@ public class KeyDb {
                 key.setUser(user);
                 key.setPassword(password);
                 key.setUrl(url);
+                key.setDeleted(false);
 
                 keyChain.addKey(key);
                 write();
@@ -178,41 +189,60 @@ public class KeyDb {
         }
     }
 
-    public void synchronize(Context context, Uri backupDir, String password, boolean replacePassword) throws KeyDbException {
-        synchronized (lock) {
-            char[] pw = password != null ? password.toCharArray() : this.password;
+    public synchronized void synchronize(Context context, Uri backupDir, String password, boolean replacePassword) throws KeyDbException {
+        char[] pw = password != null ? password.toCharArray() : this.password;
 
-            DocumentFile dir = DocumentFile.fromTreeUri(context, backupDir);
-            if (dir == null)
-                throw new KeyDbException.MissingFileException();
+        DocumentFile dir = DocumentFile.fromTreeUri(context, backupDir);
+        if (dir == null)
+            throw new KeyDbException.MissingFileException();
 
-            KeyDb backup = new KeyDb(pw);
+        KeyDb backup = new KeyDb(pw);
 
-            DocumentFile file = dir.findFile(KeyLockerFile.KEY_DB_NAME);
-            if (file != null) {
-                try (InputStream is = context.getContentResolver().openInputStream(file.getUri())) {
-                    backup.read(is);
-                } catch (IOException e) {
-                    throw new KeyDbException.KeyDbRuntimeException(e);
-                }
-            }
-
-            boolean changed = synchronize(backup);
-            write();
-
-            if (changed || replacePassword) {
-                if (file == null)
-                    file = dir.createFile("application/x-keylocker", KeyLockerFile.KEY_DB_NAME);
-                if (file == null)
-                    throw new KeyDbException.MissingFileException();
-
-                try (OutputStream os = context.getContentResolver().openOutputStream(file.getUri())) {
-                    backup.write(os, replacePassword || password == null ? this.password : password.toCharArray());
-                } catch (IOException e) {
-                    throw new KeyDbException.KeyDbRuntimeException(e);
-                }
+        DocumentFile file = dir.findFile(KeyLockerFile.KEY_DB_NAME);
+        if (file != null) {
+            try (InputStream is = context.getContentResolver().openInputStream(file.getUri())) {
+                backup.read(is);
+            } catch (IOException e) {
+                throw new KeyDbException.KeyDbRuntimeException(e);
             }
         }
+
+        boolean changed = synchronize(backup);
+        write();
+
+        if (changed || replacePassword) {
+            if (file == null)
+                file = dir.createFile("application/x-keylocker", KeyLockerFile.KEY_DB_NAME);
+            if (file == null)
+                throw new KeyDbException.MissingFileException();
+
+            try (OutputStream os = context.getContentResolver().openOutputStream(file.getUri())) {
+                backup.write(os, replacePassword || password == null ? this.password : password.toCharArray());
+            } catch (IOException e) {
+                throw new KeyDbException.KeyDbRuntimeException(e);
+            }
+        }
+    }
+
+    public byte[] synchronize(InputStream is, String password, boolean replacePassword) throws KeyDbException {
+        char[] pw = password != null ? password.toCharArray() : this.password;
+
+        KeyDb backup = new KeyDb(pw);
+        backup.read(is);
+
+        boolean changed = synchronize(backup);
+        write();
+
+        if (changed || replacePassword) {
+            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                backup.write(os, replacePassword || password == null ? this.password : password.toCharArray());
+                return os.toByteArray();
+            } catch (IOException e) {
+                throw new KeyDbException.KeyDbRuntimeException(e);
+            }
+        }
+
+        return null;
     }
 
     private void read() throws KeyDbException {
@@ -247,7 +277,7 @@ public class KeyDb {
         }
     }
 
-    private void write(OutputStream output, char[] pw) throws KeyDbException {
+    public void write(OutputStream output, char[] pw) throws KeyDbException {
         try {
             // intermediate storage of unencrypted data
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -255,7 +285,7 @@ public class KeyDb {
             Serializer serializer = new Persister();
             serializer.write(keyChain, os);
 
-            EncryptedData.encrypt(pw, new ByteArrayInputStream(os.toByteArray()), output);
+            EncryptedData.encrypt(pw != null ? pw : this.password, new ByteArrayInputStream(os.toByteArray()), output);
         } catch (Exception e) {
             throw new KeyDbException.KeyDbRuntimeException(e);
         }

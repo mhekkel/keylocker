@@ -9,8 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.text.InputType;
+import android.text.TextUtils;
 
+import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
+import com.hekkelman.keylocker.datamodel.KeyNote;
+import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.activity.result.ActivityResult;
@@ -21,6 +25,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import org.w3c.dom.Text;
+
+import java.util.Optional;
 
 public class SettingsActivity extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -51,6 +59,7 @@ public class SettingsActivity extends AppCompatActivity
     public static class SettingsFragment extends PreferenceFragmentCompat {
         private Settings settings;
         private ActivityResultLauncher<Intent> selectBackupDirResult;
+        private ActivityResultLauncher<Intent> selectBackupWebDAVKeyIDResult;
         private ActivityResultLauncher<Intent> changeMainPasswordResult;
 
         @Override
@@ -77,9 +86,6 @@ public class SettingsActivity extends AppCompatActivity
                 });
             }
 
-            selectBackupDirResult = registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(), this::onSelectBackupDirResult);
-
             // Main password
             Preference mainPassword = findPreference(getString(R.string.settings_key_main_password));
             if (mainPassword != null) {
@@ -89,19 +95,74 @@ public class SettingsActivity extends AppCompatActivity
                 });
             }
 
+            selectBackupDirResult = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(), this::onSelectBackupDirResult);
+
             // Backup location
             Preference backupLocation = findPreference(getString(R.string.settings_key_backup_dir));
+            assert backupLocation != null;
 
-            if (backupLocation != null) {
-                if (!settings.getLocalBackupDir().isEmpty())
-                    backupLocation.setSummary(R.string.settings_desc_backup_location_set);
-                else
-                    backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
+            if (!settings.getLocalBackupDir().isEmpty())
+                backupLocation.setSummary(R.string.settings_desc_backup_location_set);
+            else
+                backupLocation.setSummary(R.string.settings_desc_backup_location_not_set);
 
-                backupLocation.setOnPreferenceClickListener(preference -> {
-                    requestBackupAccess();
-                    return true;
-                });
+            backupLocation.setOnPreferenceClickListener(preference -> {
+                requestBackupAccess();
+                return true;
+            });
+
+            selectBackupWebDAVKeyIDResult = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(), this::onSelectBackupWebDAVKeyIDResult);
+
+            Preference webdavBackupLocation = findPreference(getString(R.string.settings_key_backup_webdav));
+            assert webdavBackupLocation != null;
+
+            // find the webdav key, if it exists...
+            AppContainer appContainer = ((KeyLockerApp) getActivity().getApplication()).mAppContainer;
+            String webdavKeyID = settings.getWebDAVBackupKeyID();
+
+            if (!TextUtils.isEmpty(webdavKeyID)) {
+                Optional<KeyNote.Key> key = appContainer.keyDb.getKey(webdavKeyID);
+                if (!key.isPresent() || key.get().isDeleted())
+                    webdavKeyID = null;
+            }
+
+            if (TextUtils.isEmpty(webdavKeyID)) {
+                String defaultWebDAVKeyID = getString(R.string.webdav_key_id);
+                Optional<KeyNote.Key> key = appContainer.keyDb.getAllKeys()
+                        .stream()
+                        .filter(k -> k.getName().equals(defaultWebDAVKeyID))
+                        .findFirst();
+                if (key.isPresent() && !key.get().isDeleted())
+                    webdavKeyID = defaultWebDAVKeyID;
+            }
+
+            webdavBackupLocation.setSummary(TextUtils.isEmpty(webdavKeyID) ?
+                    R.string.settings_desc_backup_location_not_set :
+                    R.string.settings_desc_backup_location_set);
+
+            String finalWebdavKeyID = webdavKeyID;
+            webdavBackupLocation.setOnPreferenceClickListener(preference -> {
+                requestBackupKey(finalWebdavKeyID);
+                return true;
+            });
+
+        }
+
+        protected void onSelectBackupWebDAVKeyIDResult(ActivityResult result) {
+            Preference webdavKey = findPreference(getString(R.string.settings_key_backup_webdav));
+            assert webdavKey != null;
+            webdavKey.setSummary(R.string.settings_desc_backup_location_not_set);
+
+            if (result.getResultCode() == RESULT_OK) {
+                Intent data = result.getData();
+                assert data != null;
+                String keyID = data.getStringExtra(KeyDetailActivity.RESULT_KEY_ID);
+                if (keyID != null) {
+                    settings.setWebDAVBackupKeyID(keyID);
+                    webdavKey.setSummary(R.string.settings_desc_backup_location_set);
+                }
             }
         }
 
@@ -124,6 +185,14 @@ public class SettingsActivity extends AppCompatActivity
             intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(uri));
 
             selectBackupDirResult.launch(intent);
+        }
+
+        public void requestBackupKey(String webdavKeyID) {
+            Intent intent = new Intent(getActivity(), KeyDetailActivity.class);
+            if (!TextUtils.isEmpty(webdavKeyID))
+                intent.putExtra("key-id", webdavKeyID);
+            intent.putExtra("webdav-key", true);
+            selectBackupWebDAVKeyIDResult.launch(intent);
         }
 
         @SuppressLint("WrongConstant")

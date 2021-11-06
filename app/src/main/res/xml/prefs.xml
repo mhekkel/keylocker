@@ -71,6 +71,11 @@
             app:title="@string/settings_title_backup_location"
             app:summary="@string/settings_desc_backup_location_not_set" />
 
+        <Preference
+            app:key="@string/settings_key_backup_webdav"
+            app:title="@string/settings_key_backup_webdav_key"
+            app:summary="@string/settings_desc_backup_location_not_set" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

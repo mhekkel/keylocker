@@ -114,6 +114,9 @@
     <string name="title_replace_backup_password_checkbox">Vervang wachtwoord op backup</string>
     <string name="file_is_corrupt_title">KeyLocker bestand beschadigd</string>
     <string name="file_is_corrupt">Het KeyLocker bestand is beschadigd en kan niet worden hersteld.</string>
+    <string name="sync_with_webdav">WebDAV</string>
+    <string name="settings_key_backup_webdav_key">WebDAV backup location and info</string>
+    <string name="webdav_key_name">WebDAV KeyLocker Backup Location</string>
     <!--    <string name="wifi_unavailable_error_message">Geen netwerk beschikbaar</string>-->
 
 </resources>

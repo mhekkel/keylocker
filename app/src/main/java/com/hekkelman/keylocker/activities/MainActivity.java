@@ -47,6 +47,7 @@ import com.hekkelman.keylocker.databinding.DialogAskPasswordBinding;
 import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.tasks.SyncSDTask;
+import com.hekkelman.keylocker.tasks.SyncWebDAVTask;
 import com.hekkelman.keylocker.tasks.TaskResult;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
@@ -54,6 +55,7 @@ import com.hekkelman.keylocker.utilities.SimpleDoubleClickListener;
 import com.hekkelman.keylocker.utilities.Tools;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MainActivity extends KeyDbBaseActivity
@@ -62,10 +64,10 @@ public class MainActivity extends KeyDbBaseActivity
     private KeyNoteCardViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private String mQuery;
-    private ActivityResultLauncher<Intent> mNewKeyResult;
-    private ActivityResultLauncher<Intent> mEditKeyResult;
+    private ActivityResultLauncher<Intent> mLaunchResult;
     private KEY_OR_NOTE_TYPE mType = KEY_OR_NOTE_TYPE.KEY;
     private SyncSDTask mSyncSDTask;
+    private SyncWebDAVTask mSyncWebDAVTask;
     private ActivityMainBinding mBinding;
 
     @Override
@@ -74,6 +76,7 @@ public class MainActivity extends KeyDbBaseActivity
 
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
         this.mSyncSDTask = new SyncSDTask(appContainer.executorService, appContainer.mainThreadHandler);
+        this.mSyncWebDAVTask = new SyncWebDAVTask(appContainer.executorService, appContainer.mainThreadHandler);
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
@@ -89,10 +92,7 @@ public class MainActivity extends KeyDbBaseActivity
         Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
 
-        mNewKeyResult = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
-
-        mEditKeyResult = registerForActivityResult(
+        mLaunchResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onEditKeyResult);
 
         DrawerLayout drawer = mBinding.drawerLayout;
@@ -132,7 +132,7 @@ public class MainActivity extends KeyDbBaseActivity
             intent = new Intent(MainActivity.this, NoteDetailActivity.class);
             intent.putExtra("note-id", keyNote.getId());
         }
-        mEditKeyResult.launch(intent);
+        mLaunchResult.launch(intent);
     }
 
     private void onCardRemove(KeyNote keyNote) {
@@ -174,7 +174,7 @@ public class MainActivity extends KeyDbBaseActivity
     public void onClickFab(View view) {
         Intent intent = new Intent(MainActivity.this,
                 mType == KEY_OR_NOTE_TYPE.KEY ? KeyDetailActivity.class : NoteDetailActivity.class);
-        mNewKeyResult.launch(intent);
+        mLaunchResult.launch(intent);
     }
 
     @Override
@@ -273,9 +273,11 @@ public class MainActivity extends KeyDbBaseActivity
             if (mType != KEY_OR_NOTE_TYPE.NOTE) loadData(KEY_OR_NOTE_TYPE.NOTE);
         } else if (id == R.id.nav_sync_sdcard) {
             syncWithSDCard();
+        } else if (id == R.id.nav_sync_webdav) {
+            syncWithWebDAV();
         } else if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
+            mLaunchResult.launch(intent);
         }
 
         DrawerLayout drawer = mBinding.drawerLayout;
@@ -295,6 +297,25 @@ public class MainActivity extends KeyDbBaseActivity
             Uri backupDirUri = Uri.parse(backupDir);
             AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
             mSyncSDTask.syncToSD(this, appContainer, backupDirUri, null, false, this::onSyncTaskResult);
+        } catch (Exception e) {
+            handleKeyDbException(getString(R.string.sync_failed_msg), e);
+        }
+    }
+
+    private void syncWithWebDAV() {
+        Optional<KeyNote.Key> webdavKey = mViewModel.appContainer.keyDb.getKey(mSettings.getWebDAVBackupKeyID());
+        if (!webdavKey.isPresent() || webdavKey.get().isDeleted()) {
+            Snackbar.make(mRecyclerView, R.string.backup_toast_no_location, BaseTransientBottomBar.LENGTH_SHORT).show();
+            return;
+        }
+
+        KeyNote.Key key = webdavKey.get();
+
+        if (((KeyLockerApp)getApplication()).goToWifiSettingsIfDisconnected())
+            return;
+
+        try {
+            mSyncWebDAVTask.sync(this, mViewModel.appContainer, key, null, false, this::onSyncTaskResult);
         } catch (Exception e) {
             handleKeyDbException(getString(R.string.sync_failed_msg), e);
         }
