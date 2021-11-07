@@ -117,6 +117,7 @@
     <string name="sync_with_webdav">WebDAV</string>
     <string name="settings_key_backup_webdav_key">WebDAV backup location and info</string>
     <string name="webdav_key_name">WebDAV KeyLocker Backup Location</string>
+    <string name="error_document_dir_missing">De backup map werd niet gevonden, kies opnieuw in instelligen</string>
     <!--    <string name="wifi_unavailable_error_message">Geen netwerk beschikbaar</string>-->
 
 </resources>
