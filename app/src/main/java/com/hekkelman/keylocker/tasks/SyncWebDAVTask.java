@@ -29,8 +29,7 @@ public class SyncWebDAVTask {
         this.handler = handler;
     }
 
-    public void sync(final Context context,
-                     final AppContainer appContainer,
+    public void sync(final AppContainer appContainer,
                      final KeyNote.Key backupLocation,
                      final String password,
                      final boolean replacePassword, final TaskCallback<Void> callback) {
