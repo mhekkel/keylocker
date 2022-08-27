@@ -233,6 +233,7 @@ public class MainActivity extends KeyDbBaseActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                mQuery = newText;
                 mAdapter.getFilter().filter(newText);
                 return false;
             }
