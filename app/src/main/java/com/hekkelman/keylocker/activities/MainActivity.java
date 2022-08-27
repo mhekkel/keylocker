@@ -323,7 +323,7 @@ public class MainActivity extends KeyDbBaseActivity
             return;
 
         try {
-            mSyncWebDAVTask.sync(this, mViewModel.appContainer, key, password, replace, result -> {
+            mSyncWebDAVTask.sync(mViewModel.appContainer, key, password, replace, result -> {
                 onSyncTaskResult(result, this::syncWithWebDAV);
             });
         } catch (Exception e) {
