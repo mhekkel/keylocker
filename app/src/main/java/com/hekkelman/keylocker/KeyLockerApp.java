@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkInfo;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -18,7 +16,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
-import java.net.URL;
+import java.util.Objects;
 
 public class KeyLockerApp extends Application {
     public AppContainer mAppContainer;
@@ -87,7 +85,7 @@ public class KeyLockerApp extends Application {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+            if (Objects.equals(intent.getAction(), Intent.ACTION_SCREEN_OFF)) {
                 if (mSettings.getRelockOnBackground())
                     mAppContainer.locked.setValue(true);
             }

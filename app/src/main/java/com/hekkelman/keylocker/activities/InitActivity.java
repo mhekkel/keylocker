@@ -20,6 +20,7 @@ import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
@@ -98,7 +99,7 @@ public class InitActivity extends AppCompatActivity
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+    public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean isChecked) {
         mPassword1.setText("");
         mPassword2.setText("");
 

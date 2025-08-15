@@ -5,13 +5,10 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 
-import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.datamodel.KeyDbViewModel;
 import com.hekkelman.keylocker.datamodel.KeyLockerFile;
-import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
 import androidx.activity.result.ActivityResult;
@@ -41,15 +38,9 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
         mUnlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
 
-        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+//        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
 
-        mBlackoutHandler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                // todo
-                return true;
-            }
-        });
+        mBlackoutHandler = new Handler(msg -> true);
         mBlackout = () -> mViewModel.locked.setValue(true);
     }
 

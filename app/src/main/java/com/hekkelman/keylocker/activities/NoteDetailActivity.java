@@ -74,7 +74,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
             setNote(new KeyNote.Note());
         } else {
             Optional<KeyNote.Note> note = appContainer.keyDb.getNote(noteID);
-            if (! note.isPresent()) {
+            if (note.isEmpty()) {
                 new AlertDialog.Builder(NoteDetailActivity.this)
                         .setTitle(R.string.dlog_missing_note_title)
                         .setMessage(R.string.dlog_missing_note_msg)
@@ -170,7 +170,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
             if (((TaskResult.Success<Boolean>)result).data)
                 finish();
         } else {
-            Exception exception = ((TaskResult.Error)result).exception;
+            Exception exception = ((TaskResult.Error<?>)result).exception;
             new AlertDialog.Builder(NoteDetailActivity.this)
                     .setTitle(R.string.dlog_save_failed_title)
                     .setMessage(getString(R.string.dlog_save_failed_msg) + exception.getMessage())

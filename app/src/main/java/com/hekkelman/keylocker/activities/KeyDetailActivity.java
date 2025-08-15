@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.OnBackPressedDispatcher;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -312,7 +311,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
             if (((TaskResult.Success<Boolean>) result).data)
                 finishWithKeyID();
         } else {
-            Exception exception = ((TaskResult.Error) result).exception;
+            Exception exception = ((TaskResult.Error<?>) result).exception;
             new AlertDialog.Builder(KeyDetailActivity.this)
                     .setTitle(R.string.dlog_save_failed_title)
                     .setMessage(getString(R.string.dlog_save_failed_msg) + exception.getMessage())

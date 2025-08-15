@@ -56,6 +56,7 @@ import com.hekkelman.keylocker.utilities.SimpleDoubleClickListener;
 import com.hekkelman.keylocker.utilities.Tools;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -126,7 +127,7 @@ public class MainActivity extends KeyDbBaseActivity
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
                     drawer.closeDrawer(GravityCompat.START);
                 } else {
-                    MainActivity.super.getOnBackPressedDispatcher().onBackPressed();
+                    finish();
                 }
             }
         };
@@ -164,7 +165,7 @@ public class MainActivity extends KeyDbBaseActivity
                         }
                         loadData();
                     })
-                    .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                    .addCallback(new BaseTransientBottomBar.BaseCallback<>() {
                         @Override
                         public void onDismissed(Snackbar transientBottomBar, int event) {
                             try {
@@ -193,7 +194,7 @@ public class MainActivity extends KeyDbBaseActivity
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction()))
@@ -205,7 +206,7 @@ public class MainActivity extends KeyDbBaseActivity
         loadData(mType);
     }
 
-    public void loadData(KEY_OR_NOTE_TYPE type) {
+    void loadData(KEY_OR_NOTE_TYPE type) {
         if (mViewModel.appContainer.keyDb != null) {
             List<KeyNote> items;
             if (type == KEY_OR_NOTE_TYPE.KEY)
@@ -230,6 +231,7 @@ public class MainActivity extends KeyDbBaseActivity
         getMenuInflater().inflate(R.menu.mainmenu, menu);
 
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        assert searchView != null;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -307,9 +309,8 @@ public class MainActivity extends KeyDbBaseActivity
         try {
             Uri backupDirUri = Uri.parse(backupDir);
             AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, password, replace, result -> {
-                onSyncTaskResult(result, this::syncWithSDCard);
-            });
+            mSyncSDTask.syncToSD(this, appContainer, backupDirUri, password, replace,
+                    result -> onSyncTaskResult(result, this::syncWithSDCard));
         } catch (Exception e) {
             handleKeyDbException(getString(R.string.sync_failed_msg), e);
         }
@@ -317,7 +318,7 @@ public class MainActivity extends KeyDbBaseActivity
 
     private void syncWithWebDAV(String password, boolean replace) {
         Optional<KeyNote.Key> webdavKey = mViewModel.appContainer.keyDb.getKey(mSettings.getWebDAVBackupKeyID());
-        if (!webdavKey.isPresent() || webdavKey.get().isDeleted()) {
+        if (webdavKey.isEmpty() || webdavKey.get().isDeleted()) {
             Snackbar.make(mRecyclerView, R.string.backup_toast_no_location, BaseTransientBottomBar.LENGTH_SHORT).show();
             return;
         }
@@ -328,9 +329,8 @@ public class MainActivity extends KeyDbBaseActivity
             return;
 
         try {
-            mSyncWebDAVTask.sync(mViewModel.appContainer, key, password, replace, result -> {
-                onSyncTaskResult(result, this::syncWithWebDAV);
-            });
+            mSyncWebDAVTask.sync(mViewModel.appContainer, key, password, replace,
+                    result -> onSyncTaskResult(result, this::syncWithWebDAV));
         } catch (Exception e) {
             handleKeyDbException(getString(R.string.sync_failed_msg), e);
         }
@@ -360,7 +360,7 @@ public class MainActivity extends KeyDbBaseActivity
 
                 new AlertDialog.Builder(MainActivity.this)
                         .setView(view)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> callback.retry(pw.getText().toString(), cb.isChecked()))
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> callback.retry(Objects.requireNonNull(pw.getText()).toString(), cb.isChecked()))
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                         })
                         .show();
@@ -471,7 +471,7 @@ public class MainActivity extends KeyDbBaseActivity
             void action(KeyNote item);
         }
 
-        static class KeyNoteCardHolder extends RecyclerView.ViewHolder {
+        public static class KeyNoteCardHolder extends RecyclerView.ViewHolder {
             protected TextView nameView;
             protected TextView infoView;
             protected ImageButton copyButton;
