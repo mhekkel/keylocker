@@ -36,16 +36,16 @@ android {
         abortOnError false
     }
 
-//    flavorDimensions 'market'
-//    productFlavors {
-////        fdroid {
-////            dimension = 'market'
-////        }
-////        play {
-////            dimension = 'market'
-////            versionNameSuffix = "-play"
-////        }
-//    }
+    flavorDimensions 'market'
+    productFlavors {
+        fdroid {
+            dimension = 'market'
+        }
+//        play {
+//            dimension = 'market'
+//            versionNameSuffix = "-play"
+//        }
+    }
 
     compileOptions {
         // Flag to enable support for the new language APIs
@@ -68,39 +68,37 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.9.2'
-    implementation 'androidx.lifecycle:lifecycle-process:2.9.2'
+    implementation libs.lifecycle.common.java8
+    implementation libs.lifecycle.process
 
-    implementation('org.simpleframework:simple-xml:2.7.1') {
+    implementation(libs.simple.xml) {
         exclude module: 'stax'
         exclude module: 'stax-api'
         exclude module: 'xpp3'
     }
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.core:core-ktx:1.17.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation libs.appcompat
+    implementation libs.core.ktx
+    implementation libs.constraintlayout
 
-    implementation "androidx.cardview:cardview:1.0.0"
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation libs.cardview
+    implementation libs.recyclerview
 
     // For control over item selection of both touch and mouse driven selection
 
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation libs.material
 
     // Include the sdk as a dependency
-    implementation 'com.google.code.gson:gson:2.13.1'
-    implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
+    implementation libs.gson
+    implementation libs.drawerlayout
     implementation libs.activity
 
-    def fragment_version = "1.8.9"
+    implementation libs.fragment
+    debugImplementation libs.fragment.testing
 
-    implementation "androidx.fragment:fragment:$fragment_version"
-    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
-
-    implementation 'androidx.preference:preference:1.2.1'
+    implementation libs.preference
 
     // sardine, for webdav
-    implementation 'com.github.lookfirst:sardine:5.13'
+    implementation libs.sardine
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    coreLibraryDesugaring libs.desugar.jdk.libs
 }

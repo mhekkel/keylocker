@@ -1,27 +1,37 @@
 [versions]
 agp = "8.12.0"
-junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
-appcompat = "1.6.1"
+cardview = "1.0.0"
+constraintlayoutVersion = "2.2.1"
+coreKtx = "1.17.0"
+desugar_jdk_libs = "2.1.5"
+drawerlayout = "1.2.0"
+fragment = "1.8.9"
+gson = "2.13.1"
 lifecycleCommonJava8 = "2.9.2"
-material = "1.10.0"
-constraintlayout = "2.1.4"
-navigationFragment = "2.6.0"
-navigationUi = "2.6.0"
 activity = "1.12.0-alpha06"
+preference = "1.2.1"
+recyclerview = "1.4.0"
+sardine = "0.9"
+simpleXml = "2.7.1"
 
 [libraries]
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+drawerlayout = { module = "androidx.drawerlayout:drawerlayout", version.ref = "drawerlayout" }
+fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
+fragment-testing = { module = "androidx.fragment:fragment-testing", version.ref = "fragment" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.7.1" }
 lifecycle-common-java8 = { module = "androidx.lifecycle:lifecycle-common-java8", version.ref = "lifecycleCommonJava8" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
+lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycleCommonJava8" }
+material = { group = "com.google.android.material", name = "material", version = "1.12.0" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+preference = { module = "androidx.preference:preference", version.ref = "preference" }
+recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+sardine = { module = "com.github.thegrizzlylabs:sardine-android", version.ref = "sardine" }
+simple-xml = { module = "org.simpleframework:simple-xml", version.ref = "simpleXml" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

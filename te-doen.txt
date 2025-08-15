@@ -1,4 +1,0 @@
-Wat er allemaal nog moet gebeuren aan KeyLocker voor Android
-
-- Synchroniseren over netwerk
-

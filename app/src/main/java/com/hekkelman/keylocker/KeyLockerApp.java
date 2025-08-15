@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
@@ -16,6 +17,8 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
+
+import java.net.URL;
 
 public class KeyLockerApp extends Application {
     public AppContainer mAppContainer;
@@ -31,7 +34,7 @@ public class KeyLockerApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        mConnectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        mConnectivityManager = getSystemService(ConnectivityManager.class);
 
         mAppContainer = new AppContainer(this);
         mSettings = new Settings(this);
@@ -61,8 +64,8 @@ public class KeyLockerApp extends Application {
      * @return if the wifi activity was navigated to
      */
     synchronized public boolean goToWifiSettingsIfDisconnected() {
-        final NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
-        if (info == null || !info.isConnected()) {
+        Network activeNetwork = mConnectivityManager.getActiveNetwork();
+        if (activeNetwork == null) {
 //            Toast.makeText(this, getString(R.string.wifi_unavailable_error_message), Toast.LENGTH_LONG).show();
             final Intent intent = new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

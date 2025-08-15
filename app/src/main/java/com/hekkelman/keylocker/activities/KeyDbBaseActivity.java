@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
@@ -25,8 +26,8 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
     protected Settings mSettings;
     protected KeyDbViewModel mViewModel;
     protected ActivityResultLauncher<Intent> mUnlockResult;
-    protected Handler mHandler;
-    protected Runnable mRunnable = null;
+    protected Handler mBlackoutHandler;
+    protected Runnable mBlackout = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,8 +43,14 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
 
         AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
 
-        mHandler = appContainer.mainThreadHandler;
-        mRunnable = () -> mViewModel.locked.setValue(true);
+        mBlackoutHandler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                // todo
+                return true;
+            }
+        });
+        mBlackout = () -> mViewModel.locked.setValue(true);
     }
 
     private void onLockedChanged(Boolean locked) {
@@ -88,20 +95,20 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        startHandler();
+        resetBlackoutHandler();
     }
 
     @Override
     protected void onPause() {
-        stopHandler();
+        stopBlackoutHandler();
 
         super.onPause();
     }
 
     @Override
     public void onUserInteraction() {
-        stopHandler();
-        startHandler();
+        stopBlackoutHandler();
+        resetBlackoutHandler();
         super.onUserInteraction();
     }
 
@@ -114,13 +121,14 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void startHandler() {
+    private void resetBlackoutHandler() {
         int secondsToBlackout = 1000 * mSettings.getAuthInactivityDelay();
+        mBlackoutHandler.removeCallbacks(mBlackout);
         if (mSettings.getAuthInactivity() && secondsToBlackout != 0)
-            mHandler.postDelayed(mRunnable, secondsToBlackout);
+            mBlackoutHandler.postDelayed(mBlackout, secondsToBlackout);
     }
 
-    private void stopHandler() {
-        mHandler.removeCallbacks(mRunnable);
+    private void stopBlackoutHandler() {
+        mBlackoutHandler.removeCallbacks(mBlackout);
     }
 }

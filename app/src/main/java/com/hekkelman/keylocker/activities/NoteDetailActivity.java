@@ -149,7 +149,7 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
             saveNote(false);
             return true;
         } else if (id == android.R.id.home) {
-            onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
             return true;
         } else
             return super.onOptionsItemSelected(item);

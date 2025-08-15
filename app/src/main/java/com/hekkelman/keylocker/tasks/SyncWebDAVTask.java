@@ -1,24 +1,14 @@
 package com.hekkelman.keylocker.tasks;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 
-import com.github.sardine.SardineFactory;
-import com.hekkelman.keylocker.datamodel.KeyDbException;
 import com.hekkelman.keylocker.datamodel.KeyNote;
 import com.hekkelman.keylocker.utilities.AppContainer;
-import com.github.sardine.DavResource;
-import com.github.sardine.Sardine;
-//import com.github.sardine.impl.SardineImpl;
+import com.thegrizzlylabs.sardineandroid.Sardine;
+import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 public class SyncWebDAVTask {
@@ -36,7 +26,8 @@ public class SyncWebDAVTask {
                      final boolean replacePassword, final TaskCallback<Void> callback) {
         executor.execute(() -> {
             try {
-                Sardine sardine = SardineFactory.begin(backupLocation.getUser(), backupLocation.getPassword());
+                Sardine sardine = new OkHttpSardine();
+                sardine.setCredentials(backupLocation.getUser(), backupLocation.getPassword());
 
                 if (sardine.exists(backupLocation.getUrl())) {
                     InputStream is = sardine.get(backupLocation.getUrl());
