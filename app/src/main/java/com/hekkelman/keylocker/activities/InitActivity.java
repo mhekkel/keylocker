@@ -19,6 +19,7 @@ import com.hekkelman.keylocker.datamodel.KeyLockerFile;
 import com.hekkelman.keylocker.utilities.AppContainer;
 import com.hekkelman.keylocker.utilities.Settings;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
@@ -55,6 +56,14 @@ public class InitActivity extends AppCompatActivity
 
         Button btn = binding.createBtn;
         btn.setOnClickListener(this);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finishWithResult(false);
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(callback);
     }
 
     @Override
@@ -102,10 +111,10 @@ public class InitActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        finishWithResult(false);
-    }
+//    @Override
+//    public void onBackPressed() {
+//        finishWithResult(false);
+//    }
 
     private void finishWithResult(boolean success) {
         Intent data = new Intent();

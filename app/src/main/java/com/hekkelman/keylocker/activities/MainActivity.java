@@ -21,6 +21,7 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -117,6 +118,20 @@ public class MainActivity extends KeyDbBaseActivity
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction()))
             mQuery = intent.getStringExtra(SearchManager.QUERY);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                DrawerLayout drawer = mBinding.drawerLayout;
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    MainActivity.super.getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+
+        getOnBackPressedDispatcher().addCallback(callback);
     }
 
     private void onCardCopy(KeyNote keyNote) {
@@ -208,16 +223,6 @@ public class MainActivity extends KeyDbBaseActivity
         super.onStart();
         if (!TextUtils.isEmpty(mQuery))
             mAdapter.getFilter().filter(mQuery);
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = mBinding.drawerLayout;
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     @Override

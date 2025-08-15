@@ -18,8 +18,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.hekkelman.keylocker.KeyLockerApp;
@@ -99,6 +102,29 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
                         .show();
             } else setKey(appContainer.keyDb.createKey());
         }
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                    if (keyChanged()) {
+                        new AlertDialog.Builder(KeyDetailActivity.this)
+                                .setTitle(R.string.dlog_discard_changes_title)
+                                .setMessage(R.string.dlog_discard_changes_msg)
+                                .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                                })
+                                .setNeutralButton(R.string.dialog_save_before_close, (dialog, which) -> saveKey(true))
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    } else finishWithKeyID();
+            }
+
+        };
+        getOnBackPressedDispatcher().addCallback(callback);
+
+        // Copy button
+        FloatingActionButton fabView = binding.fab;
+        fabView.setOnClickListener(this::onCopyPassword);
     }
 
     @Override
@@ -126,20 +152,20 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
             this.lastModified.setText(String.format(getString(R.string.lastModifiedTemplate), lastModified));
     }
 
-    @Override
-    public void onBackPressed() {
-        if (keyChanged()) {
-            new AlertDialog.Builder(KeyDetailActivity.this)
-                    .setTitle(R.string.dlog_discard_changes_title)
-                    .setMessage(R.string.dlog_discard_changes_msg)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                    })
-                    .setNeutralButton(R.string.dialog_save_before_close, (dialog, which) -> saveKey(true))
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
-        } else finishWithKeyID();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        if (keyChanged()) {
+//            new AlertDialog.Builder(KeyDetailActivity.this)
+//                    .setTitle(R.string.dlog_discard_changes_title)
+//                    .setMessage(R.string.dlog_discard_changes_msg)
+//                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+//                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+//                    })
+//                    .setNeutralButton(R.string.dialog_save_before_close, (dialog, which) -> saveKey(true))
+//                    .setIcon(android.R.drawable.ic_dialog_alert)
+//                    .show();
+//        } else finishWithKeyID();
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -155,7 +181,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
             saveKey(false);
             return true;
         } else if (id == android.R.id.home) {
-            onBackPressed();
+           getOnBackPressedDispatcher().onBackPressed();
             return true;
         } else
             return super.onOptionsItemSelected(item);
@@ -204,7 +230,7 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
         }
     }
 
-    //	@OnClick(R.id.fab)
+
     public void onCopyPassword(View view) {
         ClipboardManager clipboard = (ClipboardManager)
                 getSystemService(Context.CLIPBOARD_SERVICE);

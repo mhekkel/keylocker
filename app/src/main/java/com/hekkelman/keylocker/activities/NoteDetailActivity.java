@@ -1,6 +1,9 @@
 package com.hekkelman.keylocker.activities;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
 import com.hekkelman.keylocker.databinding.ActivityNoteDetailBinding;
@@ -23,6 +27,7 @@ import com.hekkelman.keylocker.utilities.AppContainer;
 import java.util.Objects;
 import java.util.Optional;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 
 public class NoteDetailActivity extends KeyDbBaseActivity {
@@ -56,6 +61,11 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
 
         lastModified = findViewById(R.id.lastModifiedCaption);
 
+        // Copy button
+        FloatingActionButton fabView = binding.fab;
+        fabView.setOnClickListener(this::onCopyNote);
+
+
         Intent intent = getIntent();
         String noteID = intent.getStringExtra("note-id");
 
@@ -76,6 +86,34 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
 
             setNote(note.get());
         }
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (noteChanged()) {
+                    new AlertDialog.Builder(NoteDetailActivity.this)
+                            .setTitle(R.string.dlog_discard_changes_title)
+                            .setMessage(R.string.dlog_discard_changes_msg)
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                            })
+                            .setNeutralButton(R.string.dialog_save_before_close, (dialog, which) -> saveNote(true))
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else finish();
+
+            }
+        };
+
+        getOnBackPressedDispatcher().addCallback(callback);
+    }
+
+    private void onCopyNote(View view) {
+        ClipboardManager clipboard = (ClipboardManager)
+                getSystemService(Context.CLIPBOARD_SERVICE);
+
+        ClipData clip = ClipData.newPlainText("password", textField.getText().toString());
+        clipboard.setPrimaryClip(clip);
     }
 
     @Override
@@ -95,21 +133,6 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
         String lastModified = note.getTimestamp();
         if (lastModified != null)
             this.lastModified.setText(String.format(getString(R.string.lastModifiedTemplate), lastModified));
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (noteChanged()) {
-            new AlertDialog.Builder(NoteDetailActivity.this)
-                    .setTitle(R.string.dlog_discard_changes_title)
-                    .setMessage(R.string.dlog_discard_changes_msg)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                    })
-                    .setNeutralButton(R.string.dialog_save_before_close, (dialog, which) -> saveNote(true))
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
-        } else finish();
     }
 
     @Override
