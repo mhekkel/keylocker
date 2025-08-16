@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
@@ -25,6 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import androidx.biometric.BiometricPrompt;
+import androidx.biometric.BiometricManager;
+
 
 import org.w3c.dom.Text;
 
@@ -93,6 +98,21 @@ public class SettingsActivity extends AppCompatActivity
                     requestNewMainPassword();
                     return true;
                 });
+            }
+
+            // Biometrics
+            Preference biometricLogin = findPreference(getString(R.string.settings_key_biometric_login));
+            if (biometricLogin != null) {
+                BiometricManager biometricManager = BiometricManager.from(getContext());
+
+                if (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS) {
+                    biometricLogin.setOnPreferenceChangeListener((preference, newValue) -> {
+                        if (newValue instanceof Boolean && ((Boolean) newValue).booleanValue() == true)
+                            ;//BiometricPrompt.
+                        return true;
+                    });
+                } else
+                    biometricLogin.setEnabled(false);
             }
 
             selectBackupDirResult = registerForActivityResult(

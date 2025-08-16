@@ -19,28 +19,29 @@ import org.simpleframework.xml.core.Persist;
 import org.simpleframework.xml.core.Validate;
 
 @Root
+@Namespace(prefix="x11", reference="http://www.w3.org/2009/xmlenc11#")
 public class PBKDF2Params {
 	private static final int HASH_BYTE_SIZE = 16;
 	private static final int KEY_BYTE_SIZE = 16;
  	private static final int ITERATION_COUNT = 100000;
 
+	private static final String ALGORITHM_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha1";
+	private static final String ALGORITHM_SHA256 = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha256";
+
 	@Path("x11:Salt")
-	@Namespace(prefix="x11", reference="http://www.w3.org/2009/xmlenc11#")
 	@Element(name="Specified")
 	private String salt;
 	private byte[] _salt;
 
 	@Element(name="IterationCount")
-	@Namespace(prefix="x11", reference="http://www.w3.org/2009/xmlenc11#")
 	private int iterationCount;
 
 	@Element(name="KeyLength")
-	@Namespace(prefix="x11", reference="http://www.w3.org/2009/xmlenc11#")
 	private int keyLength;
 	
 	@Path("x11:PRF")
 	@Attribute(name="Algorithm")
-	private static final String algorithm = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha1";
+	private String algorithm;
 
 	// constructor for a new params block
 	public PBKDF2Params()
@@ -52,20 +53,22 @@ public class PBKDF2Params {
 		
 		this.iterationCount = ITERATION_COUNT;
 		this.keyLength = KEY_BYTE_SIZE;
+		this.algorithm = ALGORITHM_SHA256;
 	}
 
 	@Validate
 	public void validate() throws Exception {
 		this._salt = Base64.decode(this.salt, Base64.DEFAULT);
 
-		if (_salt.length != HASH_BYTE_SIZE || keyLength != KEY_BYTE_SIZE)
+		if (_salt.length != HASH_BYTE_SIZE || keyLength != KEY_BYTE_SIZE || !(algorithm.equals(ALGORITHM_SHA1) || algorithm.equals(ALGORITHM_SHA256)))
 			throw new Exception("Invalid PBKDF2 Parameters");
 	}
 	
 	public Key getKey(char[] password) {
 		try {
 			KeySpec ks = new PBEKeySpec(password, this._salt, this.iterationCount, 16 * 8);
-			SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			SecretKeyFactory f = SecretKeyFactory.getInstance(
+					algorithm.equals(ALGORITHM_SHA1) ? "PBKDF2WithHmacSHA1" : "PBKDF2WithHmacSHA256");
 			return f.generateSecret(ks);
 		}
 		catch (Exception e) {

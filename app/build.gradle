@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.hekkelman.keylocker'
-    compileSdk 36
+    compileSdkVersion 36
 
     defaultConfig {
         applicationId "com.hekkelman.keylocker"
@@ -93,6 +93,7 @@ dependencies {
     implementation libs.activity
 
     implementation libs.fragment
+    implementation libs.biometric
     debugImplementation libs.fragment.testing
 
     implementation libs.preference

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_key_biometric_login" translatable="false">pref_biometric_login</string>
     <string name="settings_key_relock_background" translatable="false">pref_relock_background</string>
     <string name="settings_key_unlock_keyboard" translatable="false">pref_unlock_keyboard</string>
     <string name="settings_key_enable_android_backup_service" translatable="false">pref_enable_android_backup_service</string>

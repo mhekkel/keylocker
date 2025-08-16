@@ -8,6 +8,7 @@
     <string name="settings_category_password_generator">Password generator</string>
 
     <string name="settings_title_main_password">Change Main Password</string>
+    <string name="settings_title_biometric_login">Use biometric login</string>
     <string name="settings_title_unlock_keyboard">Unlock keyboard</string>
     <string name="settings_title_relock_background">Lock the application when it goes into the background</string>
     <string name="settings_title_auth_inactivity">Lock the application after being inactive for a specified time</string>

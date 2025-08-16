@@ -9,6 +9,11 @@
             app:title="@string/settings_title_main_password"
             app:key="@string/settings_key_main_password" />
 
+        <SwitchPreference
+            android:defaultValue="false"
+            app:key="@string/settings_key_biometric_login"
+            app:title="@string/settings_title_biometric_login" />
+
         <ListPreference
             app:key="@string/settings_key_unlock_keyboard"
             app:title="@string/settings_title_unlock_keyboard"
@@ -18,10 +23,11 @@
             app:defaultValue="@string/settings_default_unlock_keyboard"/>
 
         <SwitchPreference
-            app:title="@string/settings_title_relock_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:defaultValue="true"
-            app:key="@string/settings_key_relock_background"/>
-
+            app:key="@string/settings_key_relock_background"
+            app:title="@string/settings_title_relock_background" />
         <SwitchPreference
             app:title="@string/settings_title_auth_inactivity"
             android:defaultValue="true"
