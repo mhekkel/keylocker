@@ -236,6 +236,8 @@ public class KeyDetailActivity extends KeyDbBaseActivity {
 
         ClipData clip = ClipData.newPlainText("password", passwordField.getText().toString());
         clipboard.setPrimaryClip(clip);
+
+        Snackbar.make(view, R.string.toast_copied_to_clipboard, BaseTransientBottomBar.LENGTH_SHORT).show();
     }
 
     private String generatePassword(int length, boolean noAmbiguous, boolean includeCapitals, boolean includeDigits, boolean includeSymbols) {

@@ -114,6 +114,8 @@ public class NoteDetailActivity extends KeyDbBaseActivity {
 
         ClipData clip = ClipData.newPlainText("password", textField.getText().toString());
         clipboard.setPrimaryClip(clip);
+
+        Snackbar.make(view, R.string.toast_copied_to_clipboard, BaseTransientBottomBar.LENGTH_SHORT).show();
     }
 
     @Override
