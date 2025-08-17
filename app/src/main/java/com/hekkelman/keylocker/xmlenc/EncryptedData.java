@@ -43,7 +43,6 @@ public class EncryptedData {
 
     @Path("x:CipherData")
     @Element(name = "CipherValue")
-    @Namespace(reference = "http://www.w3.org/2001/04/xmlenc#", prefix = "x")
     private String value;
 
     // constructor

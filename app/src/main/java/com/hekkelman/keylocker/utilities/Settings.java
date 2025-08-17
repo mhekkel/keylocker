@@ -72,10 +72,6 @@ public class Settings {
                 .apply();
     }
 
-    public void registerPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        settings.registerOnSharedPreferenceChangeListener(listener);
-    }
-
     public boolean getRelockOnBackground() {
         return getBoolean(R.string.settings_key_relock_background, true);
     }
@@ -153,5 +149,13 @@ public class Settings {
 
     public void setWebDAVBackupKeyID(String keyID) {
         setString(R.string.settings_key_backup_webdav_key, keyID);
+    }
+
+    public boolean getUseBiometricLogin() {
+        return getBoolean(R.string.settings_key_biometric_login, false);
+    }
+
+    public void setUseBiometricLogin(boolean value) {
+        setBoolean(R.string.settings_key_biometric_login, value);
     }
 }

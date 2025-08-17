@@ -125,4 +125,10 @@
     <string name="error_document_dir_missing">The backup directory was not found, select a new location.</string>
     <!--    <string name="wifi_unavailable_error_message">No network connection available</string>-->
 
+    <!-- biometrics -->
+    <string name="biometric_prompt_title">KeyLocker Authentication</string>
+    <string name="biometric_prompt_subtitle">Please login to unlock KeyLocker</string>
+    <string name="biometric_prompt_description">KeyLocker is using Android biometric authentication</string>
+    <string name="biometric_prompt_cancel">Cancel</string>
+
 </resources>

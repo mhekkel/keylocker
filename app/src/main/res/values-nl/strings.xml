@@ -78,6 +78,9 @@
     <string name="dialog_save_before_close">Bewaar en Sluit</string>
     <string name="fab_create_new">Maak nieuwe</string>
     <string name="settings_category_user_interface">Gebruikersinterface</string>
+    <string name="settings_desc_biometric_no_hardware">Geen biometrische mogelijkheden op dit apparaat</string>
+    <string name="settings_desc_biometric_not_available">Biometrische inloggen niet beschikbaar</string>
+    <string name="settings_desc_biometric_no_fingerprints">Er zijn nog geen biometrische gegevens beschikbaar</string>
     <string name="settings_title_tap_single">Enkele tik</string>
     <string name="settings_title_tap_double">Dubbel tikken</string>
     <string name="settings_desc_backup_location_set">Backup locatie ingesteld</string>
@@ -119,6 +122,10 @@
     <string name="settings_key_backup_webdav_key">WebDAV backup location and info</string>
     <string name="webdav_key_name">WebDAV KeyLocker Backup Location</string>
     <string name="error_document_dir_missing">De backup map werd niet gevonden, kies opnieuw in instelligen</string>
+    <string name="biometric_prompt_title">KeyLocker</string>
+    <string name="biometric_prompt_subtitle">Gebruik biometrische autenticatie om te ontgrendelen</string>
+    <string name="biometric_prompt_description">Keylocker gebruikt biometrische autenticatie</string>
+    <string name="biometric_prompt_cancel">Annuleer</string>
     <!--    <string name="wifi_unavailable_error_message">Geen netwerk beschikbaar</string>-->
 
 </resources>

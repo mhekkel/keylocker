@@ -15,6 +15,10 @@
     <string name="settings_title_auth_inactivity_delay">Lock after this many seconds of inactivity</string>
     <string name="settings_title_enable_android_backup_service">Enable Android Sync</string>
 
+    <string name="settings_desc_biometric_no_hardware">No biometric features available on this device</string>
+    <string name="settings_desc_biometric_not_available">Biometric devices currently unavailable</string>
+    <string name="settings_desc_biometric_no_fingerprints">Please add a fingerprint first</string>
+
     <string name="settings_title_tap_single">Single tap</string>
     <string name="settings_title_tap_double">Double tap</string>
 

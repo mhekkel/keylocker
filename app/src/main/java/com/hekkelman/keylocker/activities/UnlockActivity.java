@@ -1,6 +1,11 @@
 package com.hekkelman.keylocker.activities;
 
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
+import static androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS;
+import static androidx.biometric.BiometricManager.from;
+
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -29,6 +34,11 @@ import java.util.Objects;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A login screen that offers login via pin/password.
@@ -73,7 +83,53 @@ public class UnlockActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         initPasswordViews(binding);
+
+        // See if we can use a fingerprint
+        if (mSettings.getUseBiometricLogin() && mAppContainer.keyDb != null)
+        {
+            BiometricManager biometricManager = from(view.getContext());
+            if (biometricManager.canAuthenticate(BIOMETRIC_STRONG) == BIOMETRIC_SUCCESS) {
+                showBiometricPrompt(view.getContext());
+            }
+        }
     }
+
+    private void showBiometricPrompt(Context context) {
+        BiometricPrompt.AuthenticationCallback callback = new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(BiometricPrompt.@NonNull AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+
+                mAppContainer.locked.setValue(false);
+                finishWithSuccess();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+            }
+        };
+
+        BiometricPrompt biometricPrompt = new BiometricPrompt(this, ContextCompat.getMainExecutor(context), callback);
+        biometricPrompt.authenticate(getPromptInfo());
+    }
+
+    private BiometricPrompt.PromptInfo getPromptInfo() {
+        return new BiometricPrompt.PromptInfo.Builder()
+                .setTitle(getString(R.string.biometric_prompt_title))
+                .setSubtitle(getString(R.string.biometric_prompt_subtitle))
+                .setDescription(getString(R.string.biometric_prompt_description))
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .setNegativeButtonText(getString(R.string.biometric_prompt_cancel))
+                .setConfirmationRequired(false)
+                .build();
+    }
+
 
     private void initPasswordViews(ActivityUnlockBinding binding) {
         mPINSwitch = binding.numericCheckBox;
@@ -187,7 +243,7 @@ public class UnlockActivity extends AppCompatActivity
                 if (result instanceof TaskResult.Success) {
                     mAppContainer.locked.setValue(false);
                     finishWithSuccess();
-                } else if (((TaskResult.Error) result).exception instanceof KeyDbException.InvalidKeyDbFileException) {
+                } else if (((TaskResult.Error<?>) result).exception instanceof KeyDbException.InvalidKeyDbFileException) {
                     finishWithReset(true);
                 } else {
                     mPasswordInput.setText("");

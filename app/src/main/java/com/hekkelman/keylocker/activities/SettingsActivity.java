@@ -1,16 +1,20 @@
 package com.hekkelman.keylocker.activities;
 
 
+import static android.provider.Settings.*;
+import static androidx.biometric.BiometricManager.*;
+import static androidx.biometric.BiometricManager.Authenticators.*;
+
 import android.annotation.SuppressLint;
 import android.app.backup.BackupManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hekkelman.keylocker.KeyLockerApp;
 import com.hekkelman.keylocker.R;
@@ -21,17 +25,15 @@ import com.hekkelman.keylocker.utilities.Settings;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import androidx.biometric.BiometricPrompt;
 import androidx.biometric.BiometricManager;
 
-
-import org.w3c.dom.Text;
 
 import java.util.Optional;
 
@@ -66,6 +68,7 @@ public class SettingsActivity extends AppCompatActivity
         private ActivityResultLauncher<Intent> selectBackupDirResult;
         private ActivityResultLauncher<Intent> selectBackupWebDAVKeyIDResult;
         private ActivityResultLauncher<Intent> changeMainPasswordResult;
+        private ActivityResultLauncher<Intent> enrollFingerprint;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -101,18 +104,48 @@ public class SettingsActivity extends AppCompatActivity
             }
 
             // Biometrics
+            enrollFingerprint = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onFingerprintEnrolled);
+
             Preference biometricLogin = findPreference(getString(R.string.settings_key_biometric_login));
             if (biometricLogin != null) {
-                BiometricManager biometricManager = BiometricManager.from(getContext());
+                BiometricManager biometricManager = from(getContext());
 
-                if (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS) {
-                    biometricLogin.setOnPreferenceChangeListener((preference, newValue) -> {
-                        if (newValue instanceof Boolean && ((Boolean) newValue).booleanValue() == true)
-                            ;//BiometricPrompt.
-                        return true;
-                    });
-                } else
-                    biometricLogin.setEnabled(false);
+                switch (biometricManager.canAuthenticate(BIOMETRIC_STRONG)) {
+                    case BIOMETRIC_SUCCESS:
+                        biometricLogin.setOnPreferenceChangeListener((preference, newValue) -> true);
+                        break;
+
+                    case BIOMETRIC_ERROR_NO_HARDWARE:
+                        settings.setUseBiometricLogin(false);
+                        biometricLogin.setEnabled(false);
+                        biometricLogin.setSummary(R.string.settings_desc_biometric_no_hardware);
+                        break;
+
+                    case BIOMETRIC_ERROR_NONE_ENROLLED:
+                        settings.setUseBiometricLogin(false);
+
+                        biometricLogin.setOnPreferenceChangeListener((preference, newValue) -> {
+                            if ((Boolean) newValue == true) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                                    startFingerprintEnrollment();
+                                else
+                                    biometricLogin.setSummary(R.string.settings_desc_biometric_no_fingerprints);
+                                return false;
+                            }
+                            else
+                                return true;
+                        });
+
+                        break;
+
+                    case BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                    default:
+                        settings.setUseBiometricLogin(false);
+                        biometricLogin.setEnabled(false);
+                        biometricLogin.setSummary(R.string.settings_desc_biometric_not_available);
+                        break;
+
+                }
             }
 
             selectBackupDirResult = registerForActivityResult(
@@ -144,7 +177,7 @@ public class SettingsActivity extends AppCompatActivity
 
             if (!TextUtils.isEmpty(webdavKeyID)) {
                 Optional<KeyNote.Key> key = appContainer.keyDb.getKey(webdavKeyID);
-                if (!key.isPresent() || key.get().isDeleted())
+                if (key.isEmpty() || key.get().isDeleted())
                     webdavKeyID = null;
             }
 
@@ -168,6 +201,24 @@ public class SettingsActivity extends AppCompatActivity
                 return true;
             });
 
+        }
+
+        private void onFingerprintEnrolled(ActivityResult activityResult) {
+            BiometricManager biometricManager = from(getContext());
+            if (biometricManager.canAuthenticate(BIOMETRIC_STRONG) == BIOMETRIC_SUCCESS) {
+                settings.setUseBiometricLogin(true);
+
+                Preference biometricLogin = findPreference(getString(R.string.settings_key_biometric_login));
+                biometricLogin.setEnabled(true);
+                biometricLogin.setOnPreferenceChangeListener((preference, newValue) -> true);
+            }
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.R)
+        private void startFingerprintEnrollment() {
+            final Intent enrollIntent = new Intent(ACTION_BIOMETRIC_ENROLL);
+            enrollIntent.putExtra(EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED, BIOMETRIC_STRONG);
+            enrollFingerprint.launch(enrollIntent);
         }
 
         protected void onSelectBackupWebDAVKeyIDResult(ActivityResult result) {
