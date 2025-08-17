@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        tools:context=".activities.KeyDetailActivity">
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.KeyDetailActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -26,10 +26,10 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="com.hekkelman.keylocker.activities.KeyDetailActivity"
         tools:showIn="@layout/activity_key_detail">
@@ -98,14 +98,13 @@
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_margin="4dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentEnd="true"
-                    android:onClick="onClickRenewPassword"
-                    android:src="@drawable/ic_autorenew"
+                    android:layout_centerVertical="true"
+                    android:layout_margin="4dp"
                     android:background="@drawable/btn_background_circle"
                     android:elevation="4dp"
-                    />
+                    android:onClick="onClickRenewPassword"
+                    android:src="@drawable/ic_autorenew" />
 
             </RelativeLayout>
 
@@ -134,13 +133,13 @@
                 <ImageButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_margin="4dp"
-                    android:layout_alignParentEnd="true"
-                    android:onClick="onClickVisitURL"
-                    android:src="@drawable/ic_arrow_forward"
                     android:background="@drawable/btn_background_circle"
-                    android:elevation="4dp" />
+                    android:elevation="4dp"
+                    android:onClick="onClickVisitURL"
+                    android:src="@drawable/ic_arrow_forward" />
 
             </RelativeLayout>
 
@@ -155,11 +154,11 @@
     </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/ic_content_copy_white"/>
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_content_copy_white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
