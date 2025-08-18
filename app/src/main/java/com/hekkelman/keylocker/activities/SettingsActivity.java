@@ -28,6 +28,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -51,6 +53,13 @@ public class SettingsActivity extends AppCompatActivity
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
+
+        WindowInsetsControllerCompat windowInsetsController =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+
+        if (windowInsetsController.isAppearanceLightStatusBars() == false)
+            windowInsetsController.setAppearanceLightStatusBars(true);
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -131,8 +140,7 @@ public class SettingsActivity extends AppCompatActivity
                                 else
                                     biometricLogin.setSummary(R.string.settings_desc_biometric_no_fingerprints);
                                 return false;
-                            }
-                            else
+                            } else
                                 return true;
                         });
 

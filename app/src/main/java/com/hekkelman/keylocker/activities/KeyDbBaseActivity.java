@@ -23,7 +23,10 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
     protected Settings mSettings;
     protected KeyDbViewModel mViewModel;
     protected ActivityResultLauncher<Intent> mUnlockResult;
-    protected Handler mBlackoutHandler;
+
+//        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
+
+    protected Handler mBlackoutHandler = new Handler(msg -> true);
     protected Runnable mBlackout = null;
 
     @Override
@@ -38,9 +41,6 @@ public abstract class KeyDbBaseActivity extends AppCompatActivity {
         mUnlockResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), this::onUnlockedResult);
 
-//        AppContainer appContainer = ((KeyLockerApp) getApplication()).mAppContainer;
-
-        mBlackoutHandler = new Handler(msg -> true);
         mBlackout = () -> mViewModel.locked.setValue(true);
     }
 
