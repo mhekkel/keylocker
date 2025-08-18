@@ -54,12 +54,6 @@ public class SettingsActivity extends AppCompatActivity
                     .commit();
         }
 
-        WindowInsetsControllerCompat windowInsetsController =
-                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
-
-        if (windowInsetsController.isAppearanceLightStatusBars() == false)
-            windowInsetsController.setAppearanceLightStatusBars(true);
-
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);

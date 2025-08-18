@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.hekkelman.keylocker"
         minSdk 28
-        targetSdk 36
+        targetSdk 34
         versionCode 14
         versionName '2.0.4'
         vectorDrawables.useSupportLibrary = true
