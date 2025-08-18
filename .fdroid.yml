@@ -1,0 +1,27 @@
+Categories:
+  - Password & 2FA
+License: BSD-2-Clause
+AuthorName: Maarten L. Hekkelman
+WebSite: https://www.hekkelman.com/keylocker
+SourceCode: https://github.com/mhekkel/keylocker
+IssueTracker: https://github.com/mhekkel/keylocker/issues
+
+Name: KeyLocker
+Summary: A password manager
+Description: A simple password manager for passwords and small snippets of text.
+
+RepoType: git
+Repo: https://github.com/mhekkel/keylocker.git
+
+Builds:
+  - versionName: 2.0.4
+    versionCode: 14
+    commit: v2.0.4
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags v\d+\.\d+(\.\d+)?
+CurrentVersion: 2.0.4
+CurrentVersionCode: 14
